@@ -951,6 +951,7 @@ class Pagos_model extends CI_Model {
         $query->free_result();
 
         $this->load->model("socios_model");
+        $this->load->model("debtarj_model");
 
         foreach ($asoc as $a) {
             $socio = $this->socios_model->get_socio($a->sid);
@@ -958,6 +959,14 @@ class Pagos_model extends CI_Model {
             $a->socio = @$socio->nombre.' '.@$socio->apellido;
             $a->telefono = @$socio->telefono;
             $a->nacimiento = @$socio->nacimiento;
+	    
+                $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
+		if ( $debito ) {
+			$a->debito = true;
+		} else {
+			$a->debito = false;
+		}
+
             $a->dni = @$socio->dni;
             $a->suspendido = @$socio->suspendido;
             $a->observaciones = @$socio->observaciones;
