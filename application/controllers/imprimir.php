@@ -312,9 +312,13 @@ class Imprimir extends CI_Controller {
                 break;
 
             case 'socios':
-                //$this->load->model('actividades_model');
-                //$data['actividades'] = $this->actividades_model->get_actividades();
                 $this->load->view('imprimir/socios',$data);
+                break;
+
+            case 'seguro':
+                $this->load->model('actividades_model');
+                $data['socios'] = $this->actividades_model->get_socios_seguro();
+                $this->load->view('imprimir/seguro',$data);
                 break;
 
             case 'categorias':
@@ -572,6 +576,7 @@ AHG Comentado 20170105 porque no se usa..... creo
             //$this->load->model('socios_model');
             //$socio = $this->socios_model->get_socio($_POST['id']);
             $cupon = $this->cuentadigital($id,$socio->nombre.' '.$socio->apellido,$monto);
+
             if($cupon){                                    
                 $this->load->model('pagos_model');
                 $cupon_id = $this->pagos_model->generar_cupon($id,$monto,$cupon);
@@ -613,6 +618,8 @@ AHG Comentado 20170105 porque no se usa..... creo
             $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
         }
         
+	var_dump($url);
+
         do{
             $count++;
             $a = file_get_contents($url);
@@ -1441,6 +1448,65 @@ AHG Comentado 20170105 porque no se usa..... creo
         $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
         $objWriter->save('php://output');
          
+    
+    // end: setExcel
+    }
+
+    public function seguro_excel(){       
+        $this->load->model('actividades_model');
+        $clientes = $this->actividades_model->get_socios_seguro();
+        $titulo = "CVM - Listado para Seguro - ".date('d-m-Y');
+        
+        $this->load->library('PHPExcel');
+        $this->phpexcel->getProperties()->setCreator("Club Villa Mitre")
+                                     ->setLastModifiedBy("Club Villa Mitre")
+                                     ->setTitle("Listado")
+                                     ->setSubject("Listado de Socios");
+        
+        $this->phpexcel->getActiveSheet()->getStyle('A1:D1')->getFill()->applyFromArray(
+            array(
+                'type'       => PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => 'E9E9E9'),
+            )
+        );
+         
+
+        // agregamos información a las celdas
+        $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'Actividad')
+                    ->setCellValue('B1', 'Nombre y Apellido')
+                    ->setCellValue('C1', 'DNI')
+                    ->setCellValue('D1', 'Fecha de Nacimiento');
+        
+        $cont = 2;
+        foreach ($clientes as $cliente) {            
+            $this->phpexcel->setActiveSheetIndex(0)
+                        ->setCellValue('A'.$cont, $cliente->descr_actividad)
+                        ->setCellValue('B'.$cont, $cliente->apynom)  
+                        ->setCellValue('C'.$cont, $cliente->dni)  
+                        ->setCellValue('D'.$cont, $cliente->nacimiento);
+                        $cont ++;
+        } 
+        // Renombramos la hoja de trabajo
+        $this->phpexcel->getActiveSheet()->setTitle('Socios_Seguro');
+         
+        foreach(range('A','D') as $columnID) {
+            $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
+                ->setAutoSize(true);
+        }
+        // configuramos el documento para que la hoja
+        // de trabajo número 0 sera la primera en mostrarse
+        // al abrir el documento
+        $this->phpexcel->setActiveSheetIndex(0);
+         
+         
+        // redireccionamos la salida al navegador del cliente (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$titulo.'.xlsx"');
+        header('Cache-Control: max-age=0');
+         
+        $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
+        $objWriter->save('php://output');
     
     // end: setExcel
     }

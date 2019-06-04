@@ -46,7 +46,8 @@ class Comisiones extends CI_Controller {
 
                 $comision = $this->comisiones_model->get_comision();
                 $data['nombre_comision'] = $comision->descripcion;
-                $data['resumen'] = $this->comisiones_model->resumen($comision->id, $periodo, $anio_corte);
+                $data['resumen1'] = $this->comisiones_model->resumen($comision->id, $periodo, $anio_corte, 0);
+                $data['resumen2'] = $this->comisiones_model->resumen($comision->id, $periodo, $anio_corte, 1);
 
 
 		//$this->load->view('comisiones/head', $data, FALSE);
@@ -59,6 +60,13 @@ class Comisiones extends CI_Controller {
 	{
                 $accion=$this->uri->segment(3);
                 $id_actividad = $this->uri->segment(4);
+                $id_estado = $this->uri->segment(5);
+
+		if ( $id_estado && $id_estado >= 0 ) {
+                	$data['estado'] = $id_estado;
+		} else {
+                	$data['estado'] = -1;
+		}
 
                 $this->load->model('comisiones_model');
 		$this->load->model('actividades_model');
@@ -69,15 +77,34 @@ class Comisiones extends CI_Controller {
                 $data['actividades'] = $this->general_model->get_actividades_comision();
                 if ( $id_actividad == 0 ) {
                         $data['id_actividad'] = 0;
-                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv(-1, $id_comision);
+                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv(-1, $id_comision, 0, $data['estado']);
                 } else {
                         $data['id_actividad'] = $id_actividad;
-                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv( $id_actividad, 0);
+                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv( $id_actividad, 0, 0, $data['estado']);
                 }
 
 		switch ( $accion ) {
 			case 'excel':
 				foreach ( $data['socioact_tabla'] as $socio ) {
+					switch ( $socio->suspendido ) {
+						case 0: $xestado="ACTIVO"; break;
+						case 1: $xestado="SUSPENDIDO"; break;
+						default: $xestado="REVISAR"; break;
+					}
+                                        if ( $socio->beca == "normal" ) {
+                                                if ( $socio->federado == 1 ) {
+                                                        $xobserv = "Sin Beca - Federado";
+                                                } else {
+                                                        $xobserv = "Sin Beca - NO Federado";
+                                                }
+                                        } else {
+                                                if ( $socio->federado == 1 ) {
+                                                        $xobserv = $socio->beca."- Federado";
+                                                } else {
+                                                        $xobserv = $socio->beca."- NO Federado";
+                                                }
+                                        }
+
 					$socact = array(
                                 		'Actividad' => $socio->aid."-".$socio->descr_act,
                                 		'sid' => $socio->Id,
@@ -85,9 +112,13 @@ class Comisiones extends CI_Controller {
                                 		'DNI' => $socio->dni,
                                 		'domicilio' => $socio->domicilio,
                                 		'email' => $socio->mail,
-                                		'estado' => $socio->suspendido,
-                                		'saldo' => $socio->mora,
+                                		'estado' => $xestado,
+                                		'saldo' => $socio->saldo,
                                 		'ult_pago' => $socio->ult_pago,
+                                		'observ' => $xobserv,
+                                		'deuda_cs' => $socio->mora_cs,
+                                		'deuda_act' => $socio->mora_act,
+                                		'deuda_seg' => $socio->mora_seg,
                                 		);
 					$result[]=$socact;
 
@@ -105,6 +136,10 @@ class Comisiones extends CI_Controller {
                                 $headers[]="Estado";
                                 $headers[]="Saldo";
                                 $headers[]="Ult Pago";
+                                $headers[]="Observacion";
+                                $headers[]="Deuda Cuota Social";
+                                $headers[]="Deuda Actividad";
+                                $headers[]="Deuda Seguro";
                                 $datos=$result;
                                 $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
 				break;
@@ -122,6 +157,13 @@ class Comisiones extends CI_Controller {
 	{
                 $accion=$this->uri->segment(3);
                 $id_actividad = $this->uri->segment(4);
+                $id_estado = $this->uri->segment(5);
+
+                if ( $id_estado && $id_estado >= 0 ) {
+                        $data['estado'] = $id_estado;
+                } else {
+                        $data['estado'] = -1;
+                }
 
                 $this->load->model('comisiones_model');
 		$this->load->model('actividades_model');
@@ -132,15 +174,33 @@ class Comisiones extends CI_Controller {
                 $data['actividades'] = $this->general_model->get_actividades_comision();
                 if ( $id_actividad == 0 ) {
                         $data['id_actividad'] = 0;
-                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv(-1, $id_comision, 1);
+                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv(-1, $id_comision, 1, $data['estado']);
                 } else {
                         $data['id_actividad'] = $id_actividad;
-                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv( $id_actividad, 0, 1);
+                        $data['socioact_tabla'] = $this->actividades_model->get_socactiv( $id_actividad, 0, 1, $data['estado']);
                 }
 
 		switch ( $accion ) {
 			case 'excel':
 				foreach ( $data['socioact_tabla'] as $socio ) {
+					switch ( $socio->suspendido ) {
+						case 0: $xestado="ACTIVO"; break;
+						case 1: $xestado="SUSPENDIDO"; break;
+						default: $xestado="REVISAR"; break;
+					}
+                                        if ( $socio->beca == "normal" ) {
+                                                if ( $socio->federado == 1 ) {
+                                                        $xobserv = "Sin Beca - Federado";
+                                                } else {
+                                                        $xobserv = "Sin Beca - NO Federado";
+                                                }
+                                        } else {
+                                                if ( $socio->federado == 1 ) {
+                                                        $xobserv = $socio->beca."- Federado";
+                                                } else {
+                                                        $xobserv = $socio->beca."- NO Federado";
+                                                }
+                                        }
 					$socact = array(
                                 		'Actividad' => $socio->aid."-".$socio->descr_act,
                                 		'sid' => $socio->Id,
@@ -148,9 +208,13 @@ class Comisiones extends CI_Controller {
                                 		'DNI' => $socio->dni,
                                 		'domicilio' => $socio->domicilio,
                                 		'email' => $socio->mail,
-                                		'estado' => $socio->suspendido,
-                                		'saldo' => $socio->mora,
+                                		'estado' => $xestado,
+                                		'saldo' => $socio->saldo,
                                 		'ult_pago' => $socio->ult_pago,
+                                		'observ' => $xobserv,
+                                                'deuda_cs' => $socio->mora_cs,
+                                                'deuda_act' => $socio->mora_act,
+                                                'deuda_seg' => $socio->mora_seg,
                                 		);
 					$result[]=$socact;
 
@@ -168,6 +232,10 @@ class Comisiones extends CI_Controller {
                                 $headers[]="Estado";
                                 $headers[]="Saldo";
                                 $headers[]="Ult Pago";
+                                $headers[]="Observacion";
+                                $headers[]="Deuda Cuota Social";
+                                $headers[]="Deuda Actividad";
+                                $headers[]="Deuda Seguro";
                                 $datos=$result;
                                 $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
 				break;
@@ -262,6 +330,7 @@ class Comisiones extends CI_Controller {
 		$this->load->model('socios_model');
 		$this->load->model('pagos_model');
 		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = 0;
 		$data['baseurl'] = base_url();
 		$data['socio'] = $this->socios_model->get_socio($id_socio);
 		$data['facturacion'] = $this->pagos_model->get_facturacion($id_socio);
@@ -496,7 +565,7 @@ class Comisiones extends CI_Controller {
 		}else{
 			$array = array(
 				'Id' => $user->Id,
-				'email' => $user->email,
+				'email' => $user->mail,
 				'nombre'=>	$user->nombre,				
 				'apellido'=>	$user->apellido,				
 				'c_logged'=>'ok'
@@ -509,6 +578,9 @@ class Comisiones extends CI_Controller {
     public function cambio_pwd()
     {
 
+	$email = $this->session->userdata('email');
+	$apynom = $this->session->userdata('nombre') . ", " . $this->session->userdata('apellido');
+
         if ( $this->uri->segment(3) ) {
             $data['flag'] = 1;
             switch ( $this->uri->segment(3) ) {
@@ -518,9 +590,17 @@ class Comisiones extends CI_Controller {
             }
         } else {
             $data['flag'] = 0;
+        	$this->load->model('comisiones_model');
+        	$data['baseurl'] = base_url();
+        	$comision = $this->comisiones_model->get_comision();
+        	$data['nombre_comision'] = $comision->descripcion;
+		$data['email'] = $email;
+		$data['apynom'] = $apynom;
+		$data['section'] = 'cambio_pwd';
+		$data['baseurl'] = base_url();
+		$this->load->view('comisiones/index', $data, FALSE);
         }
 
-        $this->load->view('comisiones/cambio_pwd', $data);
     }
 
     public function upd_pwd()

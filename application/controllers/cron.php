@@ -1604,15 +1604,17 @@ class Cron extends CI_Controller {
 
     public function facturacion_mails()
     {
+        $file_log = './application/logs/envios-'.date('Ymd').'.log';
+
         $this->load->database();
-        error_log( date('d/m/Y G:i:s').": Buscando correos para enviar... \n", 3, "cron_envios.log");
+        error_log( date('d/m/Y G:i:s').": Buscando correos para enviar... \n", 3, $file_log);
         $this->db->where('estado',0);
         $query = $this->db->get('facturacion_mails');
         if($query->num_rows() == 0){ 
-            error_log( date('d/m/Y G:i:s').": No se encontraron correos \n", 3, "cron_envios.log");
+            error_log( date('d/m/Y G:i:s').": No se encontraron correos \n", 3, $file_log);
             return false;
         }else{
-            error_log( date('d/m/Y G:i:s').": Se encontraron ".$query->num_rows()." correos. Enviando... \n", 3, "cron_envios.log");
+            error_log( date('d/m/Y G:i:s').": Se encontraron ".$query->num_rows()." correos. Enviando... \n", 3, $file_log);
             $this->load->library('email');
 	    $enviados=0;
             foreach ($query->result() as $email) {
@@ -1622,20 +1624,20 @@ class Cron extends CI_Controller {
                 $asunto='Resumen de Cuenta al '.date('d/m/Y');
                 $this->email->subject($asunto);                
                 $this->email->message($email->body); 
-                error_log( date('d/m/Y G:i:s').": Enviando: ".$email->email, 3, "cron_envios.log");
+                error_log( date('d/m/Y G:i:s').": Enviando: ".$email->email, 3, $file_log);
 
                 if($this->email->send()){
-                    error_log( " ----> Enviado OK "." \n", 3, "cron_envios.log");
+                    error_log( " ----> Enviado OK "." \n", 3, $file_log);
 
                     $this->db->where('Id',$email->Id);
                     $this->db->update('facturacion_mails',array('estado'=>1));
 		    $enviados++;
                 } else {
                     $msg_error=$this->email->print_debugger();
-                    error_log( " ----> Error de Envio:".$msg_error." \n", 3, "cron_envios.log");
+                    error_log( " ----> Error de Envio:".$msg_error." \n", 3, $file_log);
 		}
             }
-            error_log( date('d/m/Y G:i:s').": Envio Finalizado \n", 3, "cron_envios.log");
+            error_log( date('d/m/Y G:i:s').": Envio Finalizado \n", 3, $file_log);
 		// envio email de aviso a mi cuenta ahg
             // Me mando email de aviso que el proceso termino OK
             mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails.....".$xahora."\n");

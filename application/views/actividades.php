@@ -119,7 +119,7 @@
                     
                     <td><?=$actividad->precio?></td>
                     <td><a href="<?=base_url()?>admin/actividades/editar/<?=$actividad->Id?>">Editar</a> | 
-                      <a id="btn-eliminar-actividad" href="<?=base_url()?>admin/actividades/eliminar/<?=$actividad->Id?>">Eliminiar</a></td>
+                      <a id="btn-eliminar-actividad" href="<?=base_url()?>admin/actividades/eliminar/<?=$actividad->Id?>">Eliminar</a></td>
                 </tr>-->
                 <?
                 }
