@@ -205,6 +205,10 @@
                 var agree = confirm("Seguro que desea eliminar esta Rifa?");
                 if(agree){return true}else{return false}
             }
+            function check_eliminar_cat(){
+                var agree = confirm("Seguro que desea eliminar esta Categoria?");
+                if(agree){return true}else{return false}
+            }
             function check_eliminar_act(){
                 var agree = confirm("Seguro que desea eliminar esta Actividad?");
                 if(agree){return true}else{return false}
@@ -992,6 +996,11 @@ $("#comi-activ-form").submit(function(){
             window.open('<?=base_url()?>imprimir/morosos/'+meses+'/'+act,'','width=800,height=600');
         })
 
+        $(document).on("click","#imprimir_listado_categorias",function(){
+            var cat = $(this).data('act');
+            window.open('<?=base_url()?>imprimir/listado/categorias/'+act,'','width=800,height=600');
+        })
+
         $(document).on("click","#imprimir_listado_actividades",function(){
             var act = $(this).data('act');
             window.open('<?=base_url()?>imprimir/listado/actividades/'+act,'','width=800,height=600');
@@ -1051,7 +1060,9 @@ $("#comi-activ-form").submit(function(){
         $(document).on("submit","#envios-step2",function(e){
             var text = tinyMCE.activeEditor.getContent();
             var id = $("#envio_id").val();
-            $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text})
+            var adjunto = $("#fileupload_mail").val();
+	    alert ("archivo".adjunto);
+            $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text, adjunto:adjunto})
             .done(function(){
                 document.location.href = "<?=base_url()?>admin/envios/enviar/"+id;
             })
@@ -1085,6 +1096,8 @@ $("#comi-activ-form").submit(function(){
         })
         $(document).on("submit","#envios-step2",function(e){
             var text = tinyMCE.activeEditor.getContent();
+            var attach_file = $("#attach_file").val();
+	    if ( attach_file ) { alert ("archivo adjunto"+attach_file) }
             var id = $("#envio_id").val();
             $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text})
             .done(function(){
@@ -1328,6 +1341,36 @@ $("#contra-pago-form").submit(function(){
         </script>
         <? if($this->uri->segment(3) == 'guardada' && $this->uri->segment(2) == 'configuracion'){ ?>
         <script type="text/javascript">setTimeout(hide_cambio,4000)</script>
+
+
+
+        <script>
+        $(function () {
+            'use strict';
+            // Change this to the location of your server-side upload handler:
+
+            $('#fileupload_mail').fileupload({
+                url: '<?=base_url()?>admin/envios/subir_imagen',
+                dataType: 'json',
+                done: function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        $("#my_result").html('<img src="<?=$baseurl?>images/emails/'+file.name+'" width="100%">');
+                        $('#progress .progress-bar').hide();
+                    });
+                },
+                progressall: function (e, data) {
+                    $('#progress .progress-bar').show();
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+                }
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        });
+        </script>
+
         <? } ?>
 
 

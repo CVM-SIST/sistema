@@ -49,6 +49,7 @@ function is_active($seccion1,$seccion2)
                 <li class=""><a href="<?=base_url()?>imprimir/listado/financiacion">Financiación</a></li>              
                 <li class=""><a href="<?=base_url()?>imprimir/listado/becas">Becas</a></li>              
                 <li class=""><a href="<?=base_url()?>imprimir/listado/sin_actividades">Sin Actividades</a></li>              
+                <li class=""><a href="<?=base_url()?>imprimir/listado/seguro">Reporte Seguro</a></li>              
               </ul>
             </li>
             <li class="dropdown">

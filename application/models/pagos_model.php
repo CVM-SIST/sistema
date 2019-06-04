@@ -239,9 +239,6 @@ class Pagos_model extends CI_Model {
             $monto = $cats['3']->precio - ($cats['3']->precio * $socio->descuento / 100); //valor de la cuota de grupo familiar
             $total = $monto + ( $monto_excedente - ($monto_excedente * $socio->descuento / 100) ); //cuota mensual mas el excedente en caso de ser mas socios de lo permitido en el girpo fliar
             foreach ($socio_actividades['actividad'] as $actividad) {
-		if ( $actividad->Id >= 36 && $actividad->Id <= 43 ) {
-			continue;
-		}
 		// actividades del titular del grupo familiar
 		if ( $actividad->monto_porcentaje == 0 ) {
                 	$total = $total + ( $actividad->precio - $actividad->descuento );
@@ -254,9 +251,6 @@ class Pagos_model extends CI_Model {
             }
             foreach ($familiares as $familiar) {
                 foreach($familiar['actividades']['actividad'] as $actividad){
-	                if ( $actividad->Id >= 36 && $actividad->Id <= 43 ) {
-				continue;
-                	}
 
 			//actividades del los socios del grupo famlilar
 		    if ( $actividad->monto_porcentaje == 0 ) {
@@ -300,9 +294,6 @@ class Pagos_model extends CI_Model {
             $socio_cuota = $cats[$socio->categoria-1]->precio - ($cats[$socio->categoria-1]->precio * $socio->descuento / 100); //precio de la cuota
             $total = $socio_cuota; //cuota mensual
             foreach ($socio_actividades['actividad'] as $actividad) {
-		if ( $actividad->Id >= 36 && $actividad->Id <= 43 ) {
-			continue;
-		}
 		//actividades del socio
 		if ( $actividad->monto_porcentaje == 0 ) {
                 	$total = $total + ( $actividad->precio - $actividad->descuento ) ;

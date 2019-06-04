@@ -439,6 +439,30 @@ class Admin extends CI_Controller {
         echo $datos;
     }
 
+    public function listado_categ(){
+        $this->load->model("general_model");
+        $data['categorias'] = $this->general_model->get_cats();
+        foreach ($data['categorias'] as $categoria){
+            switch ( $categoria->estado ) {
+                case 0: $estado="BAJA"; break;
+                case 1: $estado="ACTIVA"; break;
+                case 2: $estado="SUSPENDIDA"; break;
+                default: $estado="XYZ"; break;
+            }
+
+            $datos[] = array (
+            'id' => $categoria->Id,
+            'name' => $categoria->nomb,
+            'price' => $categoria->precio,
+            'precio_unit' => $categoria->precio_unit,
+            'estado' => $estado
+            );
+        }
+        $datos = json_encode($datos);
+        echo $datos;
+    }
+
+
     public function index() {
 	if(!$this->session->userdata('is_logued_in')){
 		$data['token'] = $this->token();
@@ -446,15 +470,45 @@ class Admin extends CI_Controller {
 		$this->load->view('login-form',$data);
 	}else{
 		if($this->session->userdata('prox_vto') == 1 ){
-			$data['mensaje1'] = "La contraseña actual se vence en 10 dias recuerde cambiarla";
-			$data['baseurl'] = base_url();
-			$data['section'] = 'ppal-mensaje';
-			$data['username'] = $this->session->userdata('username');
-			$data['rango'] = $this->session->userdata('rango');
-			$this->load->view('admin',$data);
+			if ( $this->session->userdata('username') == "admin" ) {
+				$data['mensaje1'] = "El usuario admin se discontinua a partir del 10-junio-2019";
+				$data['mensaje2'] = "Recuerde acceder con su login personal";
+				$data['baseurl'] = base_url();
+				$data['section'] = 'ppal-mensaje';
+				$data['username'] = $this->session->userdata('username');
+				$data['rango'] = $this->session->userdata('rango');
+				$data['msj_boton'] =  "Continuar igual";
+				$data['url_boton'] =  "admin/socios";
+				$this->load->view('admin',$data);
+			} else {
+				$data['mensaje1'] = "La contraseña actual se vence en 10 dias recuerde cambiarla";
+				$data['baseurl'] = base_url();
+				$data['section'] = 'ppal-mensaje';
+				$data['username'] = $this->session->userdata('username');
+				$data['rango'] = $this->session->userdata('rango');
+				$this->load->view('admin',$data);
+			}
 		} else {
                 	if($this->session->userdata('prox_vto') == -1 ){
-            			redirect(base_url()."admin/admins/chgpwd");
+				if ( $this->session->userdata('username') == "admin" ) {
+                                        $data['mensaje1'] = "El usuario admin no se puede usar mas, tiene que tener un login personal";
+                                        $data['baseurl'] = base_url();
+                                        $data['section'] = 'ppal-mensaje';
+                                        $data['username'] = $this->session->userdata('username');
+                                        $data['rango'] = $this->session->userdata('rango');
+					$data['force_msj'] = "Entre con su login personal";
+                                        $data['force_page'] = "admin/logout";
+					$this->load->view('admin',$data);
+				} else {
+					$data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
+					$data['baseurl'] = base_url();
+					$data['section'] = 'ppal-mensaje';
+					$data['username'] = $this->session->userdata('username');
+					$data['rango'] = $this->session->userdata('rango');
+					$data['force_msj'] = "Cambio contraseña forzoso";
+					$data['force_page'] = "admin/admins/chgpwd";
+					$this->load->view('admin',$data);
+				}
 			} else {
             			redirect(base_url()."admin/socios");
 			}
@@ -473,8 +527,6 @@ class Admin extends CI_Controller {
 	public function login()
 	{
 
-        //if($this->input->post('token') && $this->input->post('token') == $this->session->userdata('token'))
-        //{
             $this->form_validation->set_rules('username', 'nombre de usuario', 'required|trim|min_length[2]|max_length[150]|xss_clean');
             $this->form_validation->set_rules('password', 'password', 'required|trim|min_length[5]|max_length[150]|xss_clean');
              //lanzamos mensajes de error si es que los hay
@@ -492,10 +544,11 @@ class Admin extends CI_Controller {
 			$hoy=new DateTime(date('Y-m-d'));
 			$ult_cambio=new DateTime($check_user->last_chgpwd);
 			$dias = $hoy->diff($ult_cambio);
-			if ( $dias->days > 90 ) {
+			$str_fecha = date_format($hoy,'Ymd');
+			if ( $dias->days > 90 || ( $username == "admin" && $str_fecha > 20190610 ) ) {
 				$prox_vto = -1;
 			} else { 
-				if ( $dias->days > 80 ) {
+				if ( $dias->days > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
@@ -520,7 +573,7 @@ class Admin extends CI_Controller {
                     	$llave = $this->session->userdata('id_usuario');
                     	$observ = "Logueo exitoso";
                     	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
-	
+
                     	redirect(base_url().'admin');
 		}
             }
@@ -793,12 +846,6 @@ class Admin extends CI_Controller {
     					$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                                 	redirect(base_url().'admin/socios/categorias');
 					break;
-				case 'listcateg':
-                			$this->load->model('general_model');
-					$result=$this->general_model->get_cats();
-                			$datos = json_encode($result);
-                			echo $datos;
-					break;
 			}
 		} else {
                 	$data['username'] = $this->session->userdata('username');
@@ -810,6 +857,10 @@ class Admin extends CI_Controller {
                 	$data['categorias'] = $this->general_model->get_cats();
                 	$this->load->view('admin',$data);
 		}
+		break;
+
+            case 'listado_categ':
+			$this->listado_categ();
 		break;
 
             case 'get':
@@ -967,13 +1018,13 @@ class Admin extends CI_Controller {
                 if ( $financiacion ) {
 			$fin=$financiacion[0];
 			$deuda_fin=$fin->monto-($fin->actual*($fin->monto/$fin->cuotas));
-                	$this->pagos_model->registrar_pago('debe',$id_socio,$deuda_fin,'Plan Financiacion Cuotas Impagas');
+                	$this->pagos_model->registrar_pago('debe',$id_socio,$deuda_fin,'Plan Financiacion Cuotas Impagas',0,0);
                 	$this->pagos_model->cancelar_plan($fin->Id);
 			$observ .= "Cancelo finaciacion de $deuda_fin.";
                 }
 
                 $this->socios_model->suspender($id_socio);
-                $this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Suspensión Manual desde el Sistema');
+                $this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Suspensión Manual desde el Sistema',0,0);
 		
                 // Grabo log de cambios
                 $login = $this->session->userdata('username');
@@ -1002,7 +1053,7 @@ class Admin extends CI_Controller {
 			$this->load->view('admin',$data);
 		} else {
                 	$this->socios_model->suspender($this->uri->segment(4),'no');
-                	$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Des-suspensión por Sistema');
+                	$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Des-suspensión por Sistema',0,0);
 
                 	// Grabo log de cambios
                 	$login = $this->session->userdata('username');
@@ -2103,17 +2154,25 @@ class Admin extends CI_Controller {
                		$data['fecha'] = $fecha;
                		$data['username'] = $this->session->userdata('username');
                   	$data['rango'] = $this->session->userdata('rango');
-               		$data['socio'] = $this->socios_model->get_socio($this->uri->segment(3));
-               		$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
-               		$data['baseurl'] = base_url();
-			$debtarj = $this->debtarj_model->get_debtarj_by_sid($this->uri->segment(3));
-			$data['debtarj'] = $debtarj;
-			if ($debtarj) {
-				$fdb=$debtarj->fecha_adhesion;
-				$fecha_db=substr($fdb,8,2)."-".substr($fdb,5,2)."-".substr($fdb,0,4);
-               			$data['fecha_db'] = $fecha_db;
-			} else {
+			if ( $this->uri->segment(3) == 0 ) {
+				$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
+               			$data['baseurl'] = base_url();
                			$data['fecha_db'] = "";
+				$data['debtarj'] = null;
+               			$data['socio'] = null;
+			} else {
+               			$data['socio'] = $this->socios_model->get_socio($this->uri->segment(3));
+				$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
+               			$data['baseurl'] = base_url();
+				$debtarj = $this->debtarj_model->get_debtarj_by_sid($this->uri->segment(3));
+				$data['debtarj'] = $debtarj;
+				if ($debtarj) {
+					$fdb=$debtarj->fecha_adhesion;
+					$fecha_db=substr($fdb,8,2)."-".substr($fdb,5,2)."-".substr($fdb,0,4);
+               				$data['fecha_db'] = $fecha_db;
+				} else {
+               				$data['fecha_db'] = "";
+				}
 			}
                		$data['section'] = 'debtarj-edit';
                		$data['js'] = 'debtarj';
@@ -2444,13 +2503,13 @@ class Admin extends CI_Controller {
 		    // Si la actividad tiene cuota inicial la registro primero
 		    if ( $actividad->cuota_inicial > 0 ) {
                     	$descripcion = 'Cuota Inicial '.$actividad->nombre.' - $ '.$actividad->cuota_inicial;
-                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->cuota_inicial,'Cuota Inicial '.$actividad->nombre,$actividad->Id);
+                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->cuota_inicial,'Cuota Inicial '.$actividad->nombre,$actividad->Id,0);
 		    }
 
 
                     $descripcion = 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio;
 
-                    $this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio,'Facturacion '.$actividad->nombre,$actividad->Id);
+                    $this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio,'Facturacion '.$actividad->nombre,$actividad->Id,0);
                 		// Grabo log de cambios
                 		$login = $this->session->userdata('username');
                 		$nivel_acceso = $this->session->userdata('rango');
@@ -2463,7 +2522,7 @@ class Admin extends CI_Controller {
 		    // Si la actividad tiene seguro y no es federado de la actividad lo registro
 		    if ( $actividad->seguro > 0 && $federado == 0 ) {
                     	$descripcion = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
-                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id);
+                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id,0);
 		    }
 
                 }
@@ -2557,7 +2616,7 @@ class Admin extends CI_Controller {
                         	$tutor_id = $data['sid'];
                     	}
 
-                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio,'Facturacion '.$actividad->nombre,$actividad->Id);
+                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio,'Facturacion '.$actividad->nombre,$actividad->Id,0);
 
                     	if($socio->tutor == 0){
                         	$total = $this->pagos_model->get_socio_total($data['sid']);
@@ -2576,7 +2635,7 @@ class Admin extends CI_Controller {
 			
 			if ( $activdad->seguro > 0 ) {
                     		$descripcion = 'Seguro '.$actividad->seguro.' - $ '.$actividad->seguro;
-                    		$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id);
+                    		$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id,0);
                     		if($socio->tutor == 0){
                         		$total = $this->pagos_model->get_socio_total($data['sid']);
                     		} else {
@@ -3492,6 +3551,9 @@ $this->actividades_model->becar($id,$beca);
                 $this->load->model('general_model');
                 $envio = array('body' => $this->input->post('text') );
                 $this->general_model->update_envio($id,$envio);
+		if( $this->input->post('adjunto') ) {
+                	redirect(base_url().'admin/envios/subir_imagen');
+		}
                 break;
 
             case 'agregar':
@@ -3535,6 +3597,15 @@ $this->actividades_model->becar($id,$beca);
                     }
                 }else{
                     echo 'no_mails';
+                }
+                break;
+
+            case 'subir_imagen':
+                $token = $this->img_token();
+                $this->load->library('UploadHandler');
+                die;
+                if(move_uploaded_file($_FILES['tmp_name'], 'images/emails/'.$token.'.jpg')){
+                    echo $token;
                 }
                 break;
 

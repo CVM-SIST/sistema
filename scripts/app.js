@@ -1003,6 +1003,115 @@ function () {
 	}
 	])
 
+    .service('tableDataCat', function ($http) { 
+        return {
+            getCatData: function(succescb){
+                $http({method:'GET', url:'listado_categ'})
+                    .success(function(data){                        
+                        succescb(data);
+                        $("#cargando_cats").html('<a href="categorias/agregar" class="btn btn-success"><i class="fa fa-plus"></i> Nueva Categoria</a>');
+                    })
+                    .error(function(data){
+                        $log.warn(data);    
+                    });  
+            }
+        }
+    })
+    .controller("tableCategoria", ["tableDataCat","$scope", "$filter",
+        function (tableDataCat, $scope, $filter) {
+            var init;
+            var categs = tableDataCat.getCatData(function(categs){
+                return $scope.stores = categs, $scope.searchKeywords = "", $scope.filteredStores = [], $scope.row = "", $scope.select = function (page) {
+                var end, start;
+                return start = (page - 1) * $scope.numPerPage, end = start + $scope.numPerPage, $scope.currentPageStores = $scope.filteredStores.slice(start, end)
+                }, $scope.onFilterChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1, $scope.row = ""
+                }, $scope.onNumPerPageChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1
+                }, $scope.onOrderChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1
+                }, $scope.search = function () {
+                    return $scope.filteredStores = $filter("filter")($scope.stores, $scope.searchKeywords), $scope.onFilterChange()
+                }, $scope.order = function (rowName) {
+                    return $scope.row !== rowName ? ($scope.row = rowName, $scope.filteredStores = $filter("orderBy")($scope.stores, rowName), $scope.onOrderChange()) : void 0
+                }, $scope.numPerPageOpt = [3, 5, 10, 20], $scope.numPerPage = $scope.numPerPageOpt[2], $scope.currentPage = 1, $scope.currentPageStores = [], (init = function () {
+                    return $scope.search(), $scope.select($scope.currentPage)
+                })()              
+            });
+            /*$scope.showInfo = function(obj, id, baseurl){
+                var newTr = '<tr dynarow="1" id="mas_info_'+id+'"><td></td><td colspan="4"><a href="'+baseurl+'admin/pagos/cupon/'+id+'" class="btn btn-primary">Generar Cupón</a><button class="btn btn-primary">Enviar Resumen</button><a href="'+baseurl+'admin/actividades/asociar/'+id+'" class="btn btn-primary">Asociar Actividad</a><a href="'+baseurl+'admin/pagos/deuda-socio" class="btn btn-primary">Financiar Deuda</a><button class="btn btn-primary">Suspender</button><a href="'+baseurl+'admin/socios/borrar/'+id+'" id="btn-eliminar-socio" class="btn btn-primary">Eliminar</a></td></tr>'
+                var elem = $("#td_socio_"+id);
+                
+                console.log(elem);
+                if(elem.hasClass("fa-plus-square-o")){
+                        elem.removeClass();
+                        elem.parent().parent().after(newTr);                      
+                        elem.addClass("fa-minus-square-o");
+                    }else{
+                        elem.removeClass();
+                        elem.parent().parent().after(newTr);
+                        $("tr#mas_info_"+id).remove();
+                        console.log("#mas_info_"+id)                            
+                        elem.addClass("fa-plus-square-o");
+                    }
+            }*/
+	}
+	])
+
+    .service('tableComSoc', function ($http) { 
+        return {
+            getComSoc: function(succescb){
+                $http({method:'GET', url:'getsociosList'})
+                    .success(function(data){                        
+                        succescb(data);
+                    })
+                    .error(function(data){
+                        $log.warn(data);    
+                    });  
+            }
+        }
+    })
+    .controller("tableComisionSocios", ["tableComSoc","$scope", "$filter",
+        function (tableComSoc, $scope, $filter) {
+            var init;
+            var socios = tableComSoc.getComSoc(function(socios){
+                return $scope.stores = socios, $scope.searchKeywords = "", $scope.filteredStores = [], $scope.row = "", $scope.select = function (page) {
+                var end, start;
+                return start = (page - 1) * $scope.numPerPage, end = start + $scope.numPerPage, $scope.currentPageStores = $scope.filteredStores.slice(start, end)
+                }, $scope.onFilterChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1, $scope.row = ""
+                }, $scope.onNumPerPageChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1
+                }, $scope.onOrderChange = function () {
+                    return $scope.select(1), $scope.currentPage = 1
+                }, $scope.search = function () {
+                    return $scope.filteredStores = $filter("filter")($scope.stores, $scope.searchKeywords), $scope.onFilterChange()
+                }, $scope.order = function (rowName) {
+                    return $scope.row !== rowName ? ($scope.row = rowName, $scope.filteredStores = $filter("orderBy")($scope.stores, rowName), $scope.onOrderChange()) : void 0
+                }, $scope.numPerPageOpt = [3, 5, 10, 20], $scope.numPerPage = $scope.numPerPageOpt[2], $scope.currentPage = 1, $scope.currentPageStores = [], (init = function () {
+                    return $scope.search(), $scope.select($scope.currentPage)
+                })()              
+            });
+            /*$scope.showInfo = function(obj, id, baseurl){
+                var newTr = '<tr dynarow="1" id="mas_info_'+id+'"><td></td><td colspan="4"><a href="'+baseurl+'admin/pagos/cupon/'+id+'" class="btn btn-primary">Generar Cupón</a><button class="btn btn-primary">Enviar Resumen</button><a href="'+baseurl+'admin/actividades/asociar/'+id+'" class="btn btn-primary">Asociar Actividad</a><a href="'+baseurl+'admin/pagos/deuda-socio" class="btn btn-primary">Financiar Deuda</a><button class="btn btn-primary">Suspender</button><a href="'+baseurl+'admin/socios/borrar/'+id+'" id="btn-eliminar-socio" class="btn btn-primary">Eliminar</a></td></tr>'
+                var elem = $("#td_socio_"+id);
+                
+                console.log(elem);
+                if(elem.hasClass("fa-plus-square-o")){
+                        elem.removeClass();
+                        elem.parent().parent().after(newTr);                      
+                        elem.addClass("fa-minus-square-o");
+                    }else{
+                        elem.removeClass();
+                        elem.parent().parent().after(newTr);
+                        $("tr#mas_info_"+id).remove();
+                        console.log("#mas_info_"+id)                            
+                        elem.addClass("fa-plus-square-o");
+                    }
+            }*/
+	}
+	])
+
     .service('tableDataRifa', function ($http) { 
         return {
             getRifaData: function(succescb){
@@ -1060,46 +1169,6 @@ function () {
         }           
     ])
 
-    .service('tableCateg', function ($http) { 
-        return {
-            getCateg: function(succescb){
-                $http({method:'GET', url:'categorias/listcateg'})
-                    .success(function(data){                        
-                        succescb(data);
-                       $("#cargando_cats").html('<a href="categorias/agregar" class="btn btn-success"><i class="fa fa-plus"></i> Nueva Categoria</a>');
-
-                    })
-                    .error(function(data){
-                        $log.warn(data);    
-                    });  
-            }
-        }
-    })
-    .controller("tableCategoria", ["tableCateg","$scope", "$filter",
-        function (tableCateg, $scope, $filter) {
-            var init;
-            var categs = tableCateg.getCateg(function(categs){
-                return $scope.stores = categs, $scope.searchKeywords = "", $scope.filteredStores = [], $scope.row = "", $scope.select = function (page) {
-                var end, start;
-                return start = (page - 1) * $scope.numPerPage, end = start + $scope.numPerPage, $scope.currentPageStores = $scope.filteredStores.slice(start, end)
-                }, $scope.onFilterChange = function () {
-                    return $scope.select(1), $scope.currentPage = 1, $scope.row = ""
-                }, $scope.onNumPerPageChange = function () {
-                    return $scope.select(1), $scope.currentPage = 1
-                }, $scope.onOrderChange = function () {
-                    return $scope.select(1), $scope.currentPage = 1
-                }, $scope.search = function () {
-                    return $scope.filteredStores = $filter("filter")($scope.stores, $scope.searchKeywords), $scope.onFilterChange()
-                }, $scope.order = function (rowName) {
-                    return $scope.row !== rowName ? ($scope.row = rowName, $scope.filteredStores = $filter("orderBy")($scope.stores, rowName), $scope.onOrderChange()) : void 0
-                }, $scope.numPerPageOpt = [3, 5, 10, 20], $scope.numPerPage = $scope.numPerPageOpt[2], $scope.currentPage = 1, $scope.currentPageStores = [], (init = function () {
-                    return $scope.search(), $scope.select($scope.currentPage)
-                })()
-                           
-            });
-            
-        }
-    ])
 
     .service('tableDebito', function ($http) { 
         return {

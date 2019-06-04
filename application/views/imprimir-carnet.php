@@ -20,33 +20,73 @@
             height: 194px;
             float: left;
         }
-        .frente{
-            background-image:url(<?=base_url()?>images/carnet-frente-new.png); 
-	    background-size: 100% 100%;
-        }
-        .dorso{
-            background-image:url(<?=base_url()?>images/carnet-dorso-new.png); 
-	    background-size: 100% 100%;
-        }
-        .imagen{
-            margin-top:50px;
-            margin-left: 15px;
-            width: 80px;
-            float: left;
-        }
-        .datos{
-            float:right;
-            width: 165px;
-            color: #FFF;
-            margin-top:50px;
-            line-height: 15px;
-        }
-        .clear{
-            clear: both;
-        }
-        .barcode{
-            margin-top: 0px;
-        }
+            <?
+            switch ($socio->categoria){
+	
+		case '11':
+			?>
+        		.frente{
+				background-image:url(<?=base_url()?>images/Prensa_Frente.png); 
+	    			background-size: 100% 100%;
+        		}
+        		.dorso{
+            			background-image:url(<?=base_url()?>images/Prensa_Dorso.png); 
+	    			background-size: 100% 100%;
+        		}
+        		.imagen{
+			margin-top:70px;
+            			margin-left: 25px;
+            			width: 80px;
+            			float: left;
+        		}
+        		.datos{
+            			float:right;
+            			width: 165px;
+            			color: #000;
+			margin-top:83px;
+            			line-height: 25px;
+        		}
+        		.clear{
+            			clear: both;
+        		}
+        		.barcode{
+            			margin-top: 0px;
+        		}
+			<?
+			break;
+		default:
+			?>
+        		.frente{
+            			background-image:url(<?=base_url()?>images/carnet-frente-new.png); 
+	    			background-size: 100% 100%;
+        		}
+        		.dorso{
+            			background-image:url(<?=base_url()?>images/carnet-dorso-new.png); 
+	    			background-size: 100% 100%;
+        		}
+        		.imagen{
+            			margin-top:50px;
+            			margin-left: 15px;
+            			width: 80px;
+            			float: left;
+        		}
+        		.datos{
+            			float:right;
+            			width: 165px;
+            			color: #FFF;
+            			margin-top:50px;
+            			line-height: 15px;
+        		}
+        		.clear{
+            			clear: both;
+        		}
+        		.barcode{
+            			margin-top: 0px;
+        		}
+			<?
+            }
+            ?>
+
 		</style>
 	</head>
 
@@ -79,23 +119,51 @@
         $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
         ?>
 
-        <div class="datos">
-            <div class="nap" style="font-weight:bold"><?=ucfirst($socio->apellido)?> <?=ucfirst($socio->nombre)?></div>
-            <div class="nap" style="font-weight:bold">DNI <?=$socio->dni?></div>
-            <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
-            <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
-        </div>
-        <div align="right" class="barcode">
-            <?
-            if( file_exists("images/cupones/".$cupon->Id.".png") ){
-            ?>
-            <br>
-            <img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
-            <?
-            }
-            ?>
-        </div>
-    </div>
+        <? 
+            switch ($socio->categoria){
+
+		case '11':
+	?>	
+        	<div class="datos">
+            	
+		<div style="font-weight:bold"><?=ucfirst($socio->apellido)?> <?=ucfirst($socio->nombre)?></div>
+            	<div style="font-weight:bold">DNI <?=$socio->dni?></div>
+            	<div style="font-weight:bold"><?=$socio->observaciones?></div>
+        	</div>
+        	<div align="right" class="barcode">
+            	<?
+            	if( file_exists("images/cupones/".$cupon->Id.".png") ){
+            	?>
+            	<br>
+            	<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
+            	<?
+            	}
+            	?>
+        	</div>
+	<? break;
+
+		default:
+	?>
+        	<div class="datos">
+            	<div class="nap" style="font-weight:bold"><?=ucfirst($socio->apellido)?> <?=ucfirst($socio->nombre)?></div>
+            	<div class="nap" style="font-weight:bold">DNI <?=$socio->dni?></div>
+            	<div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
+            	<div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
+        	</div>
+        	<div align="right" class="barcode">
+            	<?
+            	if( file_exists("images/cupones/".$cupon->Id.".png") ){
+            	?>
+            	<br>
+            	<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
+            	<?
+            	}
+            	?>
+    		</div>
+	<?
+		break;
+	}
+        ?>
 
     <!--
 		<div style="float:left; width:48%">

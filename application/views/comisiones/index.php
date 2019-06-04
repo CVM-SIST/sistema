@@ -1052,7 +1052,8 @@ $("#comi-activ-form").submit(function(){
 })
 $("#comsoc-activ-form").submit(function(){
         var actividad = $("#actividad").val();
-        var url = "<?=$baseurl?>comisiones/lista_socios_act/view" + "/" + actividad;
+        var estado = $("#estado").val();
+        var url = "<?=$baseurl?>comisiones/lista_socios_act/view" + "/" + actividad + "/" + estado;
 
         $("#comsoc-activ-form").attr("action",url);
         $("#comsoc-activ-form").submit();

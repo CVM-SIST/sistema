@@ -149,6 +149,18 @@ class Actividades_model extends CI_Model {
         } 
     }
 
+    public function get_socios_seguro(){
+        $qry = "SELECT a.Id aid, a.nombre descr_actividad, a.precio, a.seguro, s.Id sid, s.dni, CONCAT(s.nombre,', ',s.apellido) apynom, DATE_FORMAT(s.nacimiento ,'%d/%m/%Y' ) nacimiento
+                FROM actividades a
+			JOIN actividades_asociadas aa ON a.Id = aa.aid AND aa.estado = 1
+			JOIN socios s ON aa.sid = s.Id
+		WHERE a.estado = 1 AND a.seguro > 0 	
+		ORDER BY a.Id, s.dni;";
+        $socseguro = $this->db->query($qry);
+        return $socseguro->result();
+
+    }
+
     public function get_act_asoc_tutor($tutor_id){
         $this->db->where("tutor", $tutor_id);
         $query = $this->db->get("socios");
@@ -190,14 +202,19 @@ class Actividades_model extends CI_Model {
         $this->db->where("aid", $aid);
         $this->db->where("estado", '1');
         $query = $this->db->get('actividades_asociadas',1);
-        $fecha = $query->row();
-        $fecha = $fecha->date;
+        $actasoc = $query->row();
+        if ( $actasoc ) {
+		$fecha = $actasoc->date;
+	} else {
+		$fecha = date('Y-m-d H:i:s');
+	}
 
         $this->db->where("sid", $sid);
         $this->db->where("aid", $aid);
         $this->db->where("estado", '1');
         $query = $this->db->update("actividades_asociadas",array('estado'=>'0','date_alta'=>$fecha));
     }
+
     public function act_baja($sid,$aid){
         
         $this->db->where("Id", $aid);
@@ -254,7 +271,7 @@ class Actividades_model extends CI_Model {
         return true;
     } 
 
-    public function get_socactiv($id_actividad=-1,$id_comision=0,$mora=0){
+    public function get_socactiv($id_actividad=-1,$id_comision=0,$mora=0,$id_estado=-1){
         $qry = "DROP TEMPORARY TABLE IF EXISTS tmp_socios_activos;";
         $this->db->query($qry);
 
@@ -267,7 +284,7 @@ class Actividades_model extends CI_Model {
         }
 
         $qry = "CREATE TEMPORARY TABLE tmp_socios_activos
-		SELECT aa.aid, a.nombre descr_act, s.*
+		SELECT aa.aid, a.nombre descr_act, IF(aa.descuento>0, IF(aa.monto_porcentaje=1, CONCAT(aa.descuento,' % becado'), CONCAT(aa.descuento, ' $ becados')), 'normal') beca, aa.federado, s.*
                 FROM actividades_asociadas aa 
 			JOIN socios s ON aa.sid = s.Id 
 			JOIN actividades a ON aa.aid = a.Id ";
@@ -278,6 +295,10 @@ class Actividades_model extends CI_Model {
         if ( $id_actividad >= 0 && $id_comision == 0 ) {
                 $qry .= "AND aa.aid = $id_actividad ";
         }
+	if ( $id_estado >= 0 ) {
+                $qry .= "AND s.suspendido = $id_estado ";
+	}
+		
 	$qry .= "ORDER BY aa.aid, s.Id; ";
         $this->db->query($qry);
 
@@ -285,20 +306,20 @@ class Actividades_model extends CI_Model {
         $this->db->query($qry);
 
         $qry = "CREATE TEMPORARY TABLE tmp_pagos
-		SELECT ta.Id sid, SUM(monto-pagado) saldo, MAX(pagadoel) ult_pago
+		SELECT ta.Id sid, p.tipo, SUM(pagado-monto) saldo, MAX(pagadoel) ult_pago
                 FROM tmp_socios_activos ta
 			JOIN pagos p ON ( ta.Id = p.tutor_id )
-		GROUP BY 1; ";
+		GROUP BY 1,2; ";
         $this->db->query($qry);
 
-        $qry = "SELECT ta.*, IFNULL(tp.saldo,0) mora, IFNULL(tp.ult_pago,'') ult_pago
+        $qry = "SELECT ta.*, SUM(IF(tp.tipo=1,tp.saldo,0)) mora_cs, SUM(IF(tp.tipo=4,tp.saldo,0)) mora_act, SUM(IF(tp.tipo=6,tp.saldo,0)) mora_seg, SUM(IF(tp.tipo NOT IN (1,4,6),tp.saldo,0)) mora_otro, 
+				SUM(tp.saldo) saldo, IFNULL(tp.ult_pago,'') ult_pago
 		FROM tmp_socios_activos ta		
 			LEFT JOIN tmp_pagos tp ON ta.Id = tp.sid ";
-	if ( $mora == 0 ) {
-		$qry .= "; ";
-	} else {
-		$qry .= "WHERE tp.saldo > 0; ";
+	if ( $mora != 0 ) {
+		$qry .= "WHERE tp.saldo < 0 AND tp.saldo is NOT NULL ";
 	}
+	$qry .= "GROUP BY ta.Id; ";
 	
         $socactiv = $this->db->query($qry);
         return $socactiv->result();
