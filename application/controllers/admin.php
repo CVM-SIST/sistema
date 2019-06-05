@@ -193,7 +193,7 @@ class Admin extends CI_Controller {
 			$campos = explode(',', $linea);
 
 			$col1=trim($campos[0],"\n\t\r");
-			var_dump($col1);
+			//var_dump($col1);
 
                 	// Con los datos del archivo busco en la BD
 			if ( $dato1col == "sid" ) {
@@ -593,15 +593,15 @@ class Admin extends CI_Controller {
     }
       public function logout()
     {
+        // Grabo log de cambios
+        $login = $this->session->userdata('username');
+        $nivel_acceso = $this->session->userdata('rango');
+        $tabla = "login";
+        $operacion = 0;
+        $llave = $this->session->userdata('id_usuario');
+        $observ = "Logout exitoso";
+        $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
         $this->session->sess_destroy();
-                    // Grabo log de cambios
-                    $login = $this->session->userdata('username');
-                    $nivel_acceso = $this->session->userdata('rango');
-                    $tabla = "login";
-                    $operacion = 0;
-                    $llave = $this->session->userdata('id_usuario');
-                    $observ = "Logout exitoso";
-                    $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
         redirect(base_url().'admin');
     }
 
