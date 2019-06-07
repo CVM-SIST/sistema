@@ -16,13 +16,11 @@ class Login_model extends CI_Model {
     public function login_user($username,$password)
     {
         
-        $this->db->where('user',$username);
-        $this->db->where('pass',$password);
-
-        $query = $this->db->get('admin');    
-        if($query->num_rows() == 1)
+	$qry = "SELECT *, DATEDIFF(CURDATE(),DATE(last_chpwd)) ult_cambio FROM admin WHERE user = '$username' AND pass = '$password';";
+        $query = $this->db->query($qry)->result();
+        if($query)
         {
-            return $query->row();
+            return $query[0];
         }else{
             $this->session->set_flashdata('usuario_incorrecto','Los datos introducidos son incorrectos');
             redirect(base_url().'admin#/pages/signin','refresh');

@@ -541,14 +541,11 @@ class Admin extends CI_Controller {
                 if($check_user == TRUE)
                 {
 			// Valido ultimo cambio de contraseña
-			$hoy=new DateTime(date('Y-m-d'));
-			$ult_cambio=new DateTime($check_user->last_chgpwd);
-			$dias = $hoy->diff($ult_cambio);
-			$str_fecha = date_format($hoy,'Ymd');
-			if ( $dias->days > 90 || ( $username == "admin" && $str_fecha > 20190610 ) ) {
+                        $str_fecha = date('Ymd');
+			if ( $check_user->ult_cambio > 90 || ( $username == "admin" && $str_fecha > 20190610 ) ) {
 				$prox_vto = -1;
 			} else { 
-				if ( $dias->days > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
+				if ( $check_user->ult_cambio > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
@@ -571,7 +568,7 @@ class Admin extends CI_Controller {
                     	$tabla = "login";
                     	$operacion = 0;
                     	$llave = $this->session->userdata('id_usuario');
-                    	$observ = "Logueo exitoso";
+                    	$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
                     	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
                     	redirect(base_url().'admin');
@@ -1944,14 +1941,38 @@ class Admin extends CI_Controller {
                		$data['baseurl'] = base_url();
                		$data['username'] = $this->session->userdata('username');
                         $data['rango'] = $this->session->userdata('rango');
-			        $debtarj = $this->debtarj_model->get_debtarj($this->uri->segment(4));
-			        $data['debtarj'] = $debtarj;
+			$debtarj = $this->debtarj_model->get_debtarj($this->uri->segment(4));
+			$data['debtarj'] = $debtarj;
                		$socio = $this->socios_model->get_socio($debtarj->sid);
                		$data['socio'] = $socio;
-			        $data['post'] = $this->input->post('id_marca');
+			$data['post'] = $this->input->post('id_marca');
                		$data['section'] = 'debtarj-print';
                		$this->load->view('admin',$data);
 			break;
+                case 'regrabar':
+                        $datos['id'] = $this->input->post('id_debito');
+                        $datos['sid'] = $this->input->post('sid');
+                        $datos['id_marca'] = $this->input->post('id_marca');
+                        $datos['nro_tarjeta'] = $this->input->post('nro_tarjeta');
+                        $fecha_view = $this->input->post('fecha_adhesion');
+                        $datos['fecha_adhesion'] = substr($fecha_view,6,4)."-".substr($fecha_view,3,2)."-".substr($fecha_view,0,2);
+                        $datos['estado'] = 1;
+
+                        $this->load->model('debtarj_model');
+                        // Modificacion
+                        $id = $datos['id'];
+                        $this->debtarj_model->actualizar($id, $datos);
+                        // Grabo log de cambios
+                        $login = $this->session->userdata('username');
+                        $nivel_acceso = $this->session->userdata('rango');
+                        $tabla = "debtarj";
+                        $operacion = 2;
+                        $llave = $id;
+                        $observ = substr(json_encode($datos), 0, 255);
+                        $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+
+                        break;
+
 		case 'grabar':
                 	$datos['id'] = $this->input->post('id_debito');
                 	$datos['sid'] = $this->input->post('sid');
@@ -1961,6 +1982,8 @@ class Admin extends CI_Controller {
                 	$datos['fecha_adhesion'] = substr($fecha_view,6,4)."-".substr($fecha_view,3,2)."-".substr($fecha_view,0,2);
                 	$datos['estado'] = 1;
 
+			var_dump($datos);
+			break;
                 	$this->load->model('debtarj_model');
                 	if($datos['sid']){
                     		if ( $datos['id'] == 0 )  {
@@ -2121,63 +2144,86 @@ class Admin extends CI_Controller {
 
 		case 'eliminar':
                 	$this->load->model('debtarj_model');
-                    $this->debtarj_model->borrar($this->uri->segment(4));
-			        $debtarj=$this->debtarj_model->get_debtarj($this->uri->segment(4));
-                    $id_socio=$debtarj->sid;
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "debtarj";
-                		$operacion = 3;
-                		$llave = $debtarj->id;
-				$observ = substr(json_encode($debtarj), 0, 255);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                    	$this->debtarj_model->borrar($this->uri->segment(4));
+			$debtarj=$this->debtarj_model->get_debtarj($this->uri->segment(4));
+                    	$id_socio=$debtarj->sid;
+                	// Grabo log de cambios
+                	$login = $this->session->userdata('username');
+                	$nivel_acceso = $this->session->userdata('rango');
+                	$tabla = "debtarj";
+                	$operacion = 3;
+                	$llave = $debtarj->id;
+			$observ = substr(json_encode($debtarj), 0, 255);
+                	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                		$data['id_socio'] = $id_socio;
                		$data['id_debito'] = $this->uri->segment(4);
                		$data['baseurl'] = base_url();
                 	$data['username'] = $this->session->userdata('username');
                 	$data['rango'] = $this->session->userdata('rango');
-                    if ( $debtarj->estado == 0 ) {
-                        $data['mensaje'] = "El debito de dio de baja correctamente...";
-                    } else {
-                        $data['mensaje'] = "El debito no se dio de baja.... ERROR!!!";
-                    }
-               		$data['section'] = 'debtarj-mensaje';
+                    	if ( $debtarj->estado == 0 ) {
+                        	$data['mensaje1'] = "El debito de dio de baja correctamente...";
+                    	} else {
+                        	$data['mensaje1'] = "El debito no se dio de baja.... ERROR!!!";
+                    	}
+                        $data['msj_boton'] = "Vuelve Listado Debitos";
+                        $data['section'] = 'ppal-mensaje';
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $data['url_boton'] = base_url()."admin/debtarj/list-debtarj";
                		$this->load->view('admin',$data);
                 	break;
 
-		default:
-               		$this->load->model('socios_model');
-               		$this->load->model('debtarj_model');
-               		$this->load->model('tarjeta_model');
-			$fecha=date('d-m-Y');
-               		$data['fecha'] = $fecha;
-               		$data['username'] = $this->session->userdata('username');
-                  	$data['rango'] = $this->session->userdata('rango');
-			if ( $this->uri->segment(3) == 0 ) {
-				$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
-               			$data['baseurl'] = base_url();
-               			$data['fecha_db'] = "";
-				$data['debtarj'] = null;
-               			$data['socio'] = null;
+		case 'nuevo':
+                        $socio = $this->uri->segment(4);
+                        $data['baseurl'] = base_url();
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $data['js'] = 'debtarj';
+                        $fecha=date('d-m-Y');
+                        $data['fecha'] = $fecha;
+			if ( $socio > 0  ) {
+                        	$this->load->model('socios_model');
+                        	$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
+                        	$data['section'] = 'debtarj-nuevo-datos';
 			} else {
-               			$data['socio'] = $this->socios_model->get_socio($this->uri->segment(3));
-				$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
-               			$data['baseurl'] = base_url();
-				$debtarj = $this->debtarj_model->get_debtarj_by_sid($this->uri->segment(3));
-				$data['debtarj'] = $debtarj;
-				if ($debtarj) {
-					$fdb=$debtarj->fecha_adhesion;
-					$fecha_db=substr($fdb,8,2)."-".substr($fdb,5,2)."-".substr($fdb,0,4);
-               				$data['fecha_db'] = $fecha_db;
-				} else {
-               				$data['fecha_db'] = "";
-				}
+                        	$data['section'] = 'debtarj-nuevo-get';
 			}
-               		$data['section'] = 'debtarj-edit';
-               		$data['js'] = 'debtarj';
+                        $this->load->view('admin',$data);
+                        break;
+
+		case 'editar':
+                        $this->load->model('socios_model');
+                        $this->load->model('debtarj_model');
+                        $this->load->model('tarjeta_model');
+                        $fecha=date('d-m-Y');
+                        $data['fecha'] = $fecha;
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
+                        $data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
+                        $data['baseurl'] = base_url();
+                        $debtarj = $this->debtarj_model->get_debtarj_by_sid($this->uri->segment(4));
+                        $data['debtarj'] = $debtarj;
+                        if ($debtarj) {
+                                $fdb=$debtarj->fecha_adhesion;
+                                $fecha_db=substr($fdb,8,2)."-".substr($fdb,5,2)."-".substr($fdb,0,4);
+                                $data['fecha_db'] = $fecha_db;
+                        } else {
+                                $data['fecha_db'] = "";
+                        }
+                        $data['section'] = 'debtarj-edit';
+                        $data['js'] = 'debtarj';
+                        $this->load->view('admin',$data);
+                        break;
+
+		default:
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $data['baseurl'] = base_url();
+                        $data['section'] = 'list-debtarj';
                		$this->load->view('admin',$data);
                		break;
+
 	}
     }
 
