@@ -1233,19 +1233,10 @@ $("#load-debtarj-form").submit(function(){
 })
 
 
-$("#carga_debtarj_form").submit(function(){
+$("#edit_debtarj_form").submit(function(){
 
-        var boton = $("#boton-deb").data("text");
-        switch ( boton ) {      
-                case "btnmodif":
-                        var url = "admin/debtarj/grabar/";
-			var msg = "Seguro que desea modificar este debito?";
-                        break;
-                case "btnagregar":
-                        var url = "admin/debtarj/grabar/0";
-			var msg = "Seguro que desea registrar este debito?";
-                        break;
-        }
+	var url = "admin/debtarj/regrabar/";
+	var msg = "Seguro que desea modificar este debito?";
 
         var agree = confirm(msg);
         if(!agree){return false;}
@@ -1255,13 +1246,13 @@ $("#carga_debtarj_form").submit(function(){
         var id_marca = $("#id_marca").val();
         var nro_tarjeta = $("#nro_tarjeta").val();
 	var largo = nro_tarjeta.length;
+        var fecha_adhesion = $("#fecha_adhesion").val();
+        var sid = $("#sid").val();
+
 	if ( largo < 16 ) {
 		var sigue = confirm("Seguro que el numero es tan corto?");
 		if (!sigue){return false;}
 	}
-        var fecha_adhesion = $("#fecha_adhesion").val();
-        var sid = $("#sid").val();
-        var id_debito = $("#id_debito").val();
 
         $.post("<?=$baseurl?>"+url,{id_debito: id_debito, sid: sid, id_marca: id_marca, nro_tarjeta: nro_tarjeta, fecha_adhesion: fecha_adhesion })
         .done(function(data){
@@ -1271,6 +1262,36 @@ $("#carga_debtarj_form").submit(function(){
 
         return false;
 })
+
+$("#nvo_debtarj_form").submit(function(){
+
+        var url = "admin/debtarj/grabar/";
+        var msg = "Seguro que desea agregar este nuevo debito?";
+
+        var agree = confirm(msg);
+        if(!agree){return false;}
+        $("#reg-cargando").removeClass('hidden');
+
+        var id_marca = $("#id_marca").val();
+        var nro_tarjeta = $("#nro_tarjeta").val();
+        var largo = nro_tarjeta.length;
+        var fecha_adhesion = $("#fecha_adhesion").val();
+        var sid = $("#sid").val();
+
+        if ( largo < 16 ) {
+                var sigue = confirm("Seguro que el numero es tan corto?");
+                if (!sigue){return false;}
+        }
+
+        $.post("<?=$baseurl?>"+url,{sid: sid, id_marca: id_marca, nro_tarjeta: nro_tarjeta, fecha_adhesion: fecha_adhesion })
+        .done(function(data){
+                alert("Debito correctamente guardado");
+                $("#reg-cargando").addClass('hidden');
+        })
+
+        return false;
+})
+
 
 $("#gen_debtarj_form select").on("change", function(){
     var id_marca = $(this).val();

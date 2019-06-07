@@ -1974,7 +1974,6 @@ class Admin extends CI_Controller {
                         break;
 
 		case 'grabar':
-                	$datos['id'] = $this->input->post('id_debito');
                 	$datos['sid'] = $this->input->post('sid');
                 	$datos['id_marca'] = $this->input->post('id_marca');
                 	$datos['nro_tarjeta'] = $this->input->post('nro_tarjeta');
@@ -1982,35 +1981,17 @@ class Admin extends CI_Controller {
                 	$datos['fecha_adhesion'] = substr($fecha_view,6,4)."-".substr($fecha_view,3,2)."-".substr($fecha_view,0,2);
                 	$datos['estado'] = 1;
 
-			var_dump($datos);
-			break;
                 	$this->load->model('debtarj_model');
-                	if($datos['sid']){
-                    		if ( $datos['id'] == 0 )  {
-                    			// Alta
-                            		$aid = $this->debtarj_model->grabar($datos);
-                			// Grabo log de cambios
-                			$login = $this->session->userdata('username');
-                			$nivel_acceso = $this->session->userdata('rango');
-                			$tabla = "debtarj";
-                			$operacion = 1;
-                			$llave = $aid;
-					$observ = substr(json_encode($datos), 0, 255);
-                			$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
-                    		} else {
-                    			// Modificacion
-                            		$id = $datos['id'];
-                            		$this->debtarj_model->actualizar($id, $datos);
-                			// Grabo log de cambios
-                			$login = $this->session->userdata('username');
-                			$nivel_acceso = $this->session->userdata('rango');
-                			$tabla = "debtarj";
-                			$operacion = 2;
-                			$llave = $id;
-					$observ = substr(json_encode($datos), 0, 255);
-                			$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
-                    		}
-			}
+                    	// Alta
+                        $aid = $this->debtarj_model->grabar($datos);
+                	// Grabo log de cambios
+                	$login = $this->session->userdata('username');
+                	$nivel_acceso = $this->session->userdata('rango');
+                	$tabla = "debtarj";
+                	$operacion = 1;
+                	$llave = $aid;
+			$observ = substr(json_encode($datos), 0, 255);
+                	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 			break;
 
                 case 'contracargo':
@@ -2173,21 +2154,49 @@ class Admin extends CI_Controller {
                		$this->load->view('admin',$data);
                 	break;
 
+		case 'nuevo-get':
+                        $this->load->model('socios_model');
+                        $sid = $this->input->post('sid');
+                        $data['socio'] = $this->socios_model->get_socio($sid);
+			if ( $data['socio'] )  { 
+                        	$this->load->model('debtarj_model');
+                        	$debtarj = $this->debtarj_model->get_debtarj_by_sid($sid);
+				if ( $debtarj ) {
+	                        	$data['baseurl'] = base_url();
+                        		$data['username'] = $this->session->userdata('username');
+                        		$data['rango'] = $this->session->userdata('rango');
+                        		$data['mensaje'] = ' El Asociado ya tiene un debito activo !!! ';
+                        		$data['section'] = 'debtarj-nuevo-get';
+                        		$this->load->view('admin',$data);
+				} else {
+                        		$data['baseurl'] = base_url();
+                        		$data['username'] = $this->session->userdata('username');
+                        		$data['rango'] = $this->session->userdata('rango');
+                        		$data['js'] = 'debtarj';
+                        		$fecha=date('d-m-Y');
+                        		$data['fecha'] = $fecha;
+                        		$data['section'] = 'debtarj-nuevo-datos';
+	                        	$this->load->model('tarjeta_model');
+                        		$fecha=date('d-m-Y');
+                        		$data['fecha'] = $fecha;
+                        		$data['tarjetas'] = $this->tarjeta_model->get_tarjetas();
+                        		$this->load->view('admin',$data);
+				}
+			} else {
+	                        $data['baseurl'] = base_url();
+                        	$data['username'] = $this->session->userdata('username');
+                        	$data['rango'] = $this->session->userdata('rango');
+                        	$data['mensaje'] = ' El Asociado ingresado no existe en el padron !!! ';
+                        	$data['section'] = 'debtarj-nuevo-get';
+                        	$this->load->view('admin',$data);
+			}
+                        break;
 		case 'nuevo':
-                        $socio = $this->uri->segment(4);
                         $data['baseurl'] = base_url();
                         $data['username'] = $this->session->userdata('username');
                         $data['rango'] = $this->session->userdata('rango');
-                        $data['js'] = 'debtarj';
-                        $fecha=date('d-m-Y');
-                        $data['fecha'] = $fecha;
-			if ( $socio > 0  ) {
-                        	$this->load->model('socios_model');
-                        	$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
-                        	$data['section'] = 'debtarj-nuevo-datos';
-			} else {
-                        	$data['section'] = 'debtarj-nuevo-get';
-			}
+                        $data['mensaje'] = '';
+                        $data['section'] = 'debtarj-nuevo-get';
                         $this->load->view('admin',$data);
                         break;
 
