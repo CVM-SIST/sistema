@@ -1,6 +1,6 @@
 <div class="page page-table" >
     <div class="panel panel-default table-dynamic">
-        <div class="panel-heading"><strong><span class="fa fa-user"></span> <? if ($debtarj) { echo "EDITAR DEBITO TARJETA CREDITO"; } else { echo "ADHERIR DEBITO TARJETA CREDITO"; }?> </strong></div>
+        <div class="panel-heading"><strong><span class="fa fa-user"></span> EDITAR DEBITO TARJETA CREDITO </strong></div>
         <div class="panel-body">
             <div class="row">
                 <div class="col-lg-12">
@@ -9,7 +9,7 @@
                     </div>
                     <form id="cab_debtarj_form">
                         <div class="form-group col-lg-5" style="padding-top:20px;">                                            
-                            <div id="r2-data" <? if($debtarj && $socio->Id != 0){ echo 'class="hidden"'; }?>>
+                            <div id="r2-data" <? if($socio->Id != 0){ echo 'class="hidden"'; }?>>
                                 <div class="col-sm-7">
                                     <input type="text" name="r2" id="r2" class="form-control" placeholder="Ingrese Nombre, Apellido o DNI del socio">
                                 </div>
@@ -17,21 +17,16 @@
                                     <button type="submit" href="#" id="r-buscar" data-id="r2" class="btn btn-primary">Buscar</button> <i id="r2-loading" class="fa fa-spinner fa-spin hidden"></i>
                                 </div>
                             </div>
-                            <div id="r2-result" <? if($debtarj && $socio->Id == 0){ echo 'class="hidden size-h3"'; }else{ echo 'class="size-h3"'; }?>>
+                            <div id="r2-result" <? if($socio->Id == 0){ echo 'class="hidden size-h3"'; }else{ echo 'class="size-h3"'; }?>>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <? if ($debtarj) { echo $socio->nombre.' '.$socio->apellido.' ('.$socio->dni.')'; } ?> <a href="#" onclick="cleear('r2')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
+                            <? echo $socio->nombre.' '.$socio->apellido.' ('.$socio->dni.')'; ?> <a href="#" onclick="cleear('r2')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
                             </div>
-		            <? if ($debtarj) { ?>
-                            	<input type="hidden" name="r2-id" id="r2-id" class="form-control" value="<?=$socio->Id?>">
-			    <? } else { ?>
-                            	<input type="hidden" name="r2-id" id="r2-id" class="form-control" value="0">
-			    <? } ?>
+                            <input type="hidden" name="r2-id" id="r2-id" class="form-control" value="<?=$socio->Id?>">
                         </div> 
                     </form>
-	<? if ($debtarj) { ?>
-                    <div class="form-group col-lg-6 <? if(!$debtarj){ echo 'hidden'; } ?>" style="padding-top:20px;" id="accesos_directos">
-                        	<a id="acceso_editar" class="btn btn-success" href="<?=$baseurl?>admin/socios/editar/<?=$socio->Id?>"><i class="fa fa-user"></i> Editar este socio</a>                        
-                        	<a id="acceso_actividad" class="btn btn-info" href="<?=$baseurl?>admin/actividades/asociar/<?=$socio->Id?>"><i class="fa fa-table"></i> Asociar Actividad</a>
+                    <div class="form-group col-lg-6 <? if(!$socio->Id){ echo 'hidden'; } ?>" style="padding-top:20px;" id="accesos_directos">
+                        <a id="acceso_editar" class="btn btn-success" href="<?=$baseurl?>admin/socios/editar/<?=$socio->Id?>"><i class="fa fa-user"></i> Editar este socio</a>                        
+                        <a id="acceso_actividad" class="btn btn-info" href="<?=$baseurl?>admin/actividades/asociar/<?=$socio->Id?>"><i class="fa fa-table"></i> Asociar Actividad</a>
                         <div class="btn-group">
                             <button id="btnGroupDrop1" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-plus"></i> Más Acciones...
@@ -44,7 +39,6 @@
                             </ul>
                         </div>
                     </div>                   
-	<? } ?>
                 </div>            
                 <div class="col-lg-12" id="debtarj-div" style="display:none;">
                     
@@ -52,7 +46,7 @@
             </div>
 
         	<div class="panel-body">
-				<form class="form-horizontal ng-pristine ng-valid" id="carga_debtarj_form" >
+				<form class="form-horizontal ng-pristine ng-valid" id="edit_debtarj_form" >
 
 		                <div class="form-group col-lg-6">
                     		<label for="" class="col-sm-3">Marca Tarjeta</label>
@@ -85,18 +79,14 @@
 				        </div>	
 				    </div>
 			        <div>
-		            <? if ($debtarj) { ?>
-                            	<input type="hidden" name="sid" id="sid" class="form-control" value="<?=$socio->Id?>">
-			    <? } else { ?>
-                            	<input type="hidden" name="sid" id="sid" class="form-control" value="0">
-			    <? } ?>
+                        <input type="hidden" name="sid" id="sid" class="form-control" value="<?=$socio->Id?>">
 			        </div>
 
 				    <div class="clearfix"></div>
 					<div align="left" style="width:100%">
 				    	<div class="form-group">
 				            <div class="col-sm-6">
-				               	<button class="btn-success" id="boton-deb" <?if ($debtarj) { echo " data-text='btnmodif' > Modificar"; } else { echo " data-text='btnagregar' > Agregar"; } ?> <i id="reg-cargando" class="fa fa-spin fa-spinner hidden"></i></button>
+				               	<button class="btn-success" id="boton-deb" data-text='btnmodif' > Modificar <i id="reg-cargando" class="fa fa-spin fa-spinner hidden"></i></button>
 				            </div>
 				        </div>
 				    </div>
