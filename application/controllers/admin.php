@@ -612,7 +612,7 @@ class Admin extends CI_Controller {
         switch ($action) {
             case 'agregar':
                 $admin = $this->input->post(null, true);
-                $admin['pass'] == sha1($admin['pass']);
+                $admin['pass'] = sha1($admin['pass']);
                 $id = $this->admins_model->insert_admin($admin);
 
                 // Grabo log de cambios
