@@ -2909,14 +2909,14 @@ class Admin extends CI_Controller {
                 if($datos['nombre']){
                     $this->load->model("actividades_model");
                     $this->actividades_model->update_actividad($datos,$this->uri->segment(4));
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "actividades";
-                		$operacion = 2;
-                		$llave = $this->uri->segment(4);
-				$observ = substr(json_encode($datos), 0, 255);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                	// Grabo log de cambios
+                	$login = $this->session->userdata('username');
+                	$nivel_acceso = $this->session->userdata('rango');
+                	$tabla = "actividades";
+                	$operacion = 2;
+                	$llave = $this->uri->segment(4);
+			$observ = substr(json_encode($datos), 0, 255);
+                	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                 	$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
                     redirect(base_url()."admin/actividades/guardada/".$this->uri->segment(4));
@@ -3017,19 +3017,23 @@ class Admin extends CI_Controller {
                 if($this->uri->segment(4) == 'nuevo'){
                     foreach($_POST as $key => $val)
                     {
-                        $datos[$key] = $this->input->post($key);
+			if ( $key == 'pass' ) {
+                        	$datos[$key] = sha1($this->input->post($key));
+			} else {
+                        	$datos[$key] = $this->input->post($key);
+			}
                     }
                     if($datos['nombre'] && $datos['apellido']){
                         $this->load->model("actividades_model");
                         $pid = $this->actividades_model->reg_profesor($datos);
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "profesores";
-                		$operacion = 1;
-                		$llave = $pid;
-				$observ = substr(json_encode($datos), 0, 255);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                	// Grabo log de cambios
+                	$login = $this->session->userdata('username');
+                	$nivel_acceso = $this->session->userdata('rango');
+                	$tabla = "profesores";
+                	$operacion = 1;
+                	$llave = $pid;
+			$observ = substr(json_encode($datos), 0, 255);
+                	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                         redirect(base_url()."admin/actividades/profesores/guardado/".$pid);
                     }else{
                         $data['comisiones'] = $this->actividades_model->get_comisiones();
@@ -3038,19 +3042,23 @@ class Admin extends CI_Controller {
                 }else if($this->uri->segment(4) == 'guardar'){
                     foreach($_POST as $key => $val)
                     {
-                        $datos[$key] = $this->input->post($key);
+			if ( $key == 'pass' ) {
+                        	$datos[$key] = sha1($this->input->post($key));
+			} else {
+                        	$datos[$key] = $this->input->post($key);
+			}
                     }
                     if($datos['nombre'] && $datos['apellido']){
                         $this->load->model("actividades_model");
                         $this->actividades_model->update_profesor($datos,$this->uri->segment(5));
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "profesores";
-                		$operacion = 2;
-                		$llave = $this->uri->segment(5);
-				$observ = substr(json_encode($datos), 0, 255);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                	// Grabo log de cambios
+                	$login = $this->session->userdata('username');
+                	$nivel_acceso = $this->session->userdata('rango');
+                	$tabla = "profesores";
+                	$operacion = 2;
+                	$llave = $this->uri->segment(5);
+			$observ = substr(json_encode($datos), 0, 255);
+                	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                         redirect(base_url()."admin/actividades/profesores/guardado/".$this->uri->segment(5));
                     }
                 }else if($this->uri->segment(4) == 'editar'){
@@ -3072,14 +3080,14 @@ class Admin extends CI_Controller {
                 }else if($this->uri->segment(4) == 'eliminar'){
                     $this->load->model("actividades_model");
                     $this->actividades_model->del_profesor($this->uri->segment(5));
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "profesores";
-                		$operacion = 3;
-                		$llave = $this->uri->segment(5);
-				$observ = "borre profesor ".$this->uri->segment(5);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                    // Grabo log de cambios
+                    $login = $this->session->userdata('username');
+                    $nivel_acceso = $this->session->userdata('rango');
+                    $tabla = "profesores";
+                    $operacion = 3;
+                    $llave = $this->uri->segment(5);
+		    $observ = "borre profesor ".$this->uri->segment(5);
+                    $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                     redirect(base_url()."admin/actividades/profesores");
                 }else{
                     $data['username'] = $this->session->userdata('username');

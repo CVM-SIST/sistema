@@ -37,8 +37,9 @@ class Login_model extends CI_Model {
 
     public function log_comision($email,$pass)
     {
+	$pass_sha1 = sha1($pass);
         $this->db->where('mail',$email);
-        $this->db->where('pass',$pass);
+        $this->db->where('pass',$pass_sha1);
         $this->db->where('estado',1);
         $query = $this->db->get('profesores');
         if($query->num_rows() == 0){return false;}
