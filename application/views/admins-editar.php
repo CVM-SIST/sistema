@@ -7,19 +7,19 @@
 				<div class="form-group">
 					<label for="user" class="col-sm-2">Nombre de usuario</label>
 					<div class="col-sm-10">
-						<input type="text" value="<?=$admin->user?>" id="user" name="user" class="form-control" <?if ($action == "chgpwd") { echo ' disabled> '; } else { echo ' required>'; }?>
+						<input type="text" value="<?=$admin->user?>" id="user" name="user" class="form-control" <?if ($action == "chgpwd") { echo ' disabled '; } else { echo ' required'; }?>>
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="mail" class="col-sm-2">E-Mail</label>
 					<div class="col-sm-10">
-						<input type="email" value="<?=$admin->mail?>" id="mail" name="mail" class="form-control" <?if ($action == "chgpwd") { echo ' disabled> '; } else { echo ' required>'; }?>
+						<input type="email" value="<?=$admin->mail?>" id="mail" name="mail" class="form-control" <?if ($action == "chgpwd") { echo ' disabled '; } else { echo ' required'; }?>>
 					</div>
 				</div>    
 				<div class="form-group">
 					<label for="rango" class="col-sm-2">Tipo</label>
 					<div class="col-sm-10">
-						<select style="padding:5px;" id="rango" name="rango" class="form-control" <?if ($action == "chgpwd") { echo ' disabled> '; } else { echo ' >'; }?>
+						<select style="padding:5px;" id="rango" name="rango" class="form-control" <?if ($action == "chgpwd") { echo ' disabled> '; } else { echo ' >'; }?>>
 							<option value="0" <? if($admin->rango == 0){ echo 'selected'; } ?>>ROOT</option>
 							<option value="1" <? if($admin->rango == 1){ echo 'selected'; } ?>>Administrador Principal</option>
 							<option value="2" <? if($admin->rango == 2){ echo 'selected'; } ?>>Consultad</option>
@@ -41,7 +41,11 @@
 				<? } ?>
 		
 				<div class="form-group">
-					<label for="pass1" class="col-sm-2">Password</label>
+					<?if ($action == "chgpwd") {?>
+						 <label for="pass1" class="col-sm-2">Password Nueva</label>
+					<?} else {?>
+						<label for="pass1" class="col-sm-2">Password</label>
+					<?}?>
 					<div class="col-sm-10">
 						<input type="password" name="pass1" id="pass1" class="form-control">
 					</div>

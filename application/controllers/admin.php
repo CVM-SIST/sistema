@@ -506,7 +506,7 @@ class Admin extends CI_Controller {
 					$data['username'] = $this->session->userdata('username');
 					$data['rango'] = $this->session->userdata('rango');
 					$data['force_msj'] = "Cambio contraseña forzoso";
-					$data['force_page'] = "admin/admins/chgpwd";
+					$data['force_page'] = "admin/admins/chgpwd-forzado";
 					$this->load->view('admin',$data);
 				}
 			} else {
@@ -637,6 +637,17 @@ class Admin extends CI_Controller {
                 $this->load->view('admin',$data);
                 break;
 
+            case 'chgpwd-forzado':
+                $id = $this->session->userdata('id_usuario');
+                $data['admin'] = $this->admins_model->get_admin($id);
+                $data['action'] = "chgpwd";
+                $data['section'] = 'admins-editar';
+                $data['username'] = $this->session->userdata('username');
+                $data['rango'] = $this->session->userdata('rango');
+                $this->load->view('admin',$data);
+                break;
+
+
             case 'editar':
                 $data['admin'] = $this->admins_model->get_admin($id);
                 $data['action'] = "edit";
@@ -684,6 +695,15 @@ class Admin extends CI_Controller {
                 			unset($admin['pass_old']);
                 			$this->admins_model->update_pwd($id,$new_pwd);
 
+                			// Grabo log de cambios
+                			$login = $this->session->userdata('username');
+                			$nivel_acceso = $this->session->userdata('rango');
+                			$tabla = "admin";
+                			$operacion = 2;
+                			$llave = $id;
+                			$observ = "Cambio Contraseña".substr(json_encode($admin),0,255);
+                			$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+
 					$data['mensaje1'] = "La nueva contraseña fue correctamente actualizada. Cierre sesion y vuelva a ingresar.";
 					$data['baseurl'] = base_url();
 					$data['section'] = 'ppal-mensaje';
@@ -713,24 +733,23 @@ class Admin extends CI_Controller {
 			}
 		} else {
                 	if($admin['pass1'] == $admin['pass2'] && $admin['pass1'] != ''){
-                    	$admin['pass'] = sha1($admin['pass1']);
+                    		$admin['pass'] = sha1($admin['pass1']);
                 	}
                 	unset($admin['pass1']);
                 	unset($admin['pass2']);
 		}
 
                 $this->admins_model->update_admin($id,$admin);
-
-                // Grabo log de cambios
-                $login = $this->session->userdata('username');
+		// Grabo log de cambios
+		$login = $this->session->userdata('username');
                 $nivel_acceso = $this->session->userdata('rango');
                 $tabla = "admin";
                 $operacion = 2;
                 $llave = $id;
-                $observ = substr(json_encode($admin),0,255);
+                $observ = "update registro".substr(json_encode($admin),0,255);
                 $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
-                redirect(base_url().'admin/admins','refresh');
+		redirect(base_url().'admin/admins','refresh');
 
                 break;
 
@@ -2156,7 +2175,11 @@ class Admin extends CI_Controller {
 
 		case 'nuevo-get':
                         $this->load->model('socios_model');
-                        $sid = $this->input->post('sid');
+                    	if ( $this->uri->segment(4) > 0 ) {
+                        	$sid = $this->uri->segment(4);
+			} else {
+                        	$sid = $this->input->post('sid');
+			}
                         $data['socio'] = $this->socios_model->get_socio($sid);
 			if ( $data['socio'] )  { 
                         	$this->load->model('debtarj_model');
