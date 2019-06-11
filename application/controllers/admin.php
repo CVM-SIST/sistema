@@ -2888,20 +2888,27 @@ class Admin extends CI_Controller {
                     {
                         $datos[$key] = $this->input->post($key);
                     }
-                if($datos['nombre']){
-                    $this->load->model('actividades_model');
-                    $aid = $this->actividades_model->reg_actividad($datos);
-                		// Grabo log de cambios
-                		$login = $this->session->userdata('username');
-                		$nivel_acceso = $this->session->userdata('rango');
-                		$tabla = "actividades";
-                		$operacion = 1;
-                		$llave = $aid;
-				$observ = substr(json_encode($datos), 0, 255);
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
-                    redirect(base_url()."admin/actividades/guardada/".$aid);
+                if($datos['nombre'] && $datos['comision'] > 0){
+			$this->load->model('actividades_model');
+			$aid = $this->actividades_model->reg_actividad($datos);
+			// Grabo log de cambios
+			$login = $this->session->userdata('username');
+			$nivel_acceso = $this->session->userdata('rango');
+			$tabla = "actividades";
+			$operacion = 1;
+			$llave = $aid;
+			$observ = substr(json_encode($datos), 0, 255);
+			$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+			redirect(base_url()."admin/actividades/guardada/".$aid);
                 }else{
-                    redirect(base_url()."admin/actividades");
+                        $data['baseurl'] = base_url();
+                        $data['mensaje1'] = "No se puede grabar esta actividad";
+                        $data['msj_boton'] = "Volver a actividades";
+                        $data['url_boton'] = base_url()."admin/actividades";
+                        $data['section'] = 'ppal-mensaje';
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $this->load->view("admin",$data);
                 }
                 break;
 
@@ -2931,7 +2938,7 @@ class Admin extends CI_Controller {
                 {
                     $datos[$key] = $this->input->post($key);
                 }
-                if($datos['nombre']){
+                if($datos['nombre'] && $datos['comision'] > 0){
                     $this->load->model("actividades_model");
                     $this->actividades_model->update_actividad($datos,$this->uri->segment(4));
                 	// Grabo log de cambios
@@ -2944,8 +2951,17 @@ class Admin extends CI_Controller {
                 	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                 	$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
-                    redirect(base_url()."admin/actividades/guardada/".$this->uri->segment(4));
-                }
+                        redirect(base_url()."admin/actividades/guardada/".$this->uri->segment(4));
+                } else {
+                        $data['baseurl'] = base_url();
+                        $data['mensaje1'] = "No se puede actualizar esta actividad";
+                        $data['msj_boton'] = "Volver a actividades";
+                        $data['url_boton'] = base_url()."admin/actividades";
+                        $data['section'] = 'ppal-mensaje';
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $this->load->view("admin",$data);
+		}
                 break;
             case 'eliminar':
                 $this->load->model("actividades_model");
