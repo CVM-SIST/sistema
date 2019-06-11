@@ -424,12 +424,14 @@ class Admin extends CI_Controller {
                 case 1: $solo_socio="SI"; break;
                 default: $solo_socio="XYZ"; break;
             }
+	    $comision = $this->actividades_model->get_comision($actividad->comision)->descripcion;
 
             $datos[] = array (
             'id' => $actividad->Id,
             'name' => $actividad->nombre,
             'price' => $actividad->precio,
             'cta_inic' => $actividad->cuota_inicial,
+            'comision' => $comision,
             'seguro' => $actividad->seguro,
             'estado' => $estado,
             'solo_socios' => $solo_socio
