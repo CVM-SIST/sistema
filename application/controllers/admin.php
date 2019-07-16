@@ -1439,10 +1439,6 @@ class Admin extends CI_Controller {
 
                 $token = $this->img_token();
                 $this->load->library('UploadHandler');
-                die;
-                if(move_uploaded_file($_FILES['webcam']['tmp_name'], 'images/temp/'.$token.'.jpg')){
-                    echo $token;
-                }
                 break;
 
             case 'registrado':
@@ -3653,10 +3649,11 @@ $this->actividades_model->becar($id,$beca);
 
             case 'guardar':
                 $this->load->model('general_model');
+// AHG  mover imagen de temp a directorio attach
                 $envio = array('body' => $this->input->post('text') );
                 $this->general_model->update_envio($id,$envio);
-		if( $this->input->post('adjunto') ) {
-                	redirect(base_url().'admin/envios/subir_imagen');
+		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
+			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
 		}
                 break;
 
@@ -3673,6 +3670,13 @@ $this->actividades_model->becar($id,$beca);
                     );
                 $this->load->model('general_model');
                 $id = $this->general_model->insert_envio($envio);
+// AHG  mover imagen de temp a directorio attach
+		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
+			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
+			$img_attach = $id.".jpg";
+		} else {
+			$img_attach = false;
+		}
                 $socios = $this->general_model->get_socios_by($grupo,$data,$activ);
                 $this->load->helper('email');
                 if($socios){
@@ -3696,7 +3700,9 @@ $this->actividades_model->becar($id,$beca);
                         $data['id'] = $id;
                         $data['body'] = false;
                         $data['titulo'] = $titulo;
+                        $data['img_attach'] = $img_attach;
                         $data['total'] = count($emails);
+                        $data['baseurl'] = base_url();
                         $this->load->view("envios-text",$data);
                     }
                 }else{
@@ -3707,10 +3713,6 @@ $this->actividades_model->becar($id,$beca);
             case 'subir_imagen':
                 $token = $this->img_token();
                 $this->load->library('UploadHandler');
-                die;
-                if(move_uploaded_file($_FILES['tmp_name'], 'images/emails/'.$token.'.jpg')){
-                    echo $token;
-                }
                 break;
 
             case 'eliminar':
@@ -3738,17 +3740,26 @@ $this->actividades_model->becar($id,$beca);
                 $titulo = $this->input->post('titulo');
                 $grupo = $this->input->post('grupo');
                 $data = $this->input->post('data');
+                $activ = $this->input->post('activ');
                 $envio = array(
                     'titulo' => $titulo,
                     'grupo' => $grupo,
                     'data' => json_encode($data),
+                    'activos' => $activ
                     );
                 $this->load->model('general_model');
                 $old_envio = $this->general_model->get_envio($id);
                 $this->general_model->update_envio($id,$envio);
+		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
+			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
+		}
+		$img_attach = false;
+		if(file_exists("images/emails/".$id.".jpg")){
+			$img_attach = $id.".jpg";
+		}
                 if($old_envio->grupo != $grupo){
                     $this->general_model->clear_envio_data($id);
-                    $socios = $this->general_model->get_socios_by($grupo,$data);
+                    $socios = $this->general_model->get_socios_by($grupo,$data,$activ);
                     $this->load->helper('email');
                     if($socios){
                         $emails = array();
@@ -3772,6 +3783,8 @@ $this->actividades_model->becar($id,$beca);
                             $data['titulo'] = $titulo;
                             $data['body'] = $old_envio->body;
                             $data['total'] = count($emails);
+                            $data['img_attach'] = $img_attach;
+                	    $data['baseurl'] = base_url();
                             $this->load->view("envios-text",$data);
                         }
                     }else{
@@ -3783,6 +3796,8 @@ $this->actividades_model->becar($id,$beca);
                     $data['titulo'] = $titulo;
                     $data['body'] = $old_envio->body;
                     $data['total'] = count($envios_data);
+                    $data['img_attach'] = $img_attach;
+                    $data['baseurl'] = base_url();
                     $this->load->view("envios-text",$data);
                 }
                 break;

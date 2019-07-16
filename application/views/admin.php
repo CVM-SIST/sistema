@@ -142,7 +142,6 @@
                 dataType: 'json',
                 done: function (e, data) {
                     $.each(data.result.files, function (index, file) {
-                        //$('<p/>').text(file.name).appendTo('#files');
                         $("#my_result").html('<img src="<?=$baseurl?>images/temp/'+file.name+'" width="100%">');
                         $('#progress .progress-bar').hide();
                     });
@@ -159,6 +158,37 @@
                 .parent().addClass($.support.fileInput ? undefined : 'disabled');
         });
         </script>
+
+
+        <script>
+        /*jslint unparam: true */
+        /*global window, $ */
+        $(function () {
+            'use strict';
+            // Change this to the location of your server-side upload handler:
+
+            $('#fileupload_mail').fileupload({
+                url: '<?=base_url()?>admin/envios/subir_imagen',
+                dataType: 'json',
+                done: function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        $("#my_result").html('<img src="<?=$baseurl?>images/temp/'+file.name+'" width="100%">');
+                        $('#progress .progress-bar').hide();
+                    });
+                },
+                progressall: function (e, data) {
+                    $('#progress .progress-bar').show();
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+                }
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        });
+        </script>
+
 
         <script type="text/javascript">
 
@@ -1060,9 +1090,7 @@ $("#comi-activ-form").submit(function(){
         $(document).on("submit","#envios-step2",function(e){
             var text = tinyMCE.activeEditor.getContent();
             var id = $("#envio_id").val();
-            var adjunto = $("#fileupload_mail").val();
-	    alert ("archivo".adjunto);
-            $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text, adjunto:adjunto})
+            $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text})
             .done(function(){
                 document.location.href = "<?=base_url()?>admin/envios/enviar/"+id;
             })
@@ -1096,8 +1124,6 @@ $("#comi-activ-form").submit(function(){
         })
         $(document).on("submit","#envios-step2",function(e){
             var text = tinyMCE.activeEditor.getContent();
-            var attach_file = $("#attach_file").val();
-	    if ( attach_file ) { alert ("archivo adjunto"+attach_file) }
             var id = $("#envio_id").val();
             $.post("<?=base_url()?>admin/envios/guardar/"+id,{text:text})
             .done(function(){
@@ -1148,6 +1174,7 @@ $("#comi-activ-form").submit(function(){
         <?
         }
         ?>
+
         $(document).on('click','#del_confirm',function(){
             var msj = $(this).data('msj');
             var agree = confirm(msj);
@@ -1158,9 +1185,6 @@ $("#comi-activ-form").submit(function(){
             $("#cambio_correcto").slideUp();
         }
 
-        <? /**
-
-        **/ ?>
         $(document).on("click",".actividad_beca",function(){
             var beca = $(this).data('beca');
             var id = $(this).data('id');
@@ -1196,28 +1220,6 @@ $("#comi-activ-form").submit(function(){
 
         $("#s_cate").change(function(){calcular_cuota()});
         $("#descuento").keyup(function(){calcular_cuota()});
-
-//Agregado AHG 
-            $("#contra_reg_form").submit(function(){
-alert("contra_reg");
-                var marca = $("#marca").val();
-                var periodo = $("#periodo").val();
-                var url="<?=base_url()?>admin/debtarj/contracargo/getcab/"+marca+"/"+periodo;
-alert("antes get url="+url);
-
-            $.get("<?=$baseurl?>admin/debtarj/contracargo/getcab"+marca+"/"+periodo,function(data){
-                if(data){
-alert("encontro data");
-                    	var cabecera = $.parseJSON(data);
-            		var url="<?=base_url()?>admin/debtarj/contracargo/view/"+marca+"/"+periodo;
-        		$("#contra_reg_form").attr("action",url);
-                }else{
-			alert("No existe ese Periodo / Tarjeta ");
-                }
-            })
-
-
-	})
 
 $("#load-debtarj-form").submit(function(){
         var marca = $("#marca").val();
@@ -1269,7 +1271,7 @@ $("#nvo_debtarj_form").submit(function(){
         var msg = "Seguro que desea agregar este nuevo debito?";
 
         var agree = confirm(msg);
-        if(!agree){return false;}
+        if(!agree){return false;};
         $("#reg-cargando").removeClass('hidden');
 
         var id_marca = $("#id_marca").val();
@@ -1280,7 +1282,7 @@ $("#nvo_debtarj_form").submit(function(){
 
         if ( largo < 16 ) {
                 var sigue = confirm("Seguro que el numero es tan corto?");
-                if (!sigue){return false;}
+                if (!sigue){return false;};
         }
 
         $.post("<?=$baseurl?>"+url,{sid: sid, id_marca: id_marca, nro_tarjeta: nro_tarjeta, fecha_adhesion: fecha_adhesion })
@@ -1362,39 +1364,7 @@ $("#contra-pago-form").submit(function(){
         </script>
         <? if($this->uri->segment(3) == 'guardada' && $this->uri->segment(2) == 'configuracion'){ ?>
         <script type="text/javascript">setTimeout(hide_cambio,4000)</script>
-
-
-
-        <script>
-        $(function () {
-            'use strict';
-            // Change this to the location of your server-side upload handler:
-
-            $('#fileupload_mail').fileupload({
-                url: '<?=base_url()?>admin/envios/subir_imagen',
-                dataType: 'json',
-                done: function (e, data) {
-                    $.each(data.result.files, function (index, file) {
-                        $("#my_result").html('<img src="<?=$baseurl?>images/emails/'+file.name+'" width="100%">');
-                        $('#progress .progress-bar').hide();
-                    });
-                },
-                progressall: function (e, data) {
-                    $('#progress .progress-bar').show();
-                    var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $('#progress .progress-bar').css(
-                        'width',
-                        progress + '%'
-                    );
-                }
-            }).prop('disabled', !$.support.fileInput)
-                .parent().addClass($.support.fileInput ? undefined : 'disabled');
-        });
-        </script>
-
         <? } ?>
 
-
-	
     </body>
 </html>
