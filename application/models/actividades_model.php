@@ -38,6 +38,12 @@ class Actividades_model extends CI_Model {
         $query = $this->db->update("profesores",array("estado"=>'0'));
         return true;
     } 
+    public function login_profesor($id){
+        $this->db->where("Id", $id); 
+	$ahora=date('Y-m-d H:m:i');
+        $query = $this->db->update("profesores",array("last_login"=>$ahora));
+        return true;
+    } 
 
     public function reg_lugar($datos){
         $this->db->insert('lugares', $datos);

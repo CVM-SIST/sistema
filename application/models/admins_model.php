@@ -70,7 +70,7 @@ class Admins_model extends CI_Model {
 	{
 		$now=date('Y-m-d H:i:s');
 		$this->db->where('Id', $id);
-		$this->db->update('admin', array("pass"=>$new_pwd, "last_chgpwd"=>$now));
+		$this->db->update('admin', array("pass"=>$new_pwd, "last_chpwd"=>$now));
 	}
 
 	public function update_admin($id='',$admin)

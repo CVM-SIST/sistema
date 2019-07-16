@@ -146,6 +146,12 @@ ENVIOS
 		    $socios=$this->socios_model->get_socios_titu_comision($data, $activ);
                     break;
 
+                case 'ahg':
+                    $this->load->model('socios_model');
+		    $datos['Id'] = 29219;
+		    $socios=$this->socios_model->get_socio_by($datos);
+                    break;
+
             }
         }
         return $socios;

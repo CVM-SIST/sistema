@@ -571,6 +571,8 @@ class Comisiones extends CI_Controller {
 				'c_logged'=>'ok'
 			);			
 			$this->session->set_userdata( $array );			
+        		$this->load->model('actividades_model');
+			$this->actividades_model->login_profesor($user->Id);
 			return true;
 		}
 	}

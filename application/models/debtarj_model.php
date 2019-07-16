@@ -14,7 +14,6 @@ class Debtarj_model extends CI_Model {
     
     public function grabar($datos)
     {
-	var_dump($datos);
         $this->db->insert('socios_debito_tarj', $datos);
         return $this->db->insert_id();   
     }

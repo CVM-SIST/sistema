@@ -112,7 +112,7 @@
                 <div class="form-group">
                     <label for="" class="col-sm-2">Contraseña</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" name="pass">
+                        <input type="password" class="form-control" name="pass">
                     </div>
                 </div>                                
                 <button type="submit" id="btn_profesor" class="btn btn-success">Agregar</button>

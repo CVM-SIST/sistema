@@ -22,6 +22,7 @@
                            <option value="socsinactiv" <? if($envio->grupo == 'socsinactiv'){ echo 'selected'; } ?>>Seleccionar Socios sin Actividad</option>
                            <option value="soccomision" <? if($envio->grupo == 'soccomision'){ echo 'selected'; } ?>>Socios por Comisión</option>
                            <option value="titcomision" <? if($envio->grupo == 'titcomision'){ echo 'selected'; } ?>>Integrantes de la Comisión</option>
+                           <option value="ahg" <? if($envio->grupo == 'ahg'){ echo 'selected'; } ?>>Prueba AHG</option>
                         </select>
 
                      </div>
@@ -62,6 +63,15 @@
                            ?>
                         </select>
                      </div>
+
+                <div class="form-group">
+                                <span class="btn btn-success fileinput-button">
+                                    <span><i class="fa fa-cloud-upload"></i> Subir Imágen</span>
+                                    <input id="fileupload_mail" type="file" name="files[]" multiple>
+                                </span>
+                </div>
+
+
                      <div align="right">
                         <button type="submit" id="envios-continuar" class="btn btn-success btn-block">Continuar <i class="fa fa-arrow-right"></i></button>
                      </div>
