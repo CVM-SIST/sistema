@@ -917,6 +917,15 @@ class Cron extends CI_Controller {
 			if ( $isusp == 1 ) {
                 		$this->db->where('Id',$socio->Id);
                 		$this->db->update('socios', array('suspendido'=>1));
+
+                        	// Verifico si tiene Debito Automatico
+                        	$this->load->model('debtarj_model');
+                        	$debtarj = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
+                        	if ( $debtarj ) {
+                                	$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Pongo Stop DEBIT del debito de tarjeta',0,0);
+                                	$this->debtarj_model->stopdebit($debtarj->Id);
+                        	}
+
 	
 	
                 		$txt = date('H:i:s').": Socio Suspendido #".$socio->Id." ".TRIM($socio->apellido).", ".TRIM($socio->nombre)." DNI= ".$socio->dni." atraso de ".$meses_atraso." ultimo pago ".$ds_ult. " \n";
