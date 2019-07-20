@@ -64,7 +64,7 @@
 				    <div class="col-sm-12">
 						<div class="form-group">
 				           	<label for="" class="col-sm-3">Nro de Tarjeta</label>
-				            <div class="col-sm-3">
+				    <div class="col-sm-4">
 				               	<input class="form-control" name="nro_tarjeta" id="nro_tarjeta" value="<?if ($debtarj) { echo $debtarj->nro_tarjeta; } else { echo ""; } ?>" required>
 		                                <input type="hidden" id="id_debito" value="<?if ($debtarj) { echo $debtarj->id; } else { echo '0'; }?>">
 				            </div>
