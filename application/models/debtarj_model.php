@@ -303,7 +303,7 @@ class Debtarj_model extends CI_Model {
         $qry="SELECT sdt.id_marca, sdt.sid, sdt.nro_tarjeta, sd.id_debito, sdt.ult_fecha_generacion, sdt.ult_periodo_generado, sd.nro_renglon, sd.importe 
                 FROM socios_debitos sd 
                         JOIN socios_debito_tarj sdt ON sd.id_debito = sdt.id 
-                WHERE sd.id_cabecera = $id_cabecera AND sd.estado  = 1; ";
+                WHERE sd.id_cabecera = $id_cabecera AND sd.estado  = 9; ";
         $debitos = $this->db->query($qry)->result();
         if ($debitos) {
                 return $debitos;
