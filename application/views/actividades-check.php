@@ -20,14 +20,23 @@
 						switch ( $asoc['estado_asoc'] ) {
 							case 0: $xestado = "ACTIVO"; break;
 							case 1: $xestado = "SUSPENDIDO"; break;
+							case 99: $xestado = "NO EXISTE"; break;
 							default: $xestado = "INDEFINIDO"; break;
+						}
+                                                if ($asoc['actividad'] == 1) { 
+							$xact='Relacionada'; 
+						} else { if ( $asoc['actividad'] == 99 ) { 
+								$xact='No Existe';
+							 } else {
+								$xact='Sin Relacionar'; 
+							 }
 						}
 						?>
                                                 <td><?=$asoc['sid']?></td>
                                                 <td><?=$asoc['dni']?></td>
                                                 <td><?=$asoc['apynom']?></td>
                                                 <td><?=$xestado?></td>
-                                                <td><?if ($asoc['actividad'] == 1) { echo 'Relacionada'; } else { echo 'Sin Relacionar'; } ?></td>
+					<td><?=$xact?></td>
                                         </tr>
 					<? } ?>
                                                                     

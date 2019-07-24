@@ -208,6 +208,7 @@ class Admin extends CI_Controller {
 			} else {
 				$socio=$this->socios_model->get_socio_by_dni($col1);
 			}
+			//var_dump($socio);
 
 
 			if ( $socio ) {
@@ -215,7 +216,7 @@ class Admin extends CI_Controller {
 				$existe=0;
 				$act_asoc=$this->actividades_model->get_act_asoc_puntual($sid,$id_actividad);
 				if ( $act_asoc ) {
-					$socios[] = array(
+					$nuevo = array(
             					'sid' => $sid,
             					'apynom' => $socio->nombre.' '.$socio->apellido,
             					'estado_asoc' => $socio->suspendido,
@@ -224,7 +225,7 @@ class Admin extends CI_Controller {
             					);
 					$existe=1;
 				} else {
-					$socios[] = array(
+					$nuevo = array(
             					'sid' => $sid,
             					'apynom' => $socio->nombre.' '.$socio->apellido,
             					'estado_asoc' => $socio->suspendido,
@@ -234,13 +235,18 @@ class Admin extends CI_Controller {
 				}
 
 			} else {
-					$socios[] = array(
-            					'sid' => $col1,
+					if ( $dato1col == "sid" ) { $sid=$col1; $dni=0; } else { $sid=0; $dni=$col1; };
+
+					$nuevo = array(
+            					'sid' => $sid,
             					'apynom' => $dato1col.' - No existe en la base de datos ',
-            					'estado_asoc' => 0,
-            					'dni'=> 0,
-            					'actividad' => 0
+            					'estado_asoc' => 99,
+            					'dni'=> $dni,
+            					'actividad' => 99
             					);
+			}
+			if ( !in_array($nuevo, $socios) ) {
+				$socios[]=$nuevo;
 			}
 			$serial++;
 
