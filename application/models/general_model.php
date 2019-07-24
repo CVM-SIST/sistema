@@ -148,8 +148,7 @@ ENVIOS
 
                 case 'ahg':
                     $this->load->model('socios_model');
-		    $datos['Id'] = 29219;
-		    $socios=$this->socios_model->get_socio_by($datos);
+		    $socios=$this->socios_model->get_socios_ahg();
                     break;
 
             }
