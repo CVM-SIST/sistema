@@ -16,7 +16,7 @@ class General_model extends CI_Model {
     }
 
     public function get_cats(){
-        $this->db->where('estado > 0');
+        $this->db->where("estado > 0");
         $query = $this->db->get("categorias");
         return $query->result();
     }

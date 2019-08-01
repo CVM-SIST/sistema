@@ -139,6 +139,13 @@ class Socios_model extends CI_Model {
         return $result;
     }
 
+    public function get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele)
+    {
+        $query="SELECT s.* FROM socios s WHERE s.Id IN ( 28896, 29219 ); ";
+        $result = $this->db->query($query)->result();
+        return $result;
+    }
+
     public function get_socios_ahg()
     {
         $query="SELECT s.* FROM socios s WHERE s.Id IN ( 28896, 29219 ); ";

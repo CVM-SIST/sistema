@@ -112,6 +112,7 @@ class Cron extends CI_Controller {
             //fwrite($log, date('H:i:s').' - Emails suspendidos');                        
             $this->db->update('socios',array('facturado'=>0)); //establecemos todos los socios como no facturados
             fwrite($log, date('H:i:s').' - Indicador facturado en 0 \n');                        
+		echo "cumpleaños";
     		$cumpleanios = $this->socios_model->get_cumpleanios(); //buscamos los que cumplen 18 años
 		$cump=0;
     		foreach ($cumpleanios as $menor) {
@@ -831,19 +832,18 @@ class Cron extends CI_Controller {
 			$importe = $debito->importe;
 			$estado = $debito->estado;
 			$nro_renglon = $debito->nro_renglon;
+			$id_socio = $debito->sid;
+			$ult_periodo = $debito->ult_periodo_generado;
+			$ult_fecha = $debito->ult_fecha_generacion;
+			$id_marca = $debito->id_marca;
 		
-			$debtarj = $this->debtarj_model->get_debtarj($id_debito);
-
-			$id_socio = $debtarj->sid;
-			$ult_periodo = $debtarj->ult_periodo_generado;
-			$ult_fecha = $debtarj->ult_fecha_generacion;
 
 			// Busco el saldo actual del socio
 			$total = $this->pagos_model->get_socio_total($id_socio);
                         $saldo_cc = $total + $importe;
 
                         // Le resta el pago debitado a la tarjeta al saldo 
-                        $tarjeta=$this->tarjeta_model->get($debtarj->id_marca);
+                        $tarjeta=$this->tarjeta_model->get($id_marca);
                         $descripcion = "Pago por Debito en Tarjeta $tarjeta->descripcion";
                         $data = array(
 				"sid" => $id_socio,
@@ -882,8 +882,10 @@ class Cron extends CI_Controller {
 	return $totales;
 
     }
+
     public function suspender($log)
     {
+echo "suspender";
         $this->load->model('socios_model');
 	$this->load->model('pagos_model');
         $socios = $this->socios_model->get_socios_pagan();
@@ -923,12 +925,14 @@ class Cron extends CI_Controller {
                         	$debtarj = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
                         	if ( $debtarj ) {
                                 	$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Pongo Stop DEBIT del debito de tarjeta',0,0);
-                                	$this->debtarj_model->stopdebit($debtarj->Id);
-                        	}
-
+                                	$this->debtarj_model->stopdebit($debtarj->id);
+					$txt_debito=" Hice STOP DEBIT id=$debtarj->id ";
+                        	} else {	
+					$txt_debito="";
+				}
 	
 	
-                		$txt = date('H:i:s').": Socio Suspendido #".$socio->Id." ".TRIM($socio->apellido).", ".TRIM($socio->nombre)." DNI= ".$socio->dni." atraso de ".$meses_atraso." ultimo pago ".$ds_ult. " \n";
+                		$txt = date('H:i:s').": Socio Suspendido #".$socio->Id." ".TRIM($socio->apellido).", ".TRIM($socio->nombre)." DNI= ".$socio->dni." atraso de ".$meses_atraso." ultimo pago ".$ds_ult.$txt_debito. " \n";
                 		fwrite($log, $txt);   
 	
         			$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Suspension Proceso Facturacion por atraso de'.$meses_atraso.' con ultimo pago hace '.$ds_ult.' dias',0,0);
