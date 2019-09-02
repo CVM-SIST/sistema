@@ -1801,7 +1801,7 @@ class Admin extends CI_Controller {
 			    } else {
 				    // Chequeo si el periodo esta generado y quiero volver a generarlo
 				    if ( $this->debtarj_model->exist_periodo_marca($periodo, $id_marca) ) {
-					    redirect(base_url()."admin/debtarj/gen-debtarj/1/".$periodo);
+					    redirect(base_url()."admin/debtarj/gen-debtarj/1/".$periodo."/".$id_marca);
 				    }
 			    }
 
@@ -1866,7 +1866,7 @@ class Admin extends CI_Controller {
 							    $fecha = date('Y-m-d');
 							    $ts = date('Y-m-d H:i:s');
 							    // Inserto el debito del mes
-							    $this->debtarj_model->insert_debito($id_debito, $id_cabecera, $importe );
+							    $this->debtarj_model->insert_debito($id_debito, $id_cabecera, $importe, $renglon );
 
 							    // Actualizo el ultimo periodo y fecha de generacion
 							    $debtarj->ult_periodo_generado=$periodo;
@@ -1875,6 +1875,7 @@ class Admin extends CI_Controller {
 
 							    $asoc_gen++;
 							    $total_gen = $total_gen + $importe;
+					            	    $result[]=array('renglon'=>$renglon++,'sid'=>$debtarj->sid,'mensaje'=>$mensaje);
 						    } else {
 							    $mensaje="Tiene cuota mensual de $ $cta pero no se le descuenta porque tiene diferencia anterior de $ $saldo\n";
 						    }
@@ -1886,7 +1887,6 @@ class Admin extends CI_Controller {
 						    }
 						    $mensaje="No se genera porque tiene estado $estado \n";
 					    }
-					    $result[]=array('renglon'=>$renglon++,'sid'=>$debtarj->sid,'mensaje'=>$mensaje);
 				    }
 			    }
 
@@ -1973,9 +1973,13 @@ class Admin extends CI_Controller {
 				    $data['ult_debito'] = $ultd;
 			    }
 
+			    $data['id_marca_sel'] = 0;
 			    if ( $this->uri->segment(4) ) {
 				    $data['flag'] = 1;
 				    $data['ult_debito'] = $this->uri->segment(5);
+				    if ( $this->uri->segment(6) ) {
+				    	$data['id_marca_sel'] = $this->uri->segment(6);
+				    } 
 			    } else {
 				    $data['flag'] = 0;
 			    }

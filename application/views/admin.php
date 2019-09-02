@@ -938,6 +938,28 @@ $("#load-asoc-activ-form select").on('change',function(){
         }
 })
 
+$("#asoc-act-filtro-form").submit(function(){
+        var actividad = $("#actividad").val();
+        var email = $("#email").val();
+	if ( email == "" ) {
+		alert("Debe elegir email");
+		return false;
+	}
+        var telefono = $("#telefono").val();
+	if ( telefono == "" ) {
+		alert("Debe elegir telefono");
+		return false;
+	}
+        var url = "<?=$baseurl?>admin/socios/act-datos-ver" + "/" + actividad + "/" + email + "/" + telefono;
+
+        $("#asoc-act-filtro-form").attr("action",url);
+
+        $("#asoc-act-filtro-form").submit();
+
+        return true;
+
+})
+
 $("#load-asoc-activ-form").submit(function(){
         var actividad = $("#actividad").val();
         var fuente = $("#fuente").val();
@@ -1311,7 +1333,7 @@ $("#gen_debtarj_form button").on("click", function(){
 	var periodo = $("#periodo").val();
 	var flag = $("#flag").val();
 
-        var agree = confirm("Seguro que desea "+boton+" el archivo ?");
+        var agree = confirm("Seguro que desea "+boton+" el archivo de la marca "+id_marca+" ?");
         if(!agree){return false;}
 
 	if ( flag == 1 ) {

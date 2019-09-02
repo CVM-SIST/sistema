@@ -229,13 +229,13 @@ class Debtarj_model extends CI_Model {
 
 /* Funciones de la tabla socios_debitos */
 
-    public function insert_debito($id,$id_cabecera,$importe){
+    public function insert_debito($id,$id_cabecera,$importe,$renglon=0){
         $insert = array(
             'id_debito'=> $id,
             'id_cabecera'=>$id_cabecera,
             'importe' => $importe,
             'estado' => 9,
-	    'nro_renglon' => 0,
+	    'nro_renglon' => $renglon,
 	    'id' => 0 
             );
         $this->db->insert('socios_debitos',$insert);
