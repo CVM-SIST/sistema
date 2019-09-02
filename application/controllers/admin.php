@@ -514,31 +514,9 @@ class Admin extends CI_Controller {
 				$this->load->view('admin',$data);
 			}
 		} else {
-                	if($this->session->userdata('prox_vto') == -1 ){
-				if ( $this->session->userdata('username') == "admin" ) {
-                                        $data['mensaje1'] = "El usuario admin no se puede usar mas, tiene que tener un login personal";
-                                        $data['baseurl'] = base_url();
-                                        $data['section'] = 'ppal-mensaje';
-                                        $data['username'] = $this->session->userdata('username');
-                                        $data['rango'] = $this->session->userdata('rango');
-					$data['force_msj'] = "Entre con su login personal";
-                                        $data['force_page'] = "admin/logout";
-					$this->load->view('admin',$data);
-				} else {
-					$data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
-					$data['baseurl'] = base_url();
-					$data['section'] = 'ppal-mensaje';
-					$data['username'] = $this->session->userdata('username');
-					$data['rango'] = $this->session->userdata('rango');
-					$data['force_msj'] = "Cambio contraseña forzoso";
-					$data['force_page'] = "admin/admins/chgpwd-forzado";
-					$this->load->view('admin',$data);
-				}
-			} else {
             			redirect(base_url()."admin/socios");
 			}
 		}
-	}
     }
 
     public function morosos(){
@@ -562,21 +540,31 @@ class Admin extends CI_Controller {
             }else{
                 $username = $this->input->post('username');
                 $password = sha1($this->input->post('password'));
-                $check_user = $this->login_model->login_user($username,$password);
-                if($check_user == TRUE)
-                {
-			// Valido ultimo cambio de contraseña
-                        $str_fecha = date('Ymd');
-			if ( $check_user->ult_cambio > 90 || ( $username == "admin" && $str_fecha > 20190610 ) ) {
-				$prox_vto = -1;
-			} else { 
+		if ( $username == "admin" ) {
+		                $this->session->set_flashdata('usuario_incorrecto','admin NO SE USA MAS!!!. Ingrese con su login personal.');
+                		redirect(base_url().'admin');
+                } else 
+                	$check_user = $this->login_model->login_user($username,$password);
+                	$str_fecha = date('Ymd');
+			if ( $check_user->ult_cambio > 90 ) {
+				$check_user == FALSE;
+                                $data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['force_msj'] = "Cambio contraseña forzoso";
+                                $data['force_page'] = "admin/admins/chgpwd-forzado";
+                                $this->load->view('admin',$data);
+		} else {
+                	if($check_user == TRUE) {
+				// Valido ultimo cambio de contraseña
 				if ( $check_user->ult_cambio > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
 				}
-			}
-                   	$data = array( 'is_logued_in'     =>         TRUE,
+                   		$data = array( 'is_logued_in'     =>         TRUE,
                     				'id_usuario'     =>         $check_user->Id,
                   				'rango'        =>        $check_user->rango,
                    				'mail'        =>        $check_user->mail,
@@ -584,22 +572,23 @@ class Admin extends CI_Controller {
 						'prox_vto'	=> $prox_vto,
                     				'last_chgpwd'         =>         $check_user->last_chgpwd);
 
-                    	$this->session->set_userdata($data);
-                    	$this->login_model->update_lCon();
+                    		$this->session->set_userdata($data);
+                    		$this->login_model->update_lCon();
 		
-                    	// Grabo log de cambios
-                    	$login = $this->session->userdata('username');
-                    	$nivel_acceso = $this->session->userdata('rango');
-                    	$tabla = "login";
-                    	$operacion = 0;
-                    	$llave = $this->session->userdata('id_usuario');
-                    	$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
-                    	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                    		// Grabo log de cambios
+                    		$login = $this->session->userdata('username');
+                    		$nivel_acceso = $this->session->userdata('rango');
+                    		$tabla = "login";
+                    		$operacion = 0;
+                    		$llave = $this->session->userdata('id_usuario');
+                    		$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
+                    		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
-                    	redirect(base_url().'admin');
-		}
-            }
-    }
+                    		redirect(base_url().'admin');
+			}
+            	}
+    		}
+	}
 
 	public function token()
     {
@@ -810,6 +799,41 @@ class Admin extends CI_Controller {
             /**
 
             **/
+            case 'act-datos':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-filtro';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-ver':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+                $this->load->model('socios_model');
+		$data['socios'] = $this->socios_model->get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele);
+		$data['actividad'] = $filtro_act;
+		$data['email'] = $filtro_mail;
+		$data['telefono'] = $filtro_tele;
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-ver';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-socio':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+		$sid = $this->uri->segment(7);
+                $this->load->model('socios_model');
+		$data['socio'] = $this->socios_model->get_socio($sid);
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-datos';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
             case 'categorias':
 		if ( $this->uri->segment(4) ) {
 			switch ( $this->uri->segment(4) ) {
