@@ -1348,6 +1348,29 @@ $("#gen_debtarj_form button").on("click", function(){
         return true;
 })
 
+$("#contracargos_deb button").on("click", function(){
+        var boton = $(this).data("text");
+
+
+        var id_marca = $("#id_marca").val();
+        var periodo = $("#periodo").val();
+        var id_cabecera = $("#id_cabecera").val();
+        var fecha_debito = $("#fecha_debito").val();
+	if ( boton == "do" ) {
+        	var nrotarjeta = $("nrotarjeta").val();
+        	var nrorenglon = $("nrorenglon").val();
+        	var importe = $("importe").val();
+	}
+
+        var url = $(this).data("action");
+        $("#contracargos_deb").attr("action",url);
+
+        $("#contracargos_deb").submit();
+
+        return true;
+})
+
+
 $("#debtarj_botones_form button").on("click", function(){
         var boton = $(this).data("text");
 	
@@ -1365,20 +1388,6 @@ $("#debtarj_botones_form button").on("click", function(){
         $("#debtarj_botones_form").submit();
 
         return true;
-})
-
-
-$("#contra-pago-form").submit(function(){
-        var agree = confirm("Seguro que desea registrar este contracargo?");
-        if(!agree){return false;}
-        $("#reg-cargando").removeClass('hidden');
-        var periodo = $("#periodo").val();
-        var id_marca = $("#id_marca").val();
-        var fecha_debito = $("#fechadeb").val();
-        var nrotarjeta = $("#nrotarjeta").val();
-        var importe = $("#importe").val();
-        $.post("<?=$baseurl?>admin/debtarj/contracargo/do/"+id_marca+"/"+periodo,{fecha_debito: fecha_debito, nrotarjeta: nrotarjeta, importe: importe})
-        return false;
 })
 
 

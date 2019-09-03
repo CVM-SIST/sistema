@@ -2117,25 +2117,51 @@ class Admin extends CI_Controller {
 				$accion=$this->uri->segment(4);
                                 switch ( $accion ) {
                                         case 'getcab':
-                				$id_marca = $this->uri->segment(5);
-                				$periodo = $this->uri->segment(6);
+                				$id_marca = $this->input->post('marca');
+                				$periodo = $this->input->post('periodo');
 	                                        $this->load->model('debtarj_model');
                                         	$gen = $this->debtarj_model->get_periodo_marca($periodo, $id_marca);
 						if ($gen) { 
-							$salida=json_encode($gen); 
-						} else { 
-							$salida=null; 
+							if ( $gen->cant_acreditada > 0 ) {
+	                                                        $data['baseurl'] = base_url();
+                                                        	$data['mensaje1'] = "Ese periodo/tarjeta ya esta acreditado";
+                                                        	$data['msj_boton'] = "Volver a contracargo manual";
+                                                        	$data['url_boton'] = base_url()."admin/debtarj/contracargo";
+                                                        	$data['section'] = 'ppal-mensaje';
+                                                        	$data['username'] = $this->session->userdata('username');
+                                                        	$data['rango'] = $this->session->userdata('rango');
+                                                        	$this->load->view("admin",$data);
+ 							} else {
+                                                        	redirect(base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo);
+							}
 						}
-						echo $salida;
+						break;
+                                        case 'do-final':
+                                                $id_cabecera = $this->input->post('id_cabecera');
+                                                $this->load->model('debtarj_model');
+                                                $this->debtarj_model->cierre_contracargo($id_cabecera);
+
+                                                $data['baseurl'] = base_url();
+                                                $data['mensaje1'] = "Periodo cerrado de contracargos";
+                                                $data['msj_boton'] = "Volver a menu";
+                                                $data['url_boton'] = base_url()."admin/";
+                                                $data['section'] = 'ppal-mensaje';
+                                                $data['username'] = $this->session->userdata('username');
+                                                $data['rango'] = $this->session->userdata('rango');
+                                                $this->load->view("admin",$data);
+
 						break;
                                         case 'do':
-                				$id_marca = $this->uri->segment(5);
-                				$periodo = $this->uri->segment(6);
+                				$id_marca = $this->input->post('id_marca');
+                				$periodo = $this->input->post('periodo');
+                				$id_cabecera = $this->input->post('id_cabecera');
                                                 $fecha_debito = $this->input->post('fecha_debito');
                                                 $nrotarjeta = $this->input->post('nrotarjeta');
+                                                $nrorenglon = $this->input->post('nrorenglon');
                                                 $importe = $this->input->post('importe');
                                                 $this->load->model('debtarj_model');
-                                                $retact = $this->debtarj_model->mete_contracargo($periodo, $id_marca, $nrotarjeta, $importe);
+
+                                                $retact = $this->debtarj_model->mete_contracargo($id_cabecera, $nrotarjeta, $nrorenglon, $importe);
 
 
                                                 if ( $retact ) {
@@ -2152,7 +2178,7 @@ class Admin extends CI_Controller {
                                                         $data['baseurl'] = base_url();
                                                         $data['mensaje1'] = "No se encuentra esa tarjeta importe para hacer contracargo";
                                                         $data['msj_boton'] = "Volver a contracargo manual";
-                                                        //$data['url_boton'] = base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo;
+                                                        $data['url_boton'] = base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo;
                                                         $data['section'] = 'ppal-mensaje';
                 					$data['username'] = $this->session->userdata('username');
                 					$data['rango'] = $this->session->userdata('rango');
@@ -2173,8 +2199,14 @@ class Admin extends CI_Controller {
                                                 	}
                                                 	// Si encuentro contracargos ya realizados los traigo sino arranco con un array vacio
                                                 	$contras = $this->debtarj_model->get_contracargos($periodo, $id_marca);
+							$cant_rechazados = 0;
+							$impo_rechazados = 0;
                                                 	if ( $contras ) {
                                                         	$tabla=$contras;
+								foreach ( $contras as $rechazo ) {
+									$cant_rechazados++;
+									$impo_rechazados=$impo_rechazados+$rechazo->importe;
+								}
                                                 	} else {
                                                         	$tabla=array();
                                                 	}
@@ -2183,6 +2215,9 @@ class Admin extends CI_Controller {
                                                 	$data['fecha_debito'] = $gen->fecha_debito;
                                                 	$data['cant_generada'] = $gen->cant_generada;
                                                 	$data['total_generado'] = $gen->total_generado;
+                                                	$data['cant_rechazados'] = $cant_rechazados;
+                                                	$data['impo_rechazados'] = $impo_rechazados;
+                                                	$data['id_cabecera'] = $gen->id;
                                                 	$data['tabla'] = $tabla;
                                                 	$data['baseurl'] = base_url();
                                                 	$data['section'] = 'contracargos-get';
