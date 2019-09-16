@@ -811,7 +811,11 @@ class Admin extends CI_Controller {
 		$filtro_mail = $this->uri->segment(5);
 		$filtro_tele = $this->uri->segment(6);
                 $this->load->model('socios_model');
-		$data['socios'] = $this->socios_model->get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele);
+		$array_actualizar = $this->socios_model->get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele);
+		$data['cant_socios'] = $array_actualizar[0]['cant_socios'];
+		$data['cant_socios_activos'] = $array_actualizar[0]['cant_socios_act'];
+		$data['cant_socios_filtro'] = $array_actualizar[0]['cant_socios_filtro'];
+		$data['socios'] = $array_actualizar[1];
 		$data['actividad'] = $filtro_act;
 		$data['email'] = $filtro_mail;
 		$data['telefono'] = $filtro_tele;
@@ -827,12 +831,36 @@ class Admin extends CI_Controller {
 		$filtro_tele = $this->uri->segment(6);
 		$sid = $this->uri->segment(7);
                 $this->load->model('socios_model');
+                $this->load->model('general_model');
+                $data['categorias'] = $this->general_model->get_cats();
 		$data['socio'] = $this->socios_model->get_socio($sid);
 		$data['baseurl'] = base_url();
 		$data['section'] = 'asoc-act-datos';
 		$data['username'] = $this->session->userdata('username');
 		$data['rango'] = $this->session->userdata('rango');
+                $data['actividad'] = $filtro_act;
+                $data['email'] = $filtro_mail;
+                $data['telefono'] = $filtro_tele;
 		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-do':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+		$sid = $this->uri->segment(7);
+		$datos['nombre'] = $this->input->post('nombre');
+		$datos['apellido'] = $this->input->post('apellido');
+		$datos['mail'] = $this->input->post('mail');
+		$datos['telefono'] = $this->input->post('telefono');
+		$datos['celular'] = $this->input->post('celular');
+		$datos['categoria'] = $this->input->post('categoria');
+		$datos['socio_n'] = $this->input->post('socio_n');
+		$datos['update_ts'] = date('Y-m-d H:i:s');
+                $this->load->model('socios_model');
+		$this->socios_model->act_datos($sid, $datos);
+
+		redirect(base_url().'admin/socios/act-datos-ver/'.$filtro_act.'/'.$filtro_mail."/".$filtro_tele);
+
 		break;
             case 'categorias':
 		if ( $this->uri->segment(4) ) {
@@ -1367,6 +1395,7 @@ class Admin extends CI_Controller {
                     //$fecha = explode('-',$datos['nacimiento']);
                     //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
                     unset($datos['files']);
+		    $datos['update_ts']=date('Y-m-d H:i:s');
                     $uid = $this->socios_model->register($datos);
 
                 	// Grabo log de cambios
@@ -1467,6 +1496,7 @@ class Admin extends CI_Controller {
                 $tutor['dni'] = $this->input->get("tutor-dni");
                 $tutor['telefono'] = $this->input->get("tutor-telefono");
                 $tutor['mail'] = $this->input->get("tutor-mail");
+                $tutor['update_ts'] = date('Y-m-d H:i:s');
                 $this->load->model("socios_model");
                 //echo $tutor['dni']; die;
                 if(!$tutor['dni'] || $prev_user = $this->socios_model->checkDNI($tutor['dni'])){
@@ -2134,6 +2164,15 @@ class Admin extends CI_Controller {
  							} else {
                                                         	redirect(base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo);
 							}
+						} else {
+                                                                $data['baseurl'] = base_url();
+                                                                $data['mensaje1'] = "Ese periodo/tarjeta NO EXISTE";
+                                                                $data['msj_boton'] = "Volver a contracargo manual";
+                                                                $data['url_boton'] = base_url()."admin/debtarj/contracargo";
+                                                                $data['section'] = 'ppal-mensaje';
+                                                                $data['username'] = $this->session->userdata('username');
+                                                                $data['rango'] = $this->session->userdata('rango');
+                                                                $this->load->view("admin",$data);
 						}
 						break;
                                         case 'do-final':

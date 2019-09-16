@@ -145,9 +145,53 @@ class Socios_model extends CI_Model {
 
     public function get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele)
     {
-        $query="SELECT s.* FROM socios s WHERE s.Id IN ( 28896, 29219 ); ";
+	// Calculo totales para devolver en primer instancia
+        $query  = "SELECT SUM(IF(suspendido=0,1,0)) activos, COUNT(*) total FROM socios ; ";
+        $result = $this->db->query($query)->row();
+	$cant_socios = $result->total;
+	$cant_socios_act = $result->activos;
+
+        $query  = "SELECT COUNT(*) cant_filtro FROM socios s ";
+        $query .= "WHERE s.suspendido = 0 AND DATE_SUB(CURDATE(), INTERVAL $filtro_act MONTH) > s.update_ts  ";
+        if ( $filtro_mail == "sin" ) {
+                $query .= "AND s.mail = '' ";
+        } else {
+                $query .= "AND s.mail != '' ";
+        }
+        if ( $filtro_tele == "sin" ) {
+                $query .= "AND s.telefono = '' ";
+        } else {
+                $query .= "AND s.telefono != '' ";
+        }
+
+        $query .= ";";
+        $result = $this->db->query($query)->row();
+	$cant_socios_filtro = $result->cant_filtro;
+
+	// Saco los primeros 30 para devolver en segundo elemento del array
+        $query  = "SELECT s.* FROM socios s ";
+	$query .= "WHERE s.suspendido = 0 AND DATE_SUB(CURDATE(), INTERVAL $filtro_act MONTH) > s.update_ts  ";
+	if ( $filtro_mail == "sin" ) {
+		$query .= "AND s.mail = '' ";
+	} else {
+		$query .= "AND s.mail != '' ";
+	}
+        if ( $filtro_tele == "sin" ) {
+                $query .= "AND s.telefono = '' ";
+        } else {
+                $query .= "AND s.telefono != '' ";
+        }
+
+	$query .= "ORDER BY s.update_ts ASC ";
+	$query .= "LIMIT 20; ";
         $result = $this->db->query($query)->result();
-        return $result;
+	
+	$salida = array();
+
+	$salida[0] = array ( 'cant_socios'=>$cant_socios, 'cant_socios_act'=>$cant_socios_act, 'cant_socios_filtro'=>$cant_socios_filtro );
+	$salida[1] = $result;
+
+        return $salida;
     }
 
     public function get_socios_ahg()
@@ -196,6 +240,12 @@ class Socios_model extends CI_Model {
         $this->db->where('Id', $id);
         $this->db->update('socios', $data); 
     }
+
+    public function act_datos($sid,$datos){
+        $this->db->where('Id', $sid);
+        $this->db->update('socios', $datos);
+    }
+
 
     public function get_cat($id, $data){
 	$cat_new=$data['categoria'];
