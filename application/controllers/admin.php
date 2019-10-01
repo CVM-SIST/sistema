@@ -464,6 +464,14 @@ class Admin extends CI_Controller {
         echo $datos;
     }
 
+    public function listado_plateas(){
+        $this->load->model("actividades_model");
+        $datos = $this->actividades_model->get_plateas();
+        $datos = json_encode($datos);
+        echo $datos;
+    }
+
+
     public function listado_categ(){
         $this->load->model("general_model");
         $data['categorias'] = $this->general_model->get_cats();
@@ -799,6 +807,74 @@ class Admin extends CI_Controller {
             /**
 
             **/
+            case 'plateas':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'ver-plateas';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+                $this->load->model('actividades_model');
+		$data['plateas'] = $this->actividades_model->get_plateas();
+		$this->load->view('admin',$data);
+		break;
+            case 'plateas-alta':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'plateas-alta';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'plateas-alta2':
+		$sid = $this->input->post('sid');
+		$actividad = $this->input->post('actividad');
+                $this->load->model('socios_model');
+		$socio = $this->socios_model->get_socio($sid);
+		if ( $socio && $actividad ) {
+			$data['sid'] = $sid;
+			$data['socio'] = $sid."-".$socio->apellido.", ".$socio->nombre;
+			$data['actividad'] = $actividad;
+			$data['baseurl'] = base_url();
+			$data['section'] = 'plateas-alta2';
+			$data['username'] = $this->session->userdata('username');
+			$data['rango'] = $this->session->userdata('rango');
+			$this->load->view('admin',$data);
+		} else {
+                        $data['mensaje1'] = "Ese socio no existe....";
+                        $data['baseurl'] = base_url();
+                        $data['url_boton'] = base_url()."/socios/plateas-alta";
+                        $data['section'] = 'ppal-mensaje';
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $this->load->view('admin',$data);
+
+	
+		}
+		break;
+            case 'plateas-do-alta':
+		$datos['sid'] = $this->input->post('sid');
+		$datos['actividad'] = $this->input->post('actividad');
+		$datos['descripcion'] = $this->input->post('descripcion');
+		$datos['fila'] = $this->input->post('fila');
+		$datos['numero'] = $this->input->post('numero');
+		$datos['importe'] = $this->input->post('importe');
+		$datos['cuotas'] = $this->input->post('cuotas');
+		$datos['valor_cuota'] = $this->input->post('valor_cuota');
+		$datos['estado'] = '1';
+		$datos['id'] = '0';
+		$datos['fecha_alta'] = date('Y-m-d H:i:s');
+		$datos['se_cobra'] = $this->input->post('se_cobra');
+                $this->load->model('actividades_model');
+		$this->actividades_model->grabar_plateas($datos);
+                redirect(base_url().'admin/socios/plateas/');
+		break;
+            case 'plateas-baja':
+		$id_platea = $this->uri->segment(4);
+                $this->load->model('actividades_model');
+		$this->actividades_model->borrar_plateas($id_platea);
+                redirect(base_url().'admin/socios/plateas/');
+		break;
+            case 'plateas-act-datos':
+		$id_platea = $this->uri->segment(4);
+		break;
             case 'act-datos':
 		$data['baseurl'] = base_url();
 		$data['section'] = 'asoc-act-filtro';

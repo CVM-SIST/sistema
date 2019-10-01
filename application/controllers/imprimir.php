@@ -604,6 +604,14 @@ AHG Comentado 20170105 porque no se usa..... creo
         	$this->load->view('imprimir-carnet2',$data);
 	}
     }
+    public function platea(){
+        $this->load->model('actividades_model');        
+        $id = $this->uri->segment(3) ?: null;        
+        if(!$id){die;}
+	$platea = $this->actividades_model->get_platea($id);
+	$data['platea'] = $platea;
+        $this->load->view('imprimir-platea',$data);
+    }
 
     function cuentadigital($sid, $nombre, $precio, $venc=null) 
     {
