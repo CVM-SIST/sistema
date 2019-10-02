@@ -447,8 +447,16 @@ class Actividades_model extends CI_Model {
     }
 
     public function borrar_plateas($id){
+        $this->db->where("id", $id); 
+        $query = $this->db->get("plateas");
+        if($query->num_rows() == '0'){
+            return false;
+        }else{        
+            $platea_old = $query->row();
+	}
         $this->db->where('id', $id); 
-        $this->db->update('plateas',array("estado"=>'0'));
+	$ahora=date('Y-m-d H:i:s');
+	$this->db->update('plateas',array("estado"=>'0', "fecha_alta"=>$platea_old->fecha_alta, "fecha_baja"=>$ahora));
     }
 
     public function actualizar_plateas($datos, $id){
@@ -464,7 +472,7 @@ class Actividades_model extends CI_Model {
             $platea->descripcion='';
             return $platea;
         } else {
-	        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni, 
+	        $query = "SELECT p.id, p.sid, CONCAT(s.nombre,' ',s.apellido) socio, s.dni, 
                         IF (p.actividad=1,'Futbol','Basquet') actividad, 
                         p.descripcion, 
                         p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
@@ -481,7 +489,7 @@ class Actividades_model extends CI_Model {
 
     public function get_plateas()
     {
-        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni,
+        $query = "SELECT p.id, p.sid, CONCAT(s.nombre,' ',s.apellido) socio, s.dni,
 			IF (p.actividad=1,'Futbol','Basquet') actividad, 
 			p.descripcion, 
 			p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
