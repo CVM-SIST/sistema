@@ -464,7 +464,7 @@ class Actividades_model extends CI_Model {
             $platea->descripcion='';
             return $platea;
         } else {
-	        $query = "SELECT p.id, p.sid, CONCAT(p.sid,'-',s.apellido,', ',s.nombre) socio, s.dni, 
+	        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni, 
                         IF (p.actividad=1,'Futbol','Basquet') actividad, 
                         p.descripcion, 
                         p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
@@ -481,7 +481,7 @@ class Actividades_model extends CI_Model {
 
     public function get_plateas()
     {
-        $query = "SELECT p.id, p.sid, CONCAT(p.sid,'-',s.apellido,', ',s.nombre) socio, s.dni,
+        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni,
 			IF (p.actividad=1,'Futbol','Basquet') actividad, 
 			p.descripcion, 
 			p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
