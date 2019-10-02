@@ -28,15 +28,11 @@ class Estado extends CI_Controller {
 			$socio->deuda = $this->pagos_model->get_ultimo_pago_socio($socio->Id);
 			$socio->cuota = $this->pagos_model->get_monto_socio($socio->Id)['total'];			
 			$socio->facturacion = $this->pagos_model->get_facturacion($socio->Id);
-			if($socio->socio_n == ''){
-				$socio_n = $socio->Id;
+			if( $socio->socio_n == 0 ) {
+				?> <h2>#<?=$socio_Id?> - <?=$socio->apellido?>, <?=$socio->nombre?></h2> <?
 			}else{
-				$socio_n = $socio->socio_n;
+				?><h2>#<?=$socio_Id?> - (nro. original <?=$socio->socio_n?>  <?=$socio->apellido?>, <?=$socio->nombre?></h2>	<?
 			}
-			?>
-
-			<h2>#<?=$socio_n?> - <?=$socio->apellido?>, <?=$socio->nombre?></h2>			
-			<?
 			if($socio->deuda){                      
 	            $hoy = new DateTime();
 	            $d2 = new DateTime($socio->deuda->generadoel);                
@@ -91,15 +87,11 @@ class Estado extends CI_Controller {
 			$socio->deuda = $this->pagos_model->get_ultimo_pago_socio($socio->Id);
 			$socio->cuota = $this->pagos_model->get_monto_socio($socio->Id)['total'];			
 			$socio->facturacion = $this->pagos_model->get_facturacion($socio->Id);
-			if($socio->socio_n == ''){
-				$socio_n = $socio->Id;
-			}else{
-				$socio_n = $socio->socio_n;
-			}
-			?>
-
-			<h2>#<?=$socio_n?> - <?=$socio->apellido?>, <?=$socio->nombre?></h2>			
-			<?
+                        if( $socio->socio_n == 0 ) {
+                                ?> <h2>#<?=$socio->Id?> - <?=$socio->apellido?>, <?=$socio->nombre?></h2> <?
+                        }else{
+                                ?><h2>#<?=$socio->Id?> - (nro. original <?=$socio->socio_n?>) ----  <?=$socio->apellido?>, <?=$socio->nombre?></h2>    <?
+                        }
 			if($socio->deuda){                      
 	            $hoy = new DateTime();
 	            $d2 = new DateTime($socio->deuda->generadoel);                

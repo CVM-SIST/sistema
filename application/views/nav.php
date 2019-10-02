@@ -22,6 +22,7 @@
                 <li><a href="<?=$_GET['baseurl']?>admin/socios/agregar"><i class="fa fa-caret-right"></i><span data-i18n="Nuevo"></span></a></li>
                 <li><a href="<?=$_GET['baseurl']?>admin/socios"><i class="fa fa-caret-right"></i><span data-i18n="Buscar"></span></a></li>
                 <li><a href="<?=$_GET['baseurl']?>admin/socios/categorias"><i class="fa fa-caret-right"></i><span data-i18n="Categorias"></span></a></li>
+                <li><a href="<?=$_GET['baseurl']?>admin/socios/plateas"><i class="fa fa-caret-right"></i><span data-i18n="Plateas"></span></a></li>
             </ul>
         </li>         
         <li>

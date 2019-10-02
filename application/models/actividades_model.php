@@ -439,5 +439,60 @@ class Actividades_model extends CI_Model {
         return $query->result();
     }
 
+    /* Funciones de la tabla plateas */
+    public function grabar_plateas($datos)
+    {
+        $this->db->insert('plateas', $datos);
+        return $this->db->insert_id();   
+    }
+
+    public function borrar_plateas($id){
+        $this->db->where('id', $id); 
+        $this->db->update('plateas',array("estado"=>'0'));
+    }
+
+    public function actualizar_plateas($datos, $id){
+        $this->db->where('id', $id);
+        $this->db->update('plateas', $datos); 
+    }
+
+    public function get_platea($id)
+    {
+        if (!$id || $id == '0'){
+            $platea = new stdClass();
+            $platea->id=0;
+            $platea->descripcion='';
+            return $platea;
+        } else {
+	        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni, 
+                        IF (p.actividad=1,'Futbol','Basquet') actividad, 
+                        p.descripcion, 
+                        p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
+                        p.importe, p.cuotas, p.valor_cuota, 
+                        IF (p.se_cobra=1, 'SI', 'NO') se_cobra
+                  FROM plateas p
+                        JOIN socios s ON p.sid = s.Id
+                  WHERE p.id = $id;";
+            $plateas = $this->db->query($query);
+            if($plateas->num_rows() == 0) {return false;}
+            return $plateas->row();
+        }
+    }
+
+    public function get_plateas()
+    {
+        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni,
+			IF (p.actividad=1,'Futbol','Basquet') actividad, 
+			p.descripcion, 
+			p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
+			p.importe, p.cuotas, p.valor_cuota, 
+			IF (p.se_cobra=1, 'SI', 'NO') se_cobra
+		  FROM plateas p
+			JOIN socios s ON p.sid = s.Id
+		  WHERE p.estado > 0";
+        $plateas = $this->db->query($query);
+        return $plateas->result();
+    }
+
 }
 ?>

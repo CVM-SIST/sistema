@@ -572,35 +572,45 @@ AHG Comentado 20170105 porque no se usa..... creo
         $data['cupon'] = $this->pagos_model->get_cupon($id);
         $monto = $this->pagos_model->get_monto_socio($id);
         $data['monto'] = $monto = $monto['total'];
-        if($data['cupon']->monto == 0 || $data['cupon']->monto != $monto){
-            //$this->load->model('socios_model');
-            //$socio = $this->socios_model->get_socio($_POST['id']);
-            $cupon = $this->cuentadigital($id,$socio->nombre.' '.$socio->apellido,$monto);
+// TODO en mi PC no funciona el buscar cupon y ver bien con categorias $0 (prensa)
+	if ( $socio->categoria != 11 ) {
+        	if($data['cupon']->monto == 0 || $data['cupon']->monto != $monto){
+            	//$this->load->model('socios_model');
+            	//$socio = $this->socios_model->get_socio($_POST['id']);
+            	$cupon = $this->cuentadigital($id,$socio->nombre.' '.$socio->apellido,$monto);
 
-            if($cupon){                                    
-                $this->load->model('pagos_model');
-                $cupon_id = $this->pagos_model->generar_cupon($id,$monto,$cupon);
-                $data = base64_decode($cupon['image']);
-                $img = imagecreatefromstring($data);
-                    if ($img !== false) {
-                        @header('Content-Type: image/png');
-                        imagepng($img,'images/cupones/'.$cupon_id.'.png',0);
-                        imagedestroy($img);
-                        redirect(base_url().'imprimir/carnet/'.$id);
+            	if($cupon){                                    
+                	$this->load->model('pagos_model');
+                	$cupon_id = $this->pagos_model->generar_cupon($id,$monto,$cupon);
+                	$data = base64_decode($cupon['image']);
+                	$img = imagecreatefromstring($data);
+                    	if ($img !== false) {
+                        	@header('Content-Type: image/png');
+                        	imagepng($img,'images/cupones/'.$cupon_id.'.png',0);
+                        	imagedestroy($img);
+                        	redirect(base_url().'imprimir/carnet/'.$id);
+                    	} else {
+                        	echo 'Ocurrió un error.';
+                    	}                
+            	}
+        	$data['cupon'] = $this->pagos_model->get_cupon($id);
+        	}
+	}
 
-                    }
-                    else {
-                        echo 'Ocurrió un error.';
-                    }                
-            }
-        $data['cupon'] = $this->pagos_model->get_cupon($id);
-        }
         $fmto = $this->uri->segment(4);
 	if ( !$fmto ) {
         	$this->load->view('imprimir-carnet',$data);
 	} else {
         	$this->load->view('imprimir-carnet2',$data);
 	}
+    }
+    public function platea(){
+        $this->load->model('actividades_model');        
+        $id = $this->uri->segment(3) ?: null;        
+        if(!$id){die;}
+	$platea = $this->actividades_model->get_platea($id);
+	$data['platea'] = $platea;
+        $this->load->view('imprimir-platea',$data);
     }
 
     function cuentadigital($sid, $nombre, $precio, $venc=null) 
@@ -618,8 +628,6 @@ AHG Comentado 20170105 porque no se usa..... creo
             $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
         }
         
-	var_dump($url);
-
         do{
             $count++;
             $a = file_get_contents($url);

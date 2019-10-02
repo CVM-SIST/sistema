@@ -112,6 +112,7 @@ class Cron extends CI_Controller {
             //fwrite($log, date('H:i:s').' - Emails suspendidos');                        
             $this->db->update('socios',array('facturado'=>0)); //establecemos todos los socios como no facturados
             fwrite($log, date('H:i:s').' - Indicador facturado en 0 \n');                        
+		echo "cumpleaños";
     		$cumpleanios = $this->socios_model->get_cumpleanios(); //buscamos los que cumplen 18 años
 		$cump=0;
     		foreach ($cumpleanios as $menor) {
@@ -831,19 +832,18 @@ class Cron extends CI_Controller {
 			$importe = $debito->importe;
 			$estado = $debito->estado;
 			$nro_renglon = $debito->nro_renglon;
+			$id_socio = $debito->sid;
+			$ult_periodo = $debito->ult_periodo_generado;
+			$ult_fecha = $debito->ult_fecha_generacion;
+			$id_marca = $debito->id_marca;
 		
-			$debtarj = $this->debtarj_model->get_debtarj($id_debito);
-
-			$id_socio = $debtarj->sid;
-			$ult_periodo = $debtarj->ult_periodo_generado;
-			$ult_fecha = $debtarj->ult_fecha_generacion;
 
 			// Busco el saldo actual del socio
 			$total = $this->pagos_model->get_socio_total($id_socio);
                         $saldo_cc = $total + $importe;
 
                         // Le resta el pago debitado a la tarjeta al saldo 
-                        $tarjeta=$this->tarjeta_model->get($debtarj->id_marca);
+                        $tarjeta=$this->tarjeta_model->get($id_marca);
                         $descripcion = "Pago por Debito en Tarjeta $tarjeta->descripcion";
                         $data = array(
 				"sid" => $id_socio,
@@ -882,8 +882,10 @@ class Cron extends CI_Controller {
 	return $totales;
 
     }
+
     public function suspender($log)
     {
+echo "suspender";
         $this->load->model('socios_model');
 	$this->load->model('pagos_model');
         $socios = $this->socios_model->get_socios_pagan();
@@ -923,12 +925,14 @@ class Cron extends CI_Controller {
                         	$debtarj = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
                         	if ( $debtarj ) {
                                 	$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Pongo Stop DEBIT del debito de tarjeta',0,0);
-                                	$this->debtarj_model->stopdebit($debtarj->Id);
-                        	}
-
+                                	$this->debtarj_model->stopdebit($debtarj->id);
+					$txt_debito=" Hice STOP DEBIT id=$debtarj->id ";
+                        	} else {	
+					$txt_debito="";
+				}
 	
 	
-                		$txt = date('H:i:s').": Socio Suspendido #".$socio->Id." ".TRIM($socio->apellido).", ".TRIM($socio->nombre)." DNI= ".$socio->dni." atraso de ".$meses_atraso." ultimo pago ".$ds_ult. " \n";
+                		$txt = date('H:i:s').": Socio Suspendido #".$socio->Id." ".TRIM($socio->apellido).", ".TRIM($socio->nombre)." DNI= ".$socio->dni." atraso de ".$meses_atraso." ultimo pago ".$ds_ult.$txt_debito. " \n";
                 		fwrite($log, $txt);   
 	
         			$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Suspension Proceso Facturacion por atraso de'.$meses_atraso.' con ultimo pago hace '.$ds_ult.' dias',0,0);
@@ -1040,6 +1044,38 @@ class Cron extends CI_Controller {
 
 	}
     }
+
+	function control_acred_tarj(){
+        	$this->load->database('default');
+		$txt_ctrl="CONTROL DE CARGA DE ACREDITACIONES DE TARJETAS DEL ".date('Y-m-d H:i:s')."\n";
+                $qry = "SELECT sdg.id, sdg.id_marca, t.descripcion, sdg.periodo, sdg.fecha_debito, sdg.fecha_acreditacion, sdg.cant_generada, sdg.total_generado, sdg.cant_acreditada, sdg.total_acreditado,
+        			SUM(IF(sd.estado=0,1,0)) cant_rechazado, SUM(IF(sd.estado=1,1,0)) cant_ok, SUM(IF(sd.estado=9,1,0)) cant_sinproc,
+        			SUM(IF(sd.estado=0,sd.importe,0)) impo_rechazado, SUM(IF(sd.estado=0,sd.importe,0)) impo_acreditado, SUM(IF(sd.estado=9,sd.importe,0)) impo_sinproc,
+        			IF(sdg.cant_acreditada>0,'Contracargos procesados','Faltan Procesar Contracargos') mensaje
+			FROM socios_debitos_gen sdg
+        			JOIN tarj_marca t ON sdg.id_marca = t.id
+        			JOIN socios_debitos sd ON sdg.id = sd.id_cabecera
+			WHERE periodo > DATE_FORMAT(CURDATE(), '%Y%m') AND
+        			sdg.estado = 1
+			GROUP BY 1; ";
+                $resultado=$this->db->query($qry);
+                if ( $resultado->num_rows() == 0 ) {
+                        $txt_ctrl=$txt_ctrl."No hay archivos generados para el próximo mes \n";
+                } else {
+                        $txt_ctrl=$txt_ctrl. "CABECERA \t \t \t \t \t \t \t \t \t \t DETALLES \t \t \t \t \t Observacion \n";
+                        $txt_ctrl=$txt_ctrl. "ID \t idMarca \t Tarjeta \t Periodo \t FechaDebito \t FechaAcred \t Cant Generada \t Total Generado \t Cant Acreditada \t Total Acreditado \t Cant Rechazado \t Cant OK \t Cant Sin Procesar \t Total Rechazado \t Total OK \t Total Sin Procesar \t Observacion  \n";
+                        foreach ( $resultado->result() as $fila ) {
+                                $txt_ctrl=$txt_ctrl.$fila->id."\t".$fila->id_marca."\t".$fila->descripcion."\t".$fila->periodo."\t".$fila->fecha_debito."\t".$fila->fecha_acreditacion."\t".$fila->cant_generada."\t".$fila->total_generado."\t".$fila->cant_acreditada."\t".$fila->total_acreditado."\t".$fila->cant_rechazado."\t".$fila->cant_ok."\t".$fila->cant_sinproc."\t".$fila->impo_rechazado."\t".$fila->impo_acreditado."\t".$fila->impo_sinproc."\t".$fila->mensaje."\n";
+                        }
+                }
+
+                // Me mando email de aviso que el proceso termino OK
+                mail('cvm.agonzalez@gmail.com', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
+
+
+
+
+	}
 
 	function controles(){
 

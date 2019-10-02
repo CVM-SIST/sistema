@@ -5,32 +5,34 @@
 		<style type="text/css">
 		body{
 			font-family: 'Arial';
-			font-size: 12px;            
+			font-size: 10px;            
 			background: #ffffff;            
 		}
-        strong{
-            font-size: 10px;
-            font-weight: normal; 
-        }
-        .nap{
-            height:15px;overflow: hidden;
-        }
-        .carnet{
-            width: 300px;
-            height: 194px;
-            float: left;
-        }
+        	strong{
+            		font-size: 10px;
+            		font-weight: normal; 
+        	}
+        	.nap{
+            		height:15px;overflow: hidden;
+        	}
+        	.carnet{
+            		width: 300px;
+            		height: 194px;
+            		float: left;
+        	}
             <?
             switch ($socio->categoria){
 	
 		case '11':
+			$frente=base_url()."images/Prensa_Frente_300.jpg";
+			$dorso=base_url()."images/Prensa_Dorso_300.jpg";
 			?>
         		.frente{
-				background-image:url(<?=base_url()?>images/Prensa_Frente.png); 
+				background-image:url(<?=$frente?>); 
 	    			background-size: 100% 100%;
         		}
         		.dorso{
-            			background-image:url(<?=base_url()?>images/Prensa_Dorso.png); 
+            			background-image:url(<?=$dorso?>); 
 	    			background-size: 100% 100%;
         		}
         		.imagen{
@@ -43,8 +45,8 @@
             			float:right;
             			width: 165px;
             			color: #000;
-			margin-top:83px;
-            			line-height: 25px;
+				margin-top:85px;
+            			line-height: 28px;
         		}
         		.clear{
             			clear: both;
@@ -55,13 +57,15 @@
 			<?
 			break;
 		default:
+			$frente=base_url()."images/carnet-frente-new.png";
+			$dorso=base_url()."images/carnet-dorso-new.png";
 			?>
         		.frente{
-            			background-image:url(<?=base_url()?>images/carnet-frente-new.png); 
+            			background-image:url(<?=$frente?>); 
 	    			background-size: 100% 100%;
         		}
         		.dorso{
-            			background-image:url(<?=base_url()?>images/carnet-dorso-new.png); 
+            			background-image:url(<?=$dorso?>); 
 	    			background-size: 100% 100%;
         		}
         		.imagen{
@@ -92,60 +96,77 @@
 
 	<!-- <body onload="window.print(); window.close();"> -->
 
-    <div class="carnet frente"></div>
-    <div class="carnet dorso">
-        <div class="imagen">
-            <?
-            if(file_exists('images/socios/'.$socio->Id.'.jpg')){
-                
-            ?>
-                <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
-            <?
-            }else{
-            ?>
-                <img src="<?=base_url()?>images/noPic.jpg" width="80">
-            <?
-            }
-            ?>
-        </div>
         <? 
-        if($socio->socio_n){
-            $num = $socio->socio_n;
-        }else{
-            $num = $socio->Id;
-        }        
-        $fecha = explode(' ', $socio->alta);
-        $fecha = explode('-', $fecha[0]);
-        $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
-        ?>
-
-        <? 
+	    $apynom = substr($socio->nombre.", ".$socio->apellido, 0, 30);
             switch ($socio->categoria){
 
 		case '11':
 	?>	
-        	<div class="datos">
+		<div class="carnet frente">
+        		<div class="imagen">
+            		<?
+            			if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+            		?>
+                			<img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+            		<?
+            		}else{
+            		?>
+                			<img src="<?=base_url()?>images/noPic.jpg" width="80">
+            		<?
+            		}
+            		?>
+        		</div>
+        		<div class="datos">
             	
-		<div style="font-weight:bold"><?=ucfirst($socio->apellido)?> <?=ucfirst($socio->nombre)?></div>
-            	<div style="font-weight:bold">DNI <?=$socio->dni?></div>
-            	<div style="font-weight:bold"><?=$socio->observaciones?></div>
+			<div style="font-weight:bold"><?=$apynom?></div>
+            		<div style="font-weight:bold">DNI <?=$socio->dni?></div>
+            		<div style="font-weight:bold"><?=$socio->observaciones?></div>
+        		</div>
+        		<div align="right" class="barcode">
+            		<?
+            		if( file_exists("images/cupones/".$cupon->Id.".png") ){
+            		?>
+            			<br>
+            			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
+            		<?
+            		}
+            		?>
+        		</div>
         	</div>
-        	<div align="right" class="barcode">
-            	<?
-            	if( file_exists("images/cupones/".$cupon->Id.".png") ){
-            	?>
-            	<br>
-            	<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
-            	<?
-            	}
-            	?>
-        	</div>
+    		<div class="carnet dorso"> </div>
 	<? break;
 
 		default:
 	?>
+		<div class="carnet frente"></div>
+    		<div class="carnet dorso">
+        	<div class="imagen">
+            		<?
+            			if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+            		?>
+                			<img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+            		<?
+            		}else{
+            		?>
+                			<img src="<?=base_url()?>images/noPic.jpg" width="80">
+            		<?
+            		}
+            		?>
+        	</div>
+        	
+		<?
+        		if($socio->socio_n){
+            			$num = $socio->socio_n;
+        		}else{
+            			$num = $socio->Id;
+        		}
+        		$fecha = explode(' ', $socio->alta);
+        		$fecha = explode('-', $fecha[0]);
+        		$fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
+        	?>
+
         	<div class="datos">
-            	<div class="nap" style="font-weight:bold"><?=ucfirst($socio->apellido)?> <?=ucfirst($socio->nombre)?></div>
+            	<div class="nap" style="font-weight:bold"><?=$apynom?></div>
             	<div class="nap" style="font-weight:bold">DNI <?=$socio->dni?></div>
             	<div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
             	<div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>

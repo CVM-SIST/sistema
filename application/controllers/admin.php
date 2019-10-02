@@ -208,6 +208,7 @@ class Admin extends CI_Controller {
 			} else {
 				$socio=$this->socios_model->get_socio_by_dni($col1);
 			}
+			//var_dump($socio);
 
 
 			if ( $socio ) {
@@ -215,7 +216,7 @@ class Admin extends CI_Controller {
 				$existe=0;
 				$act_asoc=$this->actividades_model->get_act_asoc_puntual($sid,$id_actividad);
 				if ( $act_asoc ) {
-					$socios[] = array(
+					$nuevo = array(
             					'sid' => $sid,
             					'apynom' => $socio->nombre.' '.$socio->apellido,
             					'estado_asoc' => $socio->suspendido,
@@ -224,7 +225,7 @@ class Admin extends CI_Controller {
             					);
 					$existe=1;
 				} else {
-					$socios[] = array(
+					$nuevo = array(
             					'sid' => $sid,
             					'apynom' => $socio->nombre.' '.$socio->apellido,
             					'estado_asoc' => $socio->suspendido,
@@ -234,13 +235,18 @@ class Admin extends CI_Controller {
 				}
 
 			} else {
-					$socios[] = array(
-            					'sid' => $col1,
+					if ( $dato1col == "sid" ) { $sid=$col1; $dni=0; } else { $sid=0; $dni=$col1; };
+
+					$nuevo = array(
+            					'sid' => $sid,
             					'apynom' => $dato1col.' - No existe en la base de datos ',
-            					'estado_asoc' => 0,
-            					'dni'=> 0,
-            					'actividad' => 0
+            					'estado_asoc' => 99,
+            					'dni'=> $dni,
+            					'actividad' => 99
             					);
+			}
+			if ( !in_array($nuevo, $socios) ) {
+				$socios[]=$nuevo;
 			}
 			$serial++;
 
@@ -458,6 +464,14 @@ class Admin extends CI_Controller {
         echo $datos;
     }
 
+    public function listado_plateas(){
+        $this->load->model("actividades_model");
+        $datos = $this->actividades_model->get_plateas();
+        $datos = json_encode($datos);
+        echo $datos;
+    }
+
+
     public function listado_categ(){
         $this->load->model("general_model");
         $data['categorias'] = $this->general_model->get_cats();
@@ -508,31 +522,9 @@ class Admin extends CI_Controller {
 				$this->load->view('admin',$data);
 			}
 		} else {
-                	if($this->session->userdata('prox_vto') == -1 ){
-				if ( $this->session->userdata('username') == "admin" ) {
-                                        $data['mensaje1'] = "El usuario admin no se puede usar mas, tiene que tener un login personal";
-                                        $data['baseurl'] = base_url();
-                                        $data['section'] = 'ppal-mensaje';
-                                        $data['username'] = $this->session->userdata('username');
-                                        $data['rango'] = $this->session->userdata('rango');
-					$data['force_msj'] = "Entre con su login personal";
-                                        $data['force_page'] = "admin/logout";
-					$this->load->view('admin',$data);
-				} else {
-					$data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
-					$data['baseurl'] = base_url();
-					$data['section'] = 'ppal-mensaje';
-					$data['username'] = $this->session->userdata('username');
-					$data['rango'] = $this->session->userdata('rango');
-					$data['force_msj'] = "Cambio contraseña forzoso";
-					$data['force_page'] = "admin/admins/chgpwd-forzado";
-					$this->load->view('admin',$data);
-				}
-			} else {
             			redirect(base_url()."admin/socios");
 			}
 		}
-	}
     }
 
     public function morosos(){
@@ -556,21 +548,31 @@ class Admin extends CI_Controller {
             }else{
                 $username = $this->input->post('username');
                 $password = sha1($this->input->post('password'));
-                $check_user = $this->login_model->login_user($username,$password);
-                if($check_user == TRUE)
-                {
-			// Valido ultimo cambio de contraseña
-                        $str_fecha = date('Ymd');
-			if ( $check_user->ult_cambio > 90 || ( $username == "admin" && $str_fecha > 20190610 ) ) {
-				$prox_vto = -1;
-			} else { 
+		if ( $username == "admin" ) {
+		                $this->session->set_flashdata('usuario_incorrecto','admin NO SE USA MAS!!!. Ingrese con su login personal.');
+                		redirect(base_url().'admin');
+                } else 
+                	$check_user = $this->login_model->login_user($username,$password);
+                	$str_fecha = date('Ymd');
+			if ( $check_user->ult_cambio > 90 ) {
+				$check_user == FALSE;
+                                $data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['force_msj'] = "Cambio contraseña forzoso";
+                                $data['force_page'] = "admin/admins/chgpwd-forzado";
+                                $this->load->view('admin',$data);
+		} else {
+                	if($check_user == TRUE) {
+				// Valido ultimo cambio de contraseña
 				if ( $check_user->ult_cambio > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
 				}
-			}
-                   	$data = array( 'is_logued_in'     =>         TRUE,
+                   		$data = array( 'is_logued_in'     =>         TRUE,
                     				'id_usuario'     =>         $check_user->Id,
                   				'rango'        =>        $check_user->rango,
                    				'mail'        =>        $check_user->mail,
@@ -578,22 +580,23 @@ class Admin extends CI_Controller {
 						'prox_vto'	=> $prox_vto,
                     				'last_chgpwd'         =>         $check_user->last_chgpwd);
 
-                    	$this->session->set_userdata($data);
-                    	$this->login_model->update_lCon();
+                    		$this->session->set_userdata($data);
+                    		$this->login_model->update_lCon();
 		
-                    	// Grabo log de cambios
-                    	$login = $this->session->userdata('username');
-                    	$nivel_acceso = $this->session->userdata('rango');
-                    	$tabla = "login";
-                    	$operacion = 0;
-                    	$llave = $this->session->userdata('id_usuario');
-                    	$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
-                    	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                    		// Grabo log de cambios
+                    		$login = $this->session->userdata('username');
+                    		$nivel_acceso = $this->session->userdata('rango');
+                    		$tabla = "login";
+                    		$operacion = 0;
+                    		$llave = $this->session->userdata('id_usuario');
+                    		$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
+                    		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
-                    	redirect(base_url().'admin');
-		}
-            }
-    }
+                    		redirect(base_url().'admin');
+			}
+            	}
+    		}
+	}
 
 	public function token()
     {
@@ -804,6 +807,137 @@ class Admin extends CI_Controller {
             /**
 
             **/
+            case 'plateas':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'ver-plateas';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+                $this->load->model('actividades_model');
+		$data['plateas'] = $this->actividades_model->get_plateas();
+		$this->load->view('admin',$data);
+		break;
+            case 'plateas-alta':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'plateas-alta';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'plateas-alta2':
+		$sid = $this->input->post('sid');
+		$actividad = $this->input->post('actividad');
+                $this->load->model('socios_model');
+		$socio = $this->socios_model->get_socio($sid);
+		if ( $socio && $actividad ) {
+			$data['sid'] = $sid;
+			$data['socio'] = $sid."-".$socio->apellido.", ".$socio->nombre;
+			$data['actividad'] = $actividad;
+			$data['baseurl'] = base_url();
+			$data['section'] = 'plateas-alta2';
+			$data['username'] = $this->session->userdata('username');
+			$data['rango'] = $this->session->userdata('rango');
+			$this->load->view('admin',$data);
+		} else {
+                        $data['mensaje1'] = "Ese socio no existe....";
+                        $data['baseurl'] = base_url();
+                        $data['url_boton'] = base_url()."/socios/plateas-alta";
+                        $data['section'] = 'ppal-mensaje';
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $this->load->view('admin',$data);
+
+	
+		}
+		break;
+            case 'plateas-do-alta':
+		$datos['sid'] = $this->input->post('sid');
+		$datos['actividad'] = $this->input->post('actividad');
+		$datos['descripcion'] = $this->input->post('descripcion');
+		$datos['fila'] = $this->input->post('fila');
+		$datos['numero'] = $this->input->post('numero');
+		$datos['importe'] = $this->input->post('importe');
+		$datos['cuotas'] = $this->input->post('cuotas');
+		$datos['valor_cuota'] = $this->input->post('valor_cuota');
+		$datos['estado'] = '1';
+		$datos['id'] = '0';
+		$datos['fecha_alta'] = date('Y-m-d H:i:s');
+		$datos['se_cobra'] = $this->input->post('se_cobra');
+                $this->load->model('actividades_model');
+		$this->actividades_model->grabar_plateas($datos);
+                redirect(base_url().'admin/socios/plateas/');
+		break;
+            case 'plateas-baja':
+		$id_platea = $this->uri->segment(4);
+                $this->load->model('actividades_model');
+		$this->actividades_model->borrar_plateas($id_platea);
+                redirect(base_url().'admin/socios/plateas/');
+		break;
+            case 'plateas-act-datos':
+		$id_platea = $this->uri->segment(4);
+		break;
+            case 'act-datos':
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-filtro';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-ver':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+                $this->load->model('socios_model');
+		$array_actualizar = $this->socios_model->get_socios_actdatos($filtro_act, $filtro_mail, $filtro_tele);
+		$data['cant_socios'] = $array_actualizar[0]['cant_socios'];
+		$data['cant_socios_activos'] = $array_actualizar[0]['cant_socios_act'];
+		$data['cant_socios_filtro'] = $array_actualizar[0]['cant_socios_filtro'];
+		$data['socios'] = $array_actualizar[1];
+		$data['actividad'] = $filtro_act;
+		$data['email'] = $filtro_mail;
+		$data['telefono'] = $filtro_tele;
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-ver';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-socio':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+		$sid = $this->uri->segment(7);
+                $this->load->model('socios_model');
+                $this->load->model('general_model');
+                $data['categorias'] = $this->general_model->get_cats();
+		$data['socio'] = $this->socios_model->get_socio($sid);
+		$data['baseurl'] = base_url();
+		$data['section'] = 'asoc-act-datos';
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+                $data['actividad'] = $filtro_act;
+                $data['email'] = $filtro_mail;
+                $data['telefono'] = $filtro_tele;
+		$this->load->view('admin',$data);
+		break;
+            case 'act-datos-do':
+		$filtro_act = $this->uri->segment(4);
+		$filtro_mail = $this->uri->segment(5);
+		$filtro_tele = $this->uri->segment(6);
+		$sid = $this->uri->segment(7);
+		$datos['nombre'] = $this->input->post('nombre');
+		$datos['apellido'] = $this->input->post('apellido');
+		$datos['mail'] = $this->input->post('mail');
+		$datos['telefono'] = $this->input->post('telefono');
+		$datos['celular'] = $this->input->post('celular');
+		$datos['categoria'] = $this->input->post('categoria');
+		$datos['socio_n'] = $this->input->post('socio_n');
+		$datos['update_ts'] = date('Y-m-d H:i:s');
+                $this->load->model('socios_model');
+		$this->socios_model->act_datos($sid, $datos);
+
+		redirect(base_url().'admin/socios/act-datos-ver/'.$filtro_act.'/'.$filtro_mail."/".$filtro_tele);
+
+		break;
             case 'categorias':
 		if ( $this->uri->segment(4) ) {
 			switch ( $this->uri->segment(4) ) {
@@ -1337,6 +1471,7 @@ class Admin extends CI_Controller {
                     //$fecha = explode('-',$datos['nacimiento']);
                     //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
                     unset($datos['files']);
+		    $datos['update_ts']=date('Y-m-d H:i:s');
                     $uid = $this->socios_model->register($datos);
 
                 	// Grabo log de cambios
@@ -1437,6 +1572,7 @@ class Admin extends CI_Controller {
                 $tutor['dni'] = $this->input->get("tutor-dni");
                 $tutor['telefono'] = $this->input->get("tutor-telefono");
                 $tutor['mail'] = $this->input->get("tutor-mail");
+                $tutor['update_ts'] = date('Y-m-d H:i:s');
                 $this->load->model("socios_model");
                 //echo $tutor['dni']; die;
                 if(!$tutor['dni'] || $prev_user = $this->socios_model->checkDNI($tutor['dni'])){
@@ -1771,7 +1907,7 @@ class Admin extends CI_Controller {
 			    } else {
 				    // Chequeo si el periodo esta generado y quiero volver a generarlo
 				    if ( $this->debtarj_model->exist_periodo_marca($periodo, $id_marca) ) {
-					    redirect(base_url()."admin/debtarj/gen-debtarj/1/".$periodo);
+					    redirect(base_url()."admin/debtarj/gen-debtarj/1/".$periodo."/".$id_marca);
 				    }
 			    }
 
@@ -1836,7 +1972,7 @@ class Admin extends CI_Controller {
 							    $fecha = date('Y-m-d');
 							    $ts = date('Y-m-d H:i:s');
 							    // Inserto el debito del mes
-							    $this->debtarj_model->insert_debito($id_debito, $id_cabecera, $importe );
+							    $this->debtarj_model->insert_debito($id_debito, $id_cabecera, $importe, $renglon );
 
 							    // Actualizo el ultimo periodo y fecha de generacion
 							    $debtarj->ult_periodo_generado=$periodo;
@@ -1845,6 +1981,7 @@ class Admin extends CI_Controller {
 
 							    $asoc_gen++;
 							    $total_gen = $total_gen + $importe;
+					            	    $result[]=array('renglon'=>$renglon++,'sid'=>$debtarj->sid,'mensaje'=>$mensaje);
 						    } else {
 							    $mensaje="Tiene cuota mensual de $ $cta pero no se le descuenta porque tiene diferencia anterior de $ $saldo\n";
 						    }
@@ -1856,7 +1993,6 @@ class Admin extends CI_Controller {
 						    }
 						    $mensaje="No se genera porque tiene estado $estado \n";
 					    }
-					    $result[]=array('renglon'=>$renglon++,'sid'=>$debtarj->sid,'mensaje'=>$mensaje);
 				    }
 			    }
 
@@ -1943,9 +2079,13 @@ class Admin extends CI_Controller {
 				    $data['ult_debito'] = $ultd;
 			    }
 
+			    $data['id_marca_sel'] = 0;
 			    if ( $this->uri->segment(4) ) {
 				    $data['flag'] = 1;
 				    $data['ult_debito'] = $this->uri->segment(5);
+				    if ( $this->uri->segment(6) ) {
+				    	$data['id_marca_sel'] = $this->uri->segment(6);
+				    } 
 			    } else {
 				    $data['flag'] = 0;
 			    }
@@ -2083,25 +2223,60 @@ class Admin extends CI_Controller {
 				$accion=$this->uri->segment(4);
                                 switch ( $accion ) {
                                         case 'getcab':
-                				$id_marca = $this->uri->segment(5);
-                				$periodo = $this->uri->segment(6);
+                				$id_marca = $this->input->post('marca');
+                				$periodo = $this->input->post('periodo');
 	                                        $this->load->model('debtarj_model');
                                         	$gen = $this->debtarj_model->get_periodo_marca($periodo, $id_marca);
 						if ($gen) { 
-							$salida=json_encode($gen); 
-						} else { 
-							$salida=null; 
+							if ( $gen->cant_acreditada > 0 ) {
+	                                                        $data['baseurl'] = base_url();
+                                                        	$data['mensaje1'] = "Ese periodo/tarjeta ya esta acreditado";
+                                                        	$data['msj_boton'] = "Volver a contracargo manual";
+                                                        	$data['url_boton'] = base_url()."admin/debtarj/contracargo";
+                                                        	$data['section'] = 'ppal-mensaje';
+                                                        	$data['username'] = $this->session->userdata('username');
+                                                        	$data['rango'] = $this->session->userdata('rango');
+                                                        	$this->load->view("admin",$data);
+ 							} else {
+                                                        	redirect(base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo);
+							}
+						} else {
+                                                                $data['baseurl'] = base_url();
+                                                                $data['mensaje1'] = "Ese periodo/tarjeta NO EXISTE";
+                                                                $data['msj_boton'] = "Volver a contracargo manual";
+                                                                $data['url_boton'] = base_url()."admin/debtarj/contracargo";
+                                                                $data['section'] = 'ppal-mensaje';
+                                                                $data['username'] = $this->session->userdata('username');
+                                                                $data['rango'] = $this->session->userdata('rango');
+                                                                $this->load->view("admin",$data);
 						}
-						echo $salida;
+						break;
+                                        case 'do-final':
+                                                $id_cabecera = $this->input->post('id_cabecera');
+                                                $this->load->model('debtarj_model');
+                                                $this->debtarj_model->cierre_contracargo($id_cabecera);
+
+                                                $data['baseurl'] = base_url();
+                                                $data['mensaje1'] = "Periodo cerrado de contracargos";
+                                                $data['msj_boton'] = "Volver a menu";
+                                                $data['url_boton'] = base_url()."admin/";
+                                                $data['section'] = 'ppal-mensaje';
+                                                $data['username'] = $this->session->userdata('username');
+                                                $data['rango'] = $this->session->userdata('rango');
+                                                $this->load->view("admin",$data);
+
 						break;
                                         case 'do':
-                				$id_marca = $this->uri->segment(5);
-                				$periodo = $this->uri->segment(6);
+                				$id_marca = $this->input->post('id_marca');
+                				$periodo = $this->input->post('periodo');
+                				$id_cabecera = $this->input->post('id_cabecera');
                                                 $fecha_debito = $this->input->post('fecha_debito');
                                                 $nrotarjeta = $this->input->post('nrotarjeta');
+                                                $nrorenglon = $this->input->post('nrorenglon');
                                                 $importe = $this->input->post('importe');
                                                 $this->load->model('debtarj_model');
-                                                $retact = $this->debtarj_model->mete_contracargo($periodo, $id_marca, $nrotarjeta, $importe);
+
+                                                $retact = $this->debtarj_model->mete_contracargo($id_cabecera, $nrotarjeta, $nrorenglon, $importe);
 
 
                                                 if ( $retact ) {
@@ -2118,7 +2293,7 @@ class Admin extends CI_Controller {
                                                         $data['baseurl'] = base_url();
                                                         $data['mensaje1'] = "No se encuentra esa tarjeta importe para hacer contracargo";
                                                         $data['msj_boton'] = "Volver a contracargo manual";
-                                                        //$data['url_boton'] = base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo;
+                                                        $data['url_boton'] = base_url()."admin/debtarj/contracargo/view/".$id_marca."/".$periodo;
                                                         $data['section'] = 'ppal-mensaje';
                 					$data['username'] = $this->session->userdata('username');
                 					$data['rango'] = $this->session->userdata('rango');
@@ -2139,8 +2314,14 @@ class Admin extends CI_Controller {
                                                 	}
                                                 	// Si encuentro contracargos ya realizados los traigo sino arranco con un array vacio
                                                 	$contras = $this->debtarj_model->get_contracargos($periodo, $id_marca);
+							$cant_rechazados = 0;
+							$impo_rechazados = 0;
                                                 	if ( $contras ) {
                                                         	$tabla=$contras;
+								foreach ( $contras as $rechazo ) {
+									$cant_rechazados++;
+									$impo_rechazados=$impo_rechazados+$rechazo->importe;
+								}
                                                 	} else {
                                                         	$tabla=array();
                                                 	}
@@ -2149,6 +2330,9 @@ class Admin extends CI_Controller {
                                                 	$data['fecha_debito'] = $gen->fecha_debito;
                                                 	$data['cant_generada'] = $gen->cant_generada;
                                                 	$data['total_generado'] = $gen->total_generado;
+                                                	$data['cant_rechazados'] = $cant_rechazados;
+                                                	$data['impo_rechazados'] = $impo_rechazados;
+                                                	$data['id_cabecera'] = $gen->id;
                                                 	$data['tabla'] = $tabla;
                                                 	$data['baseurl'] = base_url();
                                                 	$data['section'] = 'contracargos-get';
