@@ -87,22 +87,32 @@
 	<!-- <body onload="window.print(); window.close();"> -->
 <?		
 		$largo1=strlen(trim($platea->socio));
-		if ( $largo1 > 62 ) {
+		if ( $largo1 > 40 ) {
 			$relleno1=5;
-			$nombre_socio=substr(trim($platea->socio), 0, 42);
+			$nombre_socio=substr(trim($platea->socio), 0, 40);
 		} else {
-			$relleno1=62-$largo1;
-			$nombre_socio=trim($platea->socio);
+			if ( $largo1 < 25 ) {
+				if ( $largo1 < 15 ) {
+					$relleno1=63-$largo1;
+					$nombre_socio=trim($platea->socio);
+				} else { 
+					$relleno1=50-$largo1;
+					$nombre_socio=trim($platea->socio);
+				}
+			} else {
+				$relleno1=50-$largo1;
+				$nombre_socio=trim($platea->socio);
+			}
 		}
 		$largo2=strlen($platea->dni);
-		$relleno2=72-$largo2;
+		$relleno2=70-$largo2;
 ?>
 
 		<div class="carnet frente">
         		<div class="datos">
             	
 			   <div style="font-weight:bold">
-				<?=$platea->socio?> 
+				<?=$platea->socio?>  
 <?for ($i=1; $i<=$relleno1; $i++ ) { echo "&nbsp"; }?>
 				<?=$platea->fila?>
 			   </div>
