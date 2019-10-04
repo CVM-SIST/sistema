@@ -833,6 +833,7 @@ class Admin extends CI_Controller {
 			$data['socio'] = $sid."-".$socio->apellido.", ".$socio->nombre;
 			$data['actividad'] = $actividad;
 			$data['baseurl'] = base_url();
+			$data['accion'] = 'alta';
 			$data['section'] = 'plateas-alta2';
 			$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
@@ -874,6 +875,38 @@ class Admin extends CI_Controller {
 		break;
             case 'plateas-act-datos':
 		$id_platea = $this->uri->segment(4);
+                $this->load->model('actividades_model');
+		$platea = $this->actividades_model->get_platea($id_platea);
+                $data['platea'] = $platea;
+                $data['sid'] = $platea->sid;
+                $data['socio'] = $platea->socio;
+                if ( $platea->actividad == "Futbol" ) {
+                	$data['actividad'] = 1;
+		} else {
+                	$data['actividad'] = 2;
+		}
+                $data['baseurl'] = base_url();
+                $data['accion'] = 'modi';
+                $data['section'] = 'plateas-alta2';
+                $data['username'] = $this->session->userdata('username');
+                $data['rango'] = $this->session->userdata('rango');
+                $this->load->view('admin',$data);
+		break;
+            case 'plateas-doact-datos':
+		$id = $this->input->post('id');
+		$datos['id'] = $id;
+		$datos['sid'] = $this->input->post('sid');
+		$datos['actividad'] = $this->input->post('actividad');
+		$datos['descripcion'] = $this->input->post('descripcion');
+		$datos['fila'] = $this->input->post('fila');
+		$datos['numero'] = $this->input->post('numero');
+		$datos['importe'] = $this->input->post('importe');
+		$datos['cuotas'] = $this->input->post('cuotas');
+		$datos['valor_cuota'] = $this->input->post('valor_cuota');
+		$datos['se_cobra'] = $this->input->post('se_cobra');
+                $this->load->model('actividades_model');
+		$this->actividades_model->actualizar_plateas($datos, $id);
+                redirect(base_url().'admin/socios/plateas/');
 		break;
             case 'act-datos':
 		$data['baseurl'] = base_url();
