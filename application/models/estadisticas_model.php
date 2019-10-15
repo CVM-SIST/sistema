@@ -99,7 +99,7 @@ class Estadisticas_model extends CI_Model {
 			SUM(IF(p.estado=1 AND p.pagado = 0,  p.monto, 0 )) impago
 		FROM pagos p ";
 	if ( $id_comision > 0 ) {
-		$qry .= "	LEFT JOIN tmp_actividades USING ( aid ) ";
+		$qry .= "	JOIN tmp_actividades USING ( aid ) ";
 	}
 	if ( $id_actividad == -2 ) {
 		$qry .= "	LEFT JOIN actividades_asociadas aa ON ( p.tutor_id = aa.sid AND aa.estado = 1 ) ";
