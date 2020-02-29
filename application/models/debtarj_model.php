@@ -18,11 +18,11 @@ class Debtarj_model extends CI_Model {
         return $this->db->insert_id();   
     }
 
-    public function stopdebit($id){
+    public function stopdebit($id, $pone){
         $this->db->where('Id', $id); 
 	$query=$this->db->get('socios_debito_tarj');
 	$debtarj=$query->row();
-	if ( $debtarj->estado == 1 ) {
+	if ( $pone ) {
         	$this->db->where('Id', $id); 
         	$this->db->update('socios_debito_tarj',array("estado"=>'2'));
 	} else {

@@ -348,6 +348,7 @@ class Socios_model extends CI_Model {
         $res['mail'] = $socio->mail;
         $res['deuda'] = $this->pagos_model->get_deuda_sinhoy($sid);
         $res['sid'] = $sid;
+        $res['socio_n'] = $socio->socio_n;
 	$debtarj = $this->debtarj_model->get_debtarj_by_sid($sid);
 	if ( $debtarj ) {
         	$res['debtarj'] = $debtarj;

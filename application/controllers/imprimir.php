@@ -31,7 +31,7 @@ class Imprimir extends CI_Controller {
                 $this->load->model('pagos_model');                
                 $clientes = $this->socios_model->get_socios();
                     
-                $titulo = "CVM - Socios - ".date('d-m-Y');
+                $titulo = "CVM_Socios_".date('d-m-Y');
                 
                 
                 

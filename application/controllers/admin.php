@@ -807,6 +807,9 @@ class Admin extends CI_Controller {
             /**
 
             **/
+            case 'listado_plateas':
+		$this->listado_plateas();
+		break;
             case 'plateas':
 		$data['baseurl'] = base_url();
 		$data['section'] = 'ver-plateas';
@@ -1233,7 +1236,7 @@ class Admin extends CI_Controller {
 		$debtarj = $this->debtarj_model->get_debtarj_by_sid($id_socio);
 		if ( $debtarj ) {
                 	$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Stop DEBIT del debito de tarjeta',0,0);
-			$this->debtarj_model->stopdebit($debtarj->Id);
+			$this->debtarj_model->stopdebit($debtarj->Id, true);
 		}
                 // Grabo log de cambios
                 $login = $this->session->userdata('username');
@@ -1268,7 +1271,7 @@ class Admin extends CI_Controller {
 			$debtarj = $this->debtarj_model->get_debtarj_by_sid($id_socio);
 			if ( $debtarj ) {
                 		$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Vuelvo a sacar Stop DEBIT del debito de tarjeta',0,0);
-				$this->debtarj_model->stopdebit($debtarj->Id);
+				$this->debtarj_model->stopdebit($debtarj->Id, false);
 			}
 
                 	// Grabo log de cambios
@@ -1474,6 +1477,8 @@ class Admin extends CI_Controller {
                 {
                     $datos[$key] = $this->input->post($key);
                 }
+var_dump($datos);
+die;
                 if($datos['socio_n'] >= 28852){
                     $datos['socio_n'] = '';
                     $error = "?e=socio_n";
@@ -1491,7 +1496,8 @@ class Admin extends CI_Controller {
                 }
                 $this->load->model("socios_model");
 
-                if($prev_user = $this->socios_model->checkDNI($datos['dni'])){
+		// Controlo DNI duplicado salvo que sea sponsor 
+                if($prev_user = $this->socios_model->checkDNI($datos['dni']) && $datos['categoria'] != 12){
                     //el dni esta repetido, incluimos la vista de listado con el usuario coincidente
                     $data['username'] = $this->session->userdata('username');
                     $data['rango'] = $this->session->userdata('rango');
@@ -1500,6 +1506,9 @@ class Admin extends CI_Controller {
                     $data['section'] = 'socio-dni-repetido';
                     $this->load->view('admin',$data);
                 }else{
+                    if($datos['categoria'] == 12){
+			$datos['dni'] = '';
+		    }
                     //llamamos al modelo en insertamos los datos
                     //$fecha = explode('-',$datos['nacimiento']);
                     //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
@@ -2389,7 +2398,7 @@ class Admin extends CI_Controller {
 			break;
                 case 'stopdebit':
                         $this->load->model('debtarj_model');
-                        $this->debtarj_model->stopdebit($this->uri->segment(4));
+                        $this->debtarj_model->stopdebit($this->uri->segment(4),true);
                         $debtarj=$this->debtarj_model->get_debtarj($this->uri->segment(4));
                         $id_socio=$debtarj->sid;
                 		// Grabo log de cambios
@@ -3933,9 +3942,6 @@ class Admin extends CI_Controller {
 // AHG  mover imagen de temp a directorio attach
                 $envio = array('body' => $this->input->post('text') );
                 $this->general_model->update_envio($id,$envio);
-		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
-			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
-		}
                 break;
 
             case 'agregar':
