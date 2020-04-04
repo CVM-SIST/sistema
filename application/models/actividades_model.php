@@ -88,6 +88,16 @@ class Actividades_model extends CI_Model {
         $query = $this->db->get("actividades");
         return $query->result();
     }    
+    public function get_actsoc_comision($comision){
+        $qry = "SELECT a.Id aid, a.nombre descr_actividad, a.precio, a.seguro, s.Id sid, s.dni, CONCAT(s.nombre,', ',s.apellido) apynom, DATE_FORMAT(s.nacimiento ,'%d/%m/%Y' ) nacimiento
+                FROM actividades a
+                        JOIN actividades_asociadas aa ON a.Id = aa.aid AND aa.estado = 1
+                        JOIN socios s ON aa.sid = s.Id
+                WHERE a.estado = 1 AND a.comision = $comision AND a.precio > 5000
+                ORDER BY a.Id, s.dni;";
+        $socact = $this->db->query($qry);
+        return $socact->result();
+    }    
     public function get_actividades(){
         $this->db->order_by("nombre", "asc"); 
         $this->db->where("estado >",'0');

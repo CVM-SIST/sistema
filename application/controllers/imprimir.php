@@ -330,17 +330,14 @@ class Imprimir extends CI_Controller {
             case 'morosos':                
                 $data['baseurl'] = base_url();                
                 $this->load->model('pagos_model');
-                $comision = $this->input->post('comisiones');
                 $actividad = $this->input->post('morosos_activ'); 
-                if($comision || $actividad){                           
-                    	$data['morosos'] = $this->pagos_model->get_morosos($comision, $actividad);
+                if($actividad){                           
+                    	$data['morosos'] = $this->pagos_model->get_morosos($actividad);
                 }else{
                     $data['morosos'] = false;
                 }
                 $this->load->model('actividades_model');
                 $data['actividad_sel'] = $actividad;
-                $data['comision_sel'] = $comision;
-                $data['comisiones'] = $this->actividades_model->get_comisiones();
                 $data['actividades'] = $this->actividades_model->get_actividades();
                 $this->load->view('imprimir/morosos',$data);
                 break;
@@ -1139,13 +1136,13 @@ AHG Comentado 20170105 porque no se usa..... creo
     // end: setExcel
     }
 
-    public function morosos_excel($comision='',$actividad=''){
+    public function morosos_excel($actividad=''){
                     
         $this->load->model('pagos_model');
         $this->load->model('actividades_model');
                 
-	if($comision || $actividad){
-		$clientes = $this->pagos_model->get_morosos($comision, $actividad);
+	if($actividad){
+		$clientes = $this->pagos_model->get_morosos($actividad);
             	$titulo = "CVM - Morosos - ".date('d-m-Y');
 	} else {
 		return false;

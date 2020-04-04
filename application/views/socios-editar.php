@@ -1,7 +1,7 @@
 <section class="page page-profile">
     <div class="panel panel-default">
 
-	<? if ( $rango < 2 ) { ?>
+	<? if ( $rango < 3 ) { ?>
         	<div class="panel-heading"><strong><span class="fa fa-plus"></span> Editar Socio</strong></div>
 	<? } else { ?>
         	<div class="panel-heading"><strong><span class="fa fa-plus"></span> Ver Socio</strong></div>
@@ -16,7 +16,7 @@
             <?
             }else{
             ?>
-		<? if ( $rango < 2 ) { ?>
+		<? if ( $rango < 3 ) { ?>
             		<form class="form-horizontal ng-pristine ng-valid" action="<?=$baseurl?>admin/socios/guardar/<?=$socio->Id?>" method="post">
 		<? } else { ?>
             		<form class="form-horizontal ng-pristine ng-valid" >
@@ -214,7 +214,7 @@
                     </div>
                 </div>  
                 <div class="clearfix"></div>
-                <? if ( $rango < 2 ) { ?>
+                <? if ( $rango < 3 ) { ?>
                 	<button type="submit" id="save_btn" class="btn btn-success">Guardar</button>
                 <? } ?>
 

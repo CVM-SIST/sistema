@@ -32,10 +32,14 @@
                             <i class="fa fa-plus"></i> Más Acciones...
                             <span class="caret"></span>
                             </button><ul class="dropdown-menu" role="menu" aria-labelledby="btnGroupDrop1">
+		<? if ( $rango == 2 ) { ?>
+                                <li><a id="acceso_ver_resumen" href="<?=$baseurl?>admin/socios/resumen/<?=$socio->Id?>">Ver Resumen</a></li>
+		<? } else { ?>
                                 <li><a id="acceso_ver_resumen" href="<?=$baseurl?>admin/socios/resumen/<?=$socio->Id?>">Ver Resumen</a></li>
                                 <li><a id="acceso_pago" href="<?=$baseurl?>admin/pagos/registrar/<?=$socio->Id?>">Registrar Pago</a></li>
                                 <li><a id="acceso_deuda" href="<?=$baseurl?>admin/pagos/deuda/<?=$socio->Id?>">Financiar Deuda</a></li>
                                 <li><a id="acceso_resumen" href="<?=$baseurl?>admin/socios/enviar_resumen/<?=$socio->Id?>">Enviar Resumen</a></li>
+		<? } ?>
                             </ul>
                         </div>
                     </div>                   

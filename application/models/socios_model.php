@@ -53,22 +53,18 @@ class Socios_model extends CI_Model {
     }
     public function get_socio($id)
     {
-        if ( $id > 0 ) {
-            $query = $this->db->get_where('socios',array('Id' => $id,'estado'=> '1'),1);
-            if($query->num_rows() == 0){return false;}
-            return $query->row();
-        } else {
-	    if ( $id == 0 ) {
-		return false;
-	    } else {
+        if ( !$id || $id == '0' ) {
             	$socio = new stdClass();
             	$socio->Id=0;
             	$socio->nombre=0;
             	$socio->apellido=0;
             	$socio->dni=0;
             	return $socio;
-	    }
-        }
+        } else {
+            $query = $this->db->get_where('socios',array('Id' => $id,'estado'=> '1'),1);
+            if($query->num_rows() == 0){return false;}
+            return $query->row();
+	}
     }
 
     public function get_socios_comision($comision, $activ)

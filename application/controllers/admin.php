@@ -497,34 +497,23 @@ class Admin extends CI_Controller {
 
 
     public function index() {
-	if(!$this->session->userdata('is_logued_in')){
-		$data['token'] = $this->token();
-           	$data['baseurl'] = base_url();
-		$this->load->view('login-form',$data);
-	}else{
-		if($this->session->userdata('prox_vto') == 1 ){
-			if ( $this->session->userdata('username') == "admin" ) {
-				$data['mensaje1'] = "El usuario admin se discontinua a partir del 10-junio-2019";
-				$data['mensaje2'] = "Recuerde acceder con su login personal";
-				$data['baseurl'] = base_url();
-				$data['section'] = 'ppal-mensaje';
-				$data['username'] = $this->session->userdata('username');
-				$data['rango'] = $this->session->userdata('rango');
-				$data['msj_boton'] =  "Continuar igual";
-				$data['url_boton'] =  "admin/socios";
-				$this->load->view('admin',$data);
-			} else {
-				$data['mensaje1'] = "La contraseña actual se vence en 10 dias recuerde cambiarla";
-				$data['baseurl'] = base_url();
-				$data['section'] = 'ppal-mensaje';
-				$data['username'] = $this->session->userdata('username');
-				$data['rango'] = $this->session->userdata('rango');
-				$this->load->view('admin',$data);
-			}
+		if(!$this->session->userdata('is_logued_in')){
+        		$data['baseurl'] = base_url();
+        		$data['token'] = $this->token();
+        		$this->load->view('login-form',$data);
 		} else {
-            			redirect(base_url()."admin/socios");
-			}
-		}
+        		if($this->session->userdata('prox_vto') == 1 ){
+            			$data['mensaje1'] = "La contraseña actual se vence en 10 dias o menos recuerde cambiarla";
+            			$data['section'] = 'ppal-mensaje';
+            			$this->load->view('admin',$data);
+        		} else {
+                    		if($this->session->userdata('prox_vto') == -1 ){
+                        		redirect(base_url()."admin/admins/chgpwd");
+            			} else {
+                        		redirect(base_url()."admin/socios");
+            			}
+        		}
+    		}
     }
 
     public function morosos(){
@@ -548,37 +537,40 @@ class Admin extends CI_Controller {
             }else{
                 $username = $this->input->post('username');
                 $password = sha1($this->input->post('password'));
-		if ( $username == "admin" ) {
-		                $this->session->set_flashdata('usuario_incorrecto','admin NO SE USA MAS!!!. Ingrese con su login personal.');
-                		redirect(base_url().'admin');
-                } else 
-                	$check_user = $this->login_model->login_user($username,$password);
-                	$str_fecha = date('Ymd');
+                $check_user = $this->login_model->login_user($username,$password);
+                if($check_user == TRUE) {
+
+	                // Valido ultimo cambio de contraseña
 			if ( $check_user->ult_cambio > 90 ) {
-				$check_user == FALSE;
-                                $data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
-                                $data['baseurl'] = base_url();
-                                $data['section'] = 'ppal-mensaje';
-                                $data['username'] = $this->session->userdata('username');
-                                $data['rango'] = $this->session->userdata('rango');
-                                $data['force_msj'] = "Cambio contraseña forzoso";
-                                $data['force_page'] = "admin/admins/chgpwd-forzado";
-                                $this->load->view('admin',$data);
-		} else {
-                	if($check_user == TRUE) {
-				// Valido ultimo cambio de contraseña
-				if ( $check_user->ult_cambio > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
+				$prox_vto = -1;
+			} else {
+				if ( $check_user->ult_cambio > 80 ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
 				}
+			}
+			$hoy=new DateTime(date('Y-m-d'));
+			$ult_cambio=new DateTime($check_user->last_chpwd);
+			$dias = $hoy->diff($ult_cambio);
+			if ( $dias->days > 90 ) {
+				$prox_vto = -1;
+			} else {
+				if ( $dias->days > 80 ) {
+					$prox_vto = 1;
+				} else {
+					$prox_vto = 0;
+				}
+			}
+
+
                    		$data = array( 'is_logued_in'     =>         TRUE,
                     				'id_usuario'     =>         $check_user->Id,
                   				'rango'        =>        $check_user->rango,
                    				'mail'        =>        $check_user->mail,
                     				'username'         =>         $check_user->user,
 						'prox_vto'	=> $prox_vto,
-                    				'last_chgpwd'         =>         $check_user->last_chgpwd);
+                    				'last_chgpwd'         =>         $check_user->last_chpwd);
 
                     		$this->session->set_userdata($data);
                     		$this->login_model->update_lCon();
@@ -595,7 +587,6 @@ class Admin extends CI_Controller {
                     		redirect(base_url().'admin');
 			}
             	}
-    		}
 	}
 
 	public function token()
