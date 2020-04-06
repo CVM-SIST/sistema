@@ -1,7 +1,7 @@
 <section class="page page-profile">
     <div class="panel panel-default">
 
-	<? if ( $rango < 2 ) { ?>
+	<? if ( $rango < 3 ) { ?>
         	<div class="panel-heading"><strong><span class="fa fa-plus"></span> Editar Socio</strong></div>
 	<? } else { ?>
         	<div class="panel-heading"><strong><span class="fa fa-plus"></span> Ver Socio</strong></div>
@@ -16,7 +16,7 @@
             <?
             }else{
             ?>
-		<? if ( $rango < 2 ) { ?>
+		<? if ( $rango < 3 ) { ?>
             		<form class="form-horizontal ng-pristine ng-valid" action="<?=$baseurl?>admin/socios/guardar/<?=$socio->Id?>" method="post">
 		<? } else { ?>
             		<form class="form-horizontal ng-pristine ng-valid" >
@@ -92,61 +92,25 @@
                     </div>
                 </div>               
                 <div class="clearfix"></div>
-                <div id="menor" style="display: none;">
-                    <div class="form-group col-lg-6">
-                        <label for="" class="col-sm-3">DNI Contacto #1</label>
-                        <div id="r1-data" <? if($contacto1->Id != 0){ echo 'class="hidden"'; }?>>
-                        
-                            <div class="col-sm-5">
-                                <input type="text" name="r1" id="r1" class="form-control">
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r1" class="btn btn-primary">Buscar</a> <i id="r1-loading" class="fa fa-spinner fa-spin hidden"></i>
-                            </div>
-                        </div>
-                        <div id="r1-result" <? if($contacto1->Id == 0){ echo 'class="hidden"'; }?>>
-                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                           <? echo $contacto1->nombre.' '.$contacto1->apellido.' ('.$contacto1->dni.')'; ?> <a href="#" onclick="cleear('r1')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
-                        </div>
-                        <input type="hidden" name="r1-id" id="r1-id" class="form-control" value="<?=$contacto1->Id?>">
-                    </div>
-                    <div class="form-group col-lg-6">
-                        <label for="" class="col-sm-3">DNI Contacto #2</label>
-                        <div id="r2-data" <? if($contacto2->Id != 0){ echo 'class="hidden"'; }?>>
-                            <div class="col-sm-5">
-                                <input type="text" name="r2" id="r2" class="form-control">
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r2" class="btn btn-primary">Buscar</a> <i id="r2-loading" class="fa fa-spinner fa-spin hidden"></i>
-                            </div>
-                        </div>
-                        <div id="r2-result" <? if($contacto2->Id == 0){ echo 'class="hidden"'; }?>>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <? echo $contacto2->nombre.' '.$contacto2->apellido.' ('.$contacto2->dni.')'; ?> <a href="#" onclick="cleear('r2')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
-                        </div>
-                        <input type="hidden" name="r2-id" id="r2-id" class="form-control" value="<?=$contacto2->Id?>">
-                    </div>                    
-                </div>
 
                 
 
-                <div class="clearfix"></div>
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Tutor de Grupo Familiar</label>
-                        <div id="r3-data" <? if($tutor->Id != 0){ echo 'class="hidden"'; }?>>
+                        <div id="tutor-data" <? if($socio->tutor != 0){ echo 'class="hidden"'; }?>>
                             <div class="col-sm-5">
-                                <input type="text" name="r3" id="r3" class="form-control">
+                                <input type="text" name="tutor" id="tutor" class="form-control">
                             </div>
                             <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r3" class="btn btn-primary">Buscar</a> <i id="r3-loading" class="fa fa-spinner fa-spin hidden"></i>
+                                <a href="#" id="r-buscar" data-id="tutor" class="btn btn-primary">Buscar</a> <i id="tutor-loading" class="fa fa-spinner fa-spin hidden"></i>
                             </div>
                         </div>
-                        <div id="r3-result" <? if($tutor->Id == 0){ echo 'class="hidden"'; }?>>
+                        <div id="tutor-result" <? if($socio->tutor == 0){ echo 'class="hidden"'; }?>>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <? echo $tutor->nombre.' '.$tutor->apellido.' ('.$tutor->dni.')'; ?> <a href="#" onclick="cleear('r3')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>                        
+                        <? echo $tutor->nombre.' '.$tutor->apellido.' ('.$tutor->dni.')'; ?> <a href="#" onclick="cleear('tutor')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
                         </div>
-                        <input type="hidden" name="r3-id" id="r3-id" class="form-control" value="<?=$tutor->Id?>">
                 </div>
+
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Categoría de Socio</label>
                     <div class="col-sm-9">
@@ -250,7 +214,7 @@
                     </div>
                 </div>  
                 <div class="clearfix"></div>
-                <? if ( $rango < 2 ) { ?>
+                <? if ( $rango < 3 ) { ?>
                 	<button type="submit" id="save_btn" class="btn btn-success">Guardar</button>
                 <? } ?>
 

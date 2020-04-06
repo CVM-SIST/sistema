@@ -48,8 +48,9 @@ class General_model extends CI_Model {
         return $query->result();
     }*/
 
-    public function get_config($value='')
+    public function get_config($id)
     {
+        $query = $this->db->where('id', $id);
         $query = $this->db->get('configuracion');
         $config = $query->row();
         $query->free_result();

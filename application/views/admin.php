@@ -351,16 +351,20 @@
 		})
 
 		$("#save_btn").click(function() {
-                    var fecha = $("#fechan").val();
+		    var categ = $("#s_cate").val();
+		    // No controlo para categoria sponsor
+		    if ( categ != 12 ) {
+                    	var fecha = $("#fechan").val();
 			<?  $hoy=date('Y-m-d'); ?>
-		    if ( fecha == 0 || fecha == "0000-00-00" ) {
-			alert ("Error en la fecha de nacimiento, no puede ser 0");
-			return false;
-		   }
-                    if ( fecha > '<?=$hoy?>' ) {
-                        alert ("Error en la fecha de nacimiento, no puede ser mayor a hoy");
-                        return false;
-                   };
+		    	if ( fecha == 0 || fecha == "0000-00-00" ) {
+				alert ("Error en la fecha de nacimiento, no puede ser 0");
+				return false;
+		   	}
+                    	if ( fecha > '<?=$hoy?>' ) {
+                        	alert ("Error en la fecha de nacimiento, no puede ser mayor a hoy");
+                        	return false;
+                   	}
+		  };
 		})
 
                 <?

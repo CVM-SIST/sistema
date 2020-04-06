@@ -88,6 +88,16 @@ class Actividades_model extends CI_Model {
         $query = $this->db->get("actividades");
         return $query->result();
     }    
+    public function get_actsoc_comision($comision){
+        $qry = "SELECT a.Id aid, a.nombre descr_actividad, a.precio, a.seguro, s.Id sid, s.dni, CONCAT(s.nombre,', ',s.apellido) apynom, DATE_FORMAT(s.nacimiento ,'%d/%m/%Y' ) nacimiento
+                FROM actividades a
+                        JOIN actividades_asociadas aa ON a.Id = aa.aid AND aa.estado = 1
+                        JOIN socios s ON aa.sid = s.Id
+                WHERE a.estado = 1 AND a.comision = $comision AND a.precio > 5000
+                ORDER BY a.Id, s.dni;";
+        $socact = $this->db->query($qry);
+        return $socact->result();
+    }    
     public function get_actividades(){
         $this->db->order_by("nombre", "asc"); 
         $this->db->where("estado >",'0');
@@ -447,8 +457,16 @@ class Actividades_model extends CI_Model {
     }
 
     public function borrar_plateas($id){
+        $this->db->where("id", $id); 
+        $query = $this->db->get("plateas");
+        if($query->num_rows() == '0'){
+            return false;
+        }else{        
+            $platea_old = $query->row();
+	}
         $this->db->where('id', $id); 
-        $this->db->update('plateas',array("estado"=>'0'));
+	$ahora=date('Y-m-d H:i:s');
+	$this->db->update('plateas',array("estado"=>'0', "fecha_alta"=>$platea_old->fecha_alta, "fecha_baja"=>$ahora));
     }
 
     public function actualizar_plateas($datos, $id){
@@ -464,7 +482,7 @@ class Actividades_model extends CI_Model {
             $platea->descripcion='';
             return $platea;
         } else {
-	        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni, 
+	        $query = "SELECT p.id, p.sid, CONCAT(s.nombre,' ',s.apellido) socio, s.dni, 
                         IF (p.actividad=1,'Futbol','Basquet') actividad, 
                         p.descripcion, 
                         p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,
@@ -481,7 +499,7 @@ class Actividades_model extends CI_Model {
 
     public function get_plateas()
     {
-        $query = "SELECT p.id, p.sid, CONCAT(s.apellido,', ',s.nombre) socio, s.dni,
+        $query = "SELECT p.id, p.sid, CONCAT(s.nombre,' ',s.apellido) socio, s.dni,
 			IF (p.actividad=1,'Futbol','Basquet') actividad, 
 			p.descripcion, 
 			p.fecha_alta, p.fila, p.numero, CONCAT(p.fila,'-',p.numero) platea,

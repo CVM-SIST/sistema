@@ -122,11 +122,30 @@
                 </tr>
             </thead>
             <tbody>
+
+
+                <tr data-ng-repeat="store in currentPageStores">
+                    <td>{{store.id}}</td>
+                    <td>{{store.socio}}</td>
+                    <td>{{store.actividad}}</td>
+                    <td>{{store.descripcion}}</td>
+                    <td>{{store.platea}}</td>
+                    <td>{{store.fecha_alta}}</td>
+                    <td>{{store.importe}}</td>
+                    <td>{{store.cuotas}}</td>
+                    <td>{{store.valor_cuota}}</td>
+                    <td>{{store.se_cobra}}</td>
+                    <td><a href="<?=base_url()?>admin/socios/plateas-act-datos/{{store.id}}">Editar</a> |
+                      <a href="<?=base_url()?>admin/socios/plateas-baja/{{sotre.id}}">Eliminar</a> |
+                      <a id="imprimir_platea" data-id="{{store.id}}" href="#">Imprimir</a>
+		    </td>
+
+                </tr>
+
                 <?
                 foreach ($plateas as $platea) {              
                 ?>
-                <tr>
-                <tr>
+                <!--<tr>
                     <td><?=$platea->id?></td>
                     <td><?=$platea->socio?></td>
                     
@@ -141,7 +160,7 @@
                     <td><a href="<?=base_url()?>admin/socios/plateas-act-datos/<?=$platea->id?>">Editar</a> | 
                       <a href="<?=base_url()?>admin/socios/plateas-baja/<?=$platea->id?>">Eliminar</a> |
                       <a id="imprimir_platea" data-id="<?=$platea->id?>" href="#">Imprimir</a></td>
-                </tr>
+                </tr>-->
                 <?
                 }
                 ?>                              

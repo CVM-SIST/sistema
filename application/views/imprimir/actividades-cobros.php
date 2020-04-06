@@ -57,7 +57,7 @@
 		</div>
 		<h3 class="page-header">Pagos ingresados del <?=date('d/m/Y',strtotime($fecha1))?> al <?=date('d/m/Y',strtotime($fecha2))?></h3>
 		<? if(isset($actividad_info)){ ?>
-        <h3>ACTIVIDAD: <?=$actividad_info->nombre?></h3>
+        <h3>ACTIVIDAD: <?if ($actividad_s == -1) { echo "Cuota Social"; } else { =$actividad_info->nombre }?></h3>
         <? } ?>
 	</div>
 	<table class="table table-striped table-bordered" cellspacing="0" width="100%" id="actividades_cobros">

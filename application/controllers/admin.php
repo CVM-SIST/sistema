@@ -497,34 +497,23 @@ class Admin extends CI_Controller {
 
 
     public function index() {
-	if(!$this->session->userdata('is_logued_in')){
-		$data['token'] = $this->token();
-           	$data['baseurl'] = base_url();
-		$this->load->view('login-form',$data);
-	}else{
-		if($this->session->userdata('prox_vto') == 1 ){
-			if ( $this->session->userdata('username') == "admin" ) {
-				$data['mensaje1'] = "El usuario admin se discontinua a partir del 10-junio-2019";
-				$data['mensaje2'] = "Recuerde acceder con su login personal";
-				$data['baseurl'] = base_url();
-				$data['section'] = 'ppal-mensaje';
-				$data['username'] = $this->session->userdata('username');
-				$data['rango'] = $this->session->userdata('rango');
-				$data['msj_boton'] =  "Continuar igual";
-				$data['url_boton'] =  "admin/socios";
-				$this->load->view('admin',$data);
-			} else {
-				$data['mensaje1'] = "La contraseña actual se vence en 10 dias recuerde cambiarla";
-				$data['baseurl'] = base_url();
-				$data['section'] = 'ppal-mensaje';
-				$data['username'] = $this->session->userdata('username');
-				$data['rango'] = $this->session->userdata('rango');
-				$this->load->view('admin',$data);
-			}
+		if(!$this->session->userdata('is_logued_in')){
+        		$data['baseurl'] = base_url();
+        		$data['token'] = $this->token();
+        		$this->load->view('login-form',$data);
 		} else {
-            			redirect(base_url()."admin/socios");
-			}
-		}
+        		if($this->session->userdata('prox_vto') == 1 ){
+            			$data['mensaje1'] = "La contraseña actual se vence en 10 dias o menos recuerde cambiarla";
+            			$data['section'] = 'ppal-mensaje';
+            			$this->load->view('admin',$data);
+        		} else {
+                    		if($this->session->userdata('prox_vto') == -1 ){
+                        		redirect(base_url()."admin/admins/chgpwd");
+            			} else {
+                        		redirect(base_url()."admin/socios");
+            			}
+        		}
+    		}
     }
 
     public function morosos(){
@@ -548,37 +537,40 @@ class Admin extends CI_Controller {
             }else{
                 $username = $this->input->post('username');
                 $password = sha1($this->input->post('password'));
-		if ( $username == "admin" ) {
-		                $this->session->set_flashdata('usuario_incorrecto','admin NO SE USA MAS!!!. Ingrese con su login personal.');
-                		redirect(base_url().'admin');
-                } else 
-                	$check_user = $this->login_model->login_user($username,$password);
-                	$str_fecha = date('Ymd');
+                $check_user = $this->login_model->login_user($username,$password);
+                if($check_user == TRUE) {
+
+	                // Valido ultimo cambio de contraseña
 			if ( $check_user->ult_cambio > 90 ) {
-				$check_user == FALSE;
-                                $data['mensaje1'] = "Su contraseña SE VENCIO - Debe ingresar una nueva contraseña";
-                                $data['baseurl'] = base_url();
-                                $data['section'] = 'ppal-mensaje';
-                                $data['username'] = $this->session->userdata('username');
-                                $data['rango'] = $this->session->userdata('rango');
-                                $data['force_msj'] = "Cambio contraseña forzoso";
-                                $data['force_page'] = "admin/admins/chgpwd-forzado";
-                                $this->load->view('admin',$data);
-		} else {
-                	if($check_user == TRUE) {
-				// Valido ultimo cambio de contraseña
-				if ( $check_user->ult_cambio > 80 || ( $username == "admin" && $str_fecha > 20190601 ) ) {
+				$prox_vto = -1;
+			} else {
+				if ( $check_user->ult_cambio > 80 ) {
 					$prox_vto = 1;
 				} else {
 					$prox_vto = 0;
 				}
+			}
+			$hoy=new DateTime(date('Y-m-d'));
+			$ult_cambio=new DateTime($check_user->last_chpwd);
+			$dias = $hoy->diff($ult_cambio);
+			if ( $dias->days > 90 ) {
+				$prox_vto = -1;
+			} else {
+				if ( $dias->days > 80 ) {
+					$prox_vto = 1;
+				} else {
+					$prox_vto = 0;
+				}
+			}
+
+
                    		$data = array( 'is_logued_in'     =>         TRUE,
                     				'id_usuario'     =>         $check_user->Id,
                   				'rango'        =>        $check_user->rango,
                    				'mail'        =>        $check_user->mail,
                     				'username'         =>         $check_user->user,
 						'prox_vto'	=> $prox_vto,
-                    				'last_chgpwd'         =>         $check_user->last_chgpwd);
+                    				'last_chgpwd'         =>         $check_user->last_chpwd);
 
                     		$this->session->set_userdata($data);
                     		$this->login_model->update_lCon();
@@ -595,7 +587,6 @@ class Admin extends CI_Controller {
                     		redirect(base_url().'admin');
 			}
             	}
-    		}
 	}
 
 	public function token()
@@ -807,6 +798,9 @@ class Admin extends CI_Controller {
             /**
 
             **/
+            case 'listado_plateas':
+		$this->listado_plateas();
+		break;
             case 'plateas':
 		$data['baseurl'] = base_url();
 		$data['section'] = 'ver-plateas';
@@ -833,6 +827,7 @@ class Admin extends CI_Controller {
 			$data['socio'] = $sid."-".$socio->apellido.", ".$socio->nombre;
 			$data['actividad'] = $actividad;
 			$data['baseurl'] = base_url();
+			$data['accion'] = 'alta';
 			$data['section'] = 'plateas-alta2';
 			$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
@@ -874,6 +869,38 @@ class Admin extends CI_Controller {
 		break;
             case 'plateas-act-datos':
 		$id_platea = $this->uri->segment(4);
+                $this->load->model('actividades_model');
+		$platea = $this->actividades_model->get_platea($id_platea);
+                $data['platea'] = $platea;
+                $data['sid'] = $platea->sid;
+                $data['socio'] = $platea->socio;
+                if ( $platea->actividad == "Futbol" ) {
+                	$data['actividad'] = 1;
+		} else {
+                	$data['actividad'] = 2;
+		}
+                $data['baseurl'] = base_url();
+                $data['accion'] = 'modi';
+                $data['section'] = 'plateas-alta2';
+                $data['username'] = $this->session->userdata('username');
+                $data['rango'] = $this->session->userdata('rango');
+                $this->load->view('admin',$data);
+		break;
+            case 'plateas-doact-datos':
+		$id = $this->input->post('id');
+		$datos['id'] = $id;
+		$datos['sid'] = $this->input->post('sid');
+		$datos['actividad'] = $this->input->post('actividad');
+		$datos['descripcion'] = $this->input->post('descripcion');
+		$datos['fila'] = $this->input->post('fila');
+		$datos['numero'] = $this->input->post('numero');
+		$datos['importe'] = $this->input->post('importe');
+		$datos['cuotas'] = $this->input->post('cuotas');
+		$datos['valor_cuota'] = $this->input->post('valor_cuota');
+		$datos['se_cobra'] = $this->input->post('se_cobra');
+                $this->load->model('actividades_model');
+		$this->actividades_model->actualizar_plateas($datos, $id);
+                redirect(base_url().'admin/socios/plateas/');
 		break;
             case 'act-datos':
 		$data['baseurl'] = base_url();
@@ -1200,7 +1227,7 @@ class Admin extends CI_Controller {
 		$debtarj = $this->debtarj_model->get_debtarj_by_sid($id_socio);
 		if ( $debtarj ) {
                 	$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Stop DEBIT del debito de tarjeta',0,0);
-			$this->debtarj_model->stopdebit($debtarj->Id);
+			$this->debtarj_model->stopdebit($debtarj->Id, true);
 		}
                 // Grabo log de cambios
                 $login = $this->session->userdata('username');
@@ -1235,7 +1262,7 @@ class Admin extends CI_Controller {
 			$debtarj = $this->debtarj_model->get_debtarj_by_sid($id_socio);
 			if ( $debtarj ) {
                 		$this->pagos_model->registrar_pago('debe',$id_socio,0.00,'Vuelvo a sacar Stop DEBIT del debito de tarjeta',0,0);
-				$this->debtarj_model->stopdebit($debtarj->Id);
+				$this->debtarj_model->stopdebit($debtarj->Id, false);
 			}
 
                 	// Grabo log de cambios
@@ -1441,6 +1468,8 @@ class Admin extends CI_Controller {
                 {
                     $datos[$key] = $this->input->post($key);
                 }
+var_dump($datos);
+die;
                 if($datos['socio_n'] >= 28852){
                     $datos['socio_n'] = '';
                     $error = "?e=socio_n";
@@ -1458,7 +1487,8 @@ class Admin extends CI_Controller {
                 }
                 $this->load->model("socios_model");
 
-                if($prev_user = $this->socios_model->checkDNI($datos['dni'])){
+		// Controlo DNI duplicado salvo que sea sponsor 
+                if($prev_user = $this->socios_model->checkDNI($datos['dni']) && $datos['categoria'] != 12){
                     //el dni esta repetido, incluimos la vista de listado con el usuario coincidente
                     $data['username'] = $this->session->userdata('username');
                     $data['rango'] = $this->session->userdata('rango');
@@ -1467,6 +1497,9 @@ class Admin extends CI_Controller {
                     $data['section'] = 'socio-dni-repetido';
                     $this->load->view('admin',$data);
                 }else{
+                    if($datos['categoria'] == 12){
+			$datos['dni'] = '';
+		    }
                     //llamamos al modelo en insertamos los datos
                     //$fecha = explode('-',$datos['nacimiento']);
                     //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
@@ -2356,7 +2389,7 @@ class Admin extends CI_Controller {
 			break;
                 case 'stopdebit':
                         $this->load->model('debtarj_model');
-                        $this->debtarj_model->stopdebit($this->uri->segment(4));
+                        $this->debtarj_model->stopdebit($this->uri->segment(4),true);
                         $debtarj=$this->debtarj_model->get_debtarj($this->uri->segment(4));
                         $id_socio=$debtarj->sid;
                 		// Grabo log de cambios
@@ -3900,9 +3933,6 @@ class Admin extends CI_Controller {
 // AHG  mover imagen de temp a directorio attach
                 $envio = array('body' => $this->input->post('text') );
                 $this->general_model->update_envio($id,$envio);
-		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
-			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
-		}
                 break;
 
             case 'agregar':

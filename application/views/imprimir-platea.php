@@ -36,8 +36,9 @@
 	    			background-size: 100% 100%;
         		}
         		.datos{
+  				display: grid;
+  				grid-template-columns: 200px 100px;
             			float:left;
-            			width: 250px;
             			color: #000;
 				margin-left:28px;
 				margin-top:85px;
@@ -64,12 +65,17 @@
 	    			background-size: 100% 100%;
         		}
         		.datos{
-            			float:left;
-            			width: 250px;
-            			color: #FFF;
-				margin-left:28px;
-            			margin-top:85px;
-            			line-height: 30px;
+                                display: grid;
+                                grid-template-columns: 200px 100px;
+                                float:left;
+                                color: #000;
+                                margin-left:28px;
+                                margin-top:85px;
+                                line-height: 30px;
+
+        		}
+        		.clear{
+            			clear: both;
         		}
         		.clear{
             			clear: both;
@@ -85,29 +91,34 @@
 	</head>
 
 	<!-- <body onload="window.print(); window.close();"> -->
-<?		
-		$largo1=strlen($platea->socio);
-		$relleno1=38-$largo1;
-		$largo2=strlen($platea->dni);
-		$relleno2=64-$largo2;
-?>
 
-		<div class="carnet frente">
-        		<div class="datos">
-            	
+     		<div class="carnet frente">
+<div class="datos">
+
+   <div class="item1">
 			   <div style="font-weight:bold">
-				<?=$platea->socio?> 
-<?for ($i=1; $i<=$relleno1; $i++ ) { echo "&nbsp"; }?>
-				<?=$platea->fila?>
+				<?=$platea->socio?>  
 			   </div>
-            		   <div style="font-weight:bold">
-				<?=$platea->dni?> 
-<?for ($i=1; $i<=$relleno2; $i++ ) { echo "&nbsp"; }?>
-				<?=$platea->numero?>
+   </div>
+   <div class="item2">
+			   <div style="font-weight:bold">
+				<?=$platea->fila?>  
 			   </div>
-        		</div>
+   </div>
+   <div class="item3">
+                           <div style="font-weight:bold">
+                                <?=$platea->dni?>
+                           </div>
+   </div>
+   <div class="item4">
+                           <div style="font-weight:bold">
+                                <?=$platea->numero?>
+                           </div>
+   </div>
+</div>
 
         	</div>
+
     		<div class="carnet dorso"> </div>
 
 

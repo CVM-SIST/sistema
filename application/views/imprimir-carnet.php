@@ -122,16 +122,6 @@
             		<div style="font-weight:bold">DNI <?=$socio->dni?></div>
             		<div style="font-weight:bold"><?=$socio->observaciones?></div>
         		</div>
-        		<div align="right" class="barcode">
-            		<?
-            		if( file_exists("images/cupones/".$cupon->Id.".png") ){
-            		?>
-            			<br>
-            			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
-            		<?
-            		}
-            		?>
-        		</div>
         	</div>
     		<div class="carnet dorso"> </div>
 	<? break;

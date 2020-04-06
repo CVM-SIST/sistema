@@ -16,6 +16,7 @@
 				}else{
 					?>
 					<img src="<?=$img_path?>vm-head.png">
+                    <br>
 					<?
 					if ( $img_attach ) {
 						?>

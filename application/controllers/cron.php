@@ -429,7 +429,11 @@ class Cron extends CI_Controller {
 		$cuerpo .= "</table>";
 
 		// Datos del Titular
-            	$cuerpo .= '<h3 style="font-family:verdana"><strong>Titular:</strong> '.$mail['sid'].'-'.$cuota3['titular'].'</h3>';
+		if ( $mail['socio_n'] > 0 ) {
+            		$cuerpo .= '<h3 style="font-family:verdana"><strong>Titular:</strong> '.$mail['sid'].'-'.$cuota3['titular'].' ( Nro. Socio: '.$mail['socio_n'].')</h3>';
+		} else {
+            		$cuerpo .= '<h3 style="font-family:verdana"><strong>Titular:</strong> '.$mail['sid'].'-'.$cuota3['titular'].'</h3>';
+		}
 
 		// Analizo deuda previa a la facturación para poner mensaje acorde
                 if($deuda < 0 ){
@@ -925,7 +929,7 @@ echo "suspender";
                         	$debtarj = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
                         	if ( $debtarj ) {
                                 	$this->pagos_model->registrar_pago('debe',$socio->Id,0.00,'Pongo Stop DEBIT del debito de tarjeta',0,0);
-                                	$this->debtarj_model->stopdebit($debtarj->id);
+                                	$this->debtarj_model->stopdebit($debtarj->id,true);
 					$txt_debito=" Hice STOP DEBIT id=$debtarj->id ";
                         	} else {	
 					$txt_debito="";

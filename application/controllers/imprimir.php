@@ -29,11 +29,9 @@ class Imprimir extends CI_Controller {
                 $this->load->model('socios_model');                
                 $this->load->model('general_model');                
                 $this->load->model('pagos_model');                
-                $clientes = $this->socios_model->get_socios();
+                $clientes = $this->socios_model->get_socios_activos();
                     
-                $titulo = "CVM - Socios - ".date('d-m-Y');
-                
-                
+                $titulo = "CVM_Socios_".date('d-m-Y');
                 
                 $this->load->library('PHPExcel');                
                 $this->phpexcel->getProperties()->setCreator("Club Villa Mitre")
@@ -47,7 +45,6 @@ class Imprimir extends CI_Controller {
                         'startcolor' => array('rgb' => 'E9E9E9'),
                     )
                 );
-                 
 
                 // agregamos información a las celdas
                 $this->phpexcel->setActiveSheetIndex(0)
@@ -69,6 +66,7 @@ class Imprimir extends CI_Controller {
                             ->setCellValue('P1', 'Estado')
                             ->setCellValue('Q1', 'Observaciones')
                             ->setCellValue('R1', 'Saldo en Cuenta Corriente');                 
+
                 
                 $cont = 2;
                 foreach ($clientes as $cliente) {
@@ -95,17 +93,17 @@ class Imprimir extends CI_Controller {
 
                     $this->phpexcel->setActiveSheetIndex(0)
                                 ->setCellValue('A'.$cont, $cliente->Id)
-                                ->setCellValue('B'.$cont, $cliente->apellido)  
+                                ->setCellValue('B'.$cont, trim($cliente->apellido))
                                 ->setCellValue('C'.$cont, trim($cliente->nombre))  
                                 ->setCellValue('D'.$cont, $cliente->dni)  
                                 ->setCellValue('E'.$cont, $cliente->domicilio)  
                                 ->setCellValue('F'.$cont, $cliente->localidad)  
                                 ->setCellValue('G'.$cont, $cliente->nacionalidad)  
                                 ->setCellValue('H'.$cont, $cliente->nacimiento)
-                                ->setCellValue('I'.$cont, $cliente->telefono)
-                                ->setCellValue('J'.$cont, $cliente->mail)
-                                ->setCellValue('K'.$cont, $cliente->celular)
-                                ->setCellValue('L'.$cont, $tutor->Id.' - '.$tutor->apellido.' '.$tutor->nombre)
+                                ->setCellValue('I'.$cont, trim($cliente->telefono))
+                                ->setCellValue('J'.$cont, trim($cliente->mail))
+                                ->setCellValue('K'.$cont, trim($cliente->celular))
+                                ->setCellValue('L'.$cont, $tutor->Id.' - '.trim($tutor->apellido).' '.trim($tutor->nombre))
                                 ->setCellValue('M'.$cont, $categoria->nomb)
                                 ->setCellValue('N'.$cont, $cliente->descuento)
                                 ->setCellValue('O'.$cont, $cliente->alta)
@@ -114,8 +112,9 @@ class Imprimir extends CI_Controller {
                                 ->setCellValue('R'.$cont, $saldo);                               
                                 $cont ++;
                 } 
+
                 // Renombramos la hoja de trabajo
-                $this->phpexcel->getActiveSheet()->setTitle('Clientes');
+                  $this->phpexcel->getActiveSheet()->setTitle('Clientes');
                  
                 foreach(range('A','R') as $columnID) {
                     $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
@@ -206,6 +205,7 @@ class Imprimir extends CI_Controller {
                 $this->load->model('pagos_model');                
                 $facturaciones = $this->pagos_model->get_facturacion_all();
                     
+
                 $titulo = "CVM - Cuentas Corrientes - ".date('d-m-Y');
                 
                 
@@ -242,7 +242,7 @@ class Imprimir extends CI_Controller {
                         $importe = $facturacion->haber;
                     }else if($facturacion->haber == 0){
                         $tipo = "D";
-                        $importe = $facturacion->debe;
+                        $importe = -$facturacion->debe;
                     }
 
                     $this->phpexcel->setActiveSheetIndex(0)
@@ -330,17 +330,14 @@ class Imprimir extends CI_Controller {
             case 'morosos':                
                 $data['baseurl'] = base_url();                
                 $this->load->model('pagos_model');
-                $comision = $this->input->post('comisiones');
                 $actividad = $this->input->post('morosos_activ'); 
-                if($comision || $actividad){                           
-                    	$data['morosos'] = $this->pagos_model->get_morosos($comision, $actividad);
+                if($actividad){                           
+                    	$data['morosos'] = $this->pagos_model->get_morosos($actividad);
                 }else{
                     $data['morosos'] = false;
                 }
                 $this->load->model('actividades_model');
                 $data['actividad_sel'] = $actividad;
-                $data['comision_sel'] = $comision;
-                $data['comisiones'] = $this->actividades_model->get_comisiones();
                 $data['actividades'] = $this->actividades_model->get_actividades();
                 $this->load->view('imprimir/morosos',$data);
                 break;
@@ -1139,13 +1136,13 @@ AHG Comentado 20170105 porque no se usa..... creo
     // end: setExcel
     }
 
-    public function morosos_excel($comision='',$actividad=''){
+    public function morosos_excel($actividad=''){
                     
         $this->load->model('pagos_model');
         $this->load->model('actividades_model');
                 
-	if($comision || $actividad){
-		$clientes = $this->pagos_model->get_morosos($comision, $actividad);
+	if($actividad){
+		$clientes = $this->pagos_model->get_morosos($actividad);
             	$titulo = "CVM - Morosos - ".date('d-m-Y');
 	} else {
 		return false;
