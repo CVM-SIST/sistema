@@ -786,48 +786,57 @@ class Pagos_model extends CI_Model {
 	}
     }
 
-    public function get_morosos($comision=null,$actividad=null){
 
+    public function get_morosos($actividad=null){
+
+	$solo_cta_social = 0;
 	// Cargo en la variables actividades el filtro en f() de lo que llego por parametros
-	// Si viene seteada una comision con todas las actividades de esa comision
-	if ( $comision ) {
-             $this->db->where('comision',$comision);
-             $query = $this->db->get('actividades');
-	} else {
-	// Si viene seteada una actividad esa actividad puntual
-	     if ( $actividad ) {
-		if ( $actividad > 0 ) {
-             		$this->db->where('id',$actividad);
-             		$query = $this->db->get('actividades');
-		}
-	     }
-	}
+	     		if ( $actividad ) {
+				if ( $actividad == -1 ) {
+					$actividades = null;
+					$solo_cta_social = 1;
+				} else {
+					if ( $actividad > 0 ) {
+             					$this->db->where('estado','1');
+						$this->db->where('id',$actividad);
+             					$query = $this->db->get('actividades');
+	     				} else {
+             					$this->db->where('estado','1');
+             					$query = $this->db->get('actividades');
+					}
+				}
+			}
+
 	// Si vino algun parametro y el SQL no encontro nada salgo con false
-	if ( $comision || $actividad ) {
-        	if($query->num_rows() == 0){return false;}
-		$actividades = $query->result();
-	} else {
-	// Sino vino parametros pongo null la variable p luego tomar TODOS LOS SOCIOS
+	if ( $actividad == -1 ) {
+		// Sino vino parametros  vino -1 pongo null la variable p luego tomar TODOS LOS SOCIOS de la cuota social
 		$actividades = null;
+	} else {
+		if($query->num_rows() == 0){return false;}
+		$actividades = $query->result();
 	}
 
 	// Busco el conjunto de socios morosos (tanto p actividad como p cuota social)
-    $hoy=date('Ym');
-    $this->db->select('p.tutor_id sid, SUM(p.monto-p.pagado) deuda');
-    $this->db->where('p.estado',1);
-    $this->db->where('p.tipo !=',5);
-    $this->db->where('DATE_FORMAT(p.generadoel, "%Y%m") <',$hoy);
-    if ( $actividades ) {
-        $in=array();
-        foreach ( $actividades as $actividad ) {
-            $in[]=$actividad->Id;
-        }
-        $this->db->where_in('p.aid',$in);
-    }
-    $this->db->group_by('p.tutor_id');
-    $this->db->having('SUM(p.monto-p.pagado) > 0');
-    $query = $this->db->get('pagos as p');
-    $morosos = $query->result();
+	$hoy=date('Ym');
+	$this->db->select('p.tutor_id sid, SUM(p.monto-p.pagado) deuda');
+	$this->db->where('p.estado',1);
+	$this->db->where('p.tipo !=',5);
+	$this->db->where('DATE_FORMAT(p.generadoel, "%Y%m") <',$hoy);
+    	if ( $actividades ) {
+		$in=array();
+        	foreach ( $actividades as $actividad ) {
+            		$in[]=$actividad->Id;
+        	}
+        	$this->db->where_in('p.aid',$in);
+    	} else {
+		if ( $solo_cta_social == 1 ) {
+        		$this->db->where_in('p.aid','0');
+		}
+	}
+    	$this->db->group_by('p.tutor_id');
+    	$this->db->having('SUM(p.monto-p.pagado) > 0');
+    	$query = $this->db->get('pagos as p');
+    	$morosos = $query->result();
 
 	// Seteo un array vacio para meter toda la info
 	// Ciclo los morosos para buscar la info especifica
@@ -835,17 +844,17 @@ class Pagos_model extends CI_Model {
 	foreach ( $morosos as $moroso ) {
 		$sid=$moroso->sid;
 		// Busco datos fijos del socio
-        $this->db->where('Id',$sid);
+        $this->db->where('id',$sid);
         $query = $this->db->get('socios',1);
         if ( $query->num_rows() == 0 ) {
             // Llenar el array....
 			continue;
-		} else {
+	} else {
 			$socio = $query->row();
-		}
+	}
 
-		// Busco la deuda de cuotas sociales
-		$hoy=date('Ym');
+	// Busco la deuda de cuotas sociales
+	$hoy=date('Ym');
         $this->db->select('p.tutor_id sid, COUNT(*) meses, MIN(DATE(p.generadoel)) pago, SUM(p.monto-p.pagado) deuda ');
         $this->db->where('p.estado',1);
         $this->db->where('p.tipo',1);
@@ -854,18 +863,18 @@ class Pagos_model extends CI_Model {
         $this->db->group_by('p.tutor_id');
         $query = $this->db->get('pagos as p');
         if ( $query->num_rows() == 0 ) {
-            $deuda_cuotas = null;
-            $meses_cuota = 0;
-            $gen_cuota = 0;
-            $deuda_cuota = 0;
-		} else {
-			$dc = $query->row();
-			$meses_cuota = $dc->meses;
-			$gen_cuota = $dc->pago;
-			$deuda_cuota = $dc->deuda;
-		}
+		$deuda_cuotas = null;
+            	$meses_cuota = 0;
+            	$gen_cuota = 0;
+            	$deuda_cuota = 0;
+	} else {
+		$dc = $query->row();
+		$meses_cuota = $dc->meses;
+		$gen_cuota = $dc->pago;
+		$deuda_cuota = $dc->deuda;
+	}
 
-		// busco la deuda de actividades
+	// busco la deuda de actividades
         $this->db->select('p.tutor_id sid, p.aid, count(*) meses, min(date(p.generadoel)) pago, sum(p.monto-p.pagado) deuda ');
         $this->db->where('p.estado',1);
         $this->db->where('p.tipo',4);
@@ -877,6 +886,7 @@ class Pagos_model extends CI_Model {
             $result=array (
 				'dni' => $socio->dni,
 				'sid' => $sid,
+				'nro_socio' => $socio->socio_n,
 				'apynom' => $socio->nombre.", ".$socio->apellido,
 				'telefono' => "F: ".$socio->telefono." C: ".$socio->celular,
 				'domicilio' => $socio->domicilio,
@@ -890,17 +900,21 @@ class Pagos_model extends CI_Model {
 				'deuda_activ' => 0
             );
             $result_morosos[]=$result;
-		} else {
+	} else {
             $deuda_activ = $query->result();
             $query->free_result();
 			// Ciclo las actividades con deuda para llenar el array
             $cont=0;
             foreach ( $deuda_activ as $da ) {
                 $aid = $da->aid;
-                $this->db->where('Id',$aid);
-                $query = $this->db->get('actividades',1);
-                $activ = $query->row();
-                $descr_activ = $activ->nombre;
+		if ( $aid == 0 ) {
+                	$descr_activ = "Cuota Social";
+		} else {
+                	$this->db->where('Id',$aid);
+                	$query = $this->db->get('actividades',1);
+			$activ = $query->row();
+                	$descr_activ = $activ->nombre;
+		}
 
                 if ( $cont++ == 0 ) {
                     $mcuota=$meses_cuota;
@@ -931,9 +945,8 @@ class Pagos_model extends CI_Model {
 		}
 	}
 
-    return $result_morosos;
+    	return $result_morosos;
     }
-
     public function get_pagos_actividad($act){
         $this->db->where('aid',$act);
         $this->db->where('estado',1);
@@ -1256,6 +1269,77 @@ class Pagos_model extends CI_Model {
         return $ultimo_pago;
     }
 
+    public function revierte_recargo_jardin($sid)  
+    {
+	$dia = date('d');
+	$mes = date('m');
+	$fch_where = date('Y-m-');
+	// Busco si tuvo recargo si no devuelvo false
+	if ( $dia <= 25 ) {
+		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."14' AND p.tipo = 10; ";
+	} else {
+		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."25' AND p.tipo = 10; ";
+	}
+        $recargo = $this->db->query($qry);
+        if ( $recargo->num_rows() == 0 ) { return false; }
+        $neto_recargo = $recargo->row();
+	if ( $neto_recargo->neto == 0 ) { return false; }
+		
+	// Busco si hay algun pago posterior con fecha valor anterior
+	if ( $dia < 25 ) {
+		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."14' ; ";
+	} else {
+		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."25' ; ";
+	}
+        $movimientos = $this->db->query($qry)->result();
+	$ret_valor = false;
+	foreach ( $movimientos as $movimiento ) {
+echo "movi";
+		$descr = $movimiento->descripcion;
+		$fecha = $movimiento->date;
+		$pos1 = strpos($descr , "go acreditado desde:");
+echo "descr:".$descr."---";
+echo "pos1:".$pos1."-----";
+		if ( $pos1 ) {
+echo "pos1";
+			$pos2 = strpos($descr,"Fecha:");
+
+			$diap=substr($descr,$pos2+7,2);
+			$mesp=substr($descr,$pos2+10,2);
+			$anop=substr($descr,$pos2+13,4);
+			$fch_pago=$anop."-".$mesp."-".$diap;
+
+echo $diap . "----" . $dia;
+			if ( $diap < $dia ) {
+echo "dia <>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<".$fch_pago."&/()(/()=/()";
+				$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
+				 break;
+			}
+			
+		}
+	}
+	return $ret_valor;
+	
+    }
+    public function get_deuda_jardin($sid)  
+    {
+	$mes = date('Ym');
+	// Busco los movimientos del mes de la comision 15 JARDIN
+        $qry = "SELECT p.tutor_id sid, $mes mes, p.aid, a.nombre descr_actividad, a.precio, a.seguro, p.monto
+                FROM pagos p
+			JOIN actividades a ON p.aid = a.Id AND a.comision = 15
+                WHERE 
+                        p.tutor_id = $sid AND
+			DATE_FORMAT(p.generadoel, '%Y%m') = $mes AND
+			p.monto > 0 AND
+			p.pagado = 0 AND
+			p.tipo != 10
+		LIMIT 1; ";
+        $deuda = $this->db->query($qry);
+        if($deuda->num_rows() == 0){return false;}
+        return $deuda->result();
+    }
+
     public function get_deuda_actividad($aid,$sid)
     {
         $this->db->order_by('generadoel', 'asc');
@@ -1518,12 +1602,17 @@ class Pagos_model extends CI_Model {
 
     public function get_facturacion_all()
     {
-        $this->db->order_by('facturacion.Id', 'asc');
-        //$this->db->join('socios', 'socios.Id = facturacion.sid', 'left');
-        $query = $this->db->get('facturacion');
-        if( $query->num_rows() == 0 ){ return false; }
-        $foo = $query->result();
-        $query->free_result();
+        $qry = "SELECT s.apellido, s.nombre, s.dni, f.*
+                FROM facturacion f
+                        JOIN socios s ON f.sid = s.Id 
+                WHERE 
+			f.date > DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND
+                        s.suspendido = 0
+		ORDER BY f.sid, f.date, f.id; ";
+        $facturacion = $this->db->query($qry);
+        if ( $facturacion->num_rows() == 0 ) { return false; }
+        $foo = $facturacion->result();
+        $facturacion->free_result();
         return $foo;
     }
 }

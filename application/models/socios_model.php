@@ -198,6 +198,12 @@ class Socios_model extends CI_Model {
 
     }
 
+    public function get_socios_activos()
+    {
+        $query = $this->db->get_where('socios',array('suspendido'=>0));
+        return $query->result();
+    }
+
     public function get_socios()
     {
         $query = $this->db->get_where('socios',array('estado'=>1));
