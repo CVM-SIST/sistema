@@ -59,7 +59,7 @@ function is_active($uri,$actual){
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/comisiones"><i class="fa fa-caret-right"></i><span data-i18n="Comisiones"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/profesores"><i class="fa fa-caret-right"></i><span data-i18n="Profesores"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/lugares"><i class="fa fa-caret-right"></i><span data-i18n="Lugares"></span></a></li>
-            			<li><a href="<?=$_GET['baseurl']?>admin/actividades/asociar"><i class="fa fa-caret-right"></i><span data-i18n="Asociar"></span></a></li>
+            			<li><a href="<?=$_GET['baseurl']?>admin/actividades/asociar"><i class="fa fa-caret-right"></i><span data-i18n="Asociar Actividad"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/load-asoc-activ"><i class="fa fa-caret-right"></i><span data-i18n="Relacion Masiva"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>comisiones/lista_socios_act"><i class="fa fa-caret-right"></i><span data-i18n="Socios Activos por Actividad"></span></a></li>
         			</ul>
@@ -69,7 +69,7 @@ function is_active($uri,$actual){
     			<li>
         			<a href="<?=$_GET['baseurl']?>admin/actividades"><i class="fa fa-table"><span class="icon-bg bg-warning"></span></i><span data-i18n="Actividades"></span></a>
         			<ul <? is_active($_GET['section'],'actividades') ?>>
-            			<li><a href="<?=$_GET['baseurl']?>admin/actividades"><i class="fa fa-caret-right"></i><span data-i18n="Listado"></span></a></li>
+            			<li><a href="<?=$_GET['baseurl']?>admin/actividades/asociar"><i class="fa fa-caret-right"></i><span data-i18n="Asociar Actividad"></span></a></li>
         			</ul>
     			</li>         
 
@@ -111,7 +111,8 @@ function is_active($uri,$actual){
         <a href="<?=$_GET['baseurl']?>admin/estadisticas/facturacion"><i class="fa fa-bar-chart-o"><span class="icon-bg bg-primary-light"></span></i><span data-i18n="Estadisticas"></span></a>
         <ul <? is_active($_GET['section'],'estadisticas') ?>>
             <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/facturacion"><i class="fa fa-caret-right"></i><span data-i18n="Facturación"></span></a></li>
-            <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/cobranza"><i class="fa fa-caret-right"></i><span data-i18n="Cobranza"></span></a></li>            
+            <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/cobranza_act"><i class="fa fa-caret-right"></i><span data-i18n="Cobranza x Actividad"></span></a></li>            
+            <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/cobranza_comi"><i class="fa fa-caret-right"></i><span data-i18n="Cobranza x Comisión"></span></a></li>            
         </ul>
     </li>
 
