@@ -997,12 +997,21 @@ $("#load-asoc-activ-form").submit(function(){
 })
 $("#estad-activ-form").submit(function(){
         var actividad = $("#actividad").val();
-        var url = "<?=$baseurl?>admin/estadisticas/cobranza" + "/" + actividad;
+        var url = "<?=$baseurl?>admin/estadisticas/cobranza_act" + "/" + actividad;
 
         $("#estad-activ-form").attr("action",url);
         $("#estad-activ-form").submit();
 
 	return true;
+})
+$("#estad-comi-form").submit(function(){
+        var comision = $("#comision").val();
+        var url = "<?=$baseurl?>admin/estadisticas/cobranza_comi" + "/" + comision;
+
+        $("#estad-comi-form").attr("action",url);
+        $("#estad-comi-form").submit();
+
+        return true;
 })
 $("#comi-activ-form").submit(function(){
         var actividad = $("#actividad").val();

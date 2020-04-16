@@ -1468,8 +1468,6 @@ class Admin extends CI_Controller {
                 {
                     $datos[$key] = $this->input->post($key);
                 }
-var_dump($datos);
-die;
                 if($datos['socio_n'] >= 28852){
                     $datos['socio_n'] = '';
                     $error = "?e=socio_n";
@@ -3804,7 +3802,7 @@ die;
 			$data['section'] = 'estadisticas-facturacion';
 			$this->load->view('admin',$data);
 			break;
-        	case 'cobranza':
+        	case 'cobranza_act':
 			if ( $this->uri->segment(4) ) {
 				$id_actividad = $this->uri->segment(4);
                 		$this->load->model('actividades_model');
@@ -3812,8 +3810,8 @@ die;
 				$data['username'] = $this->session->userdata('username');
                 		$data['rango'] = $this->session->userdata('rango');
 				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad);
-				$data['section'] = 'estadisticas-cobranza';
+				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad, 0);
+				$data['section'] = 'estadisticas-cobranza-act';
 				$data['id_actividad'] = $id_actividad;
 				$this->load->view('admin',$data);
 				break;
@@ -3823,9 +3821,34 @@ die;
 				$data['username'] = $this->session->userdata('username');
                 		$data['rango'] = $this->session->userdata('rango');
 				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla();
+				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
 				$data['id_actividad'] = -1;
-				$data['section'] = 'estadisticas-cobranza';
+				$data['section'] = 'estadisticas-cobranza-act';
+				$this->load->view('admin',$data);
+				break;
+			}
+        	case 'cobranza_comi':
+			if ( $this->uri->segment(4) ) {
+				$id_comision = $this->uri->segment(4);
+                		$this->load->model('comisiones_model');
+                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
+				$data['username'] = $this->session->userdata('username');
+                		$data['rango'] = $this->session->userdata('rango');
+				$data['baseurl'] = base_url();
+				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, $id_comision);
+				$data['section'] = 'estadisticas-cobranza-comi';
+				$data['id_comision'] = $id_comision;
+				$this->load->view('admin',$data);
+				break;
+			} else {
+                		$this->load->model('comisiones_model');
+                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
+				$data['username'] = $this->session->userdata('username');
+                		$data['rango'] = $this->session->userdata('rango');
+				$data['baseurl'] = base_url();
+				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
+				$data['id_comision'] = -1;
+				$data['section'] = 'estadisticas-cobranza-comi';
 				$this->load->view('admin',$data);
 				break;
 			}

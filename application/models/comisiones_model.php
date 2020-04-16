@@ -10,6 +10,14 @@ class Comisiones_model extends CI_Model {
         $this->load->database('default');
     }
     
+    public function get_comisiones() {
+        $query = $this->db->where('estado','1');
+        $query = $this->db->get('comisiones');
+        if($query->num_rows() == 0){return false;}
+        $comisiones = $query->result();
+	return $comisiones;
+    }
+
     public function get_comision() {
         $this->db->where('Id',$this->session->userdata('Id'));
         $query = $this->db->get('profesores');
