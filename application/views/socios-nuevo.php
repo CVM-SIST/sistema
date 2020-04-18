@@ -75,50 +75,22 @@
                     </div>
                 </div>               
                 <div class="clearfix"></div>
-                <div id="menor" style="display: none;">
-                    <div class="form-group col-lg-6">
-                        <label for="" class="col-sm-3">DNI Contacto #1</label>
-                        <div id="r1-data">
-                            <div class="col-sm-5">
-                                <input type="text" name="r1" id="r1" class="form-control">
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r1" class="btn btn-primary">Buscar</a> <i id="r1-loading" class="fa fa-spinner fa-spin hidden"></i>
-                            </div>
-                        </div>
-                        <div id="r1-result" class="hidden"></div>
-                        <input type="hidden" name="r1-id" id="r1-id" class="form-control">
-                    </div>
-                    <div class="form-group col-lg-6">
-                        <label for="" class="col-sm-3">DNI Contacto #2</label>
-                        <div id="r2-data">
-                            <div class="col-sm-5">
-                                <input type="text" name="r2" id="r2" class="form-control">
-                            </div>
-                            <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r2" class="btn btn-primary">Buscar</a> <i id="r2-loading" class="fa fa-spinner fa-spin hidden"></i>
-                            </div>
-                        </div>
-                        <div id="r2-result" class="hidden"></div>
-                        <input type="hidden" name="r2-id" id="r2-id" class="form-control">
-                    </div>                    
-                </div>
-
-                
 
                 <div class="clearfix"></div>
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Tutor de Grupo Familiar</label>
-                        <div id="r3-data">
+                        <div id="tutor_dni-data">
                             <div class="col-sm-5">
-                                <input type="text" name="r3" id="r3" class="form-control">
+                                <input type="number" name="tutor_dni" id="tutor_dni" value='0' class="form-control">
+                                <input type="hidden" name="tutor_sid" id="tutor_sid" value='0' class="form-control">
                             </div>
                             <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="r3" class="btn btn-primary">Buscar</a> <i id="r3-loading" class="fa fa-spinner fa-spin hidden"></i>
+                                <a href="#" id="r-buscar" data-id="tutor_dni" class="btn btn-primary">Buscar</a> <i id="tutor_dni-loading" class="fa fa-spinner fa-spin hidden"></i>
                             </div>
                         </div>
-                        <div id="r3-result" class="hidden"></div>
-                        <input type="hidden" name="r3-id" id="r3-id" class="form-control">
+                        <div id="tutor_dni-result" >
+                        </div>
+
                 </div>
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Categoría de Socio</label>

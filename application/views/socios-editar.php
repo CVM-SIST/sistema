@@ -44,7 +44,10 @@
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">E-Mail</label>
                     <div class="col-sm-9">
-                        <input type="mail"  value="<?=$socio->mail?>" class="form-control" name="mail">
+                        <input type="mail"  value="<?=$socio->mail?>" class="form-control" id="mail" name="mail">
+			<input type="hidden" name="mail_orig" id="mail_orig" value='<?=$socio->mail?>' class="form-control">
+			<input type="hidden" name="validmail_ts" id="validmail_ts" value='<?=$socio->validmail_ts?>' class="form-control">
+			<input type="hidden" name="validmail_st" id="validmail_st" value='<?=$socio->validmail_st?>' class="form-control">
                     </div>
                 </div>    
 
@@ -97,17 +100,18 @@
 
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Tutor de Grupo Familiar</label>
-                        <div id="tutor-data" <? if($socio->tutor != 0){ echo 'class="hidden"'; }?>>
+                        <div id="tutor_dni-data" <? if($tutor->Id != 0){ echo 'class="hidden"'; }?>>
                             <div class="col-sm-5">
-                                <input type="text" name="tutor" id="tutor" class="form-control">
+                                <input type="number" name="tutor_dni" id="tutor_dni" value='0' class="form-control">
+                                <input type="hidden" name="tutor_sid" id="tutor_sid" value='0' class="form-control">
                             </div>
                             <div class="col-sm-4">
-                                <a href="#" id="r-buscar" data-id="tutor" class="btn btn-primary">Buscar</a> <i id="tutor-loading" class="fa fa-spinner fa-spin hidden"></i>
+                                <a href="#" id="r-buscar" data-id="tutor_dni" class="btn btn-primary">Buscar</a> <i id="tutor_dni-loading" class="fa fa-spinner fa-spin hidden"></i>
                             </div>
                         </div>
-                        <div id="tutor-result" <? if($socio->tutor == 0){ echo 'class="hidden"'; }?>>
+                        <div id="tutor_dni-result" <? if($tutor->Id == 0){ echo 'class="hidden"'; }?>>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <? echo $tutor->nombre.' '.$tutor->apellido.' ('.$tutor->dni.')'; ?> <a href="#" onclick="cleear('tutor')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
+                        <? echo $tutor->nombre.' '.$tutor->apellido.' ('.$tutor->dni.')'; ?> <a href="#" onclick="cleear('tutor_dni')" title="Quitar" style="color:#F00"><i class="fa fa-times" ></i></a>
                         </div>
                 </div>
 

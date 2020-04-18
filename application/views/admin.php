@@ -397,6 +397,11 @@
                         $("#menor").show();
                         $("#s_cate").val("1");
                     }
+		    var mail = $("#mail").val();
+		    if ( mail == '' ) {
+		            var agree = confirm("Seguro que deja en blanco el email?");
+            		    if(!agree){return false;}
+		    }
                 })
 
                 $('#conf-tab a').click(function (e) {
@@ -456,6 +461,7 @@
                     $("#"+id+"-result").html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+socio[0].nombre+' '+socio[0].apellido+' ('+socio[0].dni+') '+close_link);
                     $("#"+id+"-data").addClass('hidden');
                     $("#"+id+"-result").removeClass('hidden');
+                    $("#tutor_sid").val(socio[0].Id);
                     $("#"+id+"-id").val(socio[0].Id);
                 }else{
                    angular.element("#modal_open").triggerHandler('click');
@@ -485,7 +491,8 @@
         }
         function cleear(id){
             $("#"+id+"-data").removeClass('hidden');
-            $("#"+id+"-id").val('0');
+            $("#tutor_sid").val(0);
+            $("#tutor_dni").val(0);
             $("#"+id+"-result").addClass('hidden');
         }
         </script>

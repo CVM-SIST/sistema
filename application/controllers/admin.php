@@ -1472,37 +1472,86 @@ class Admin extends CI_Controller {
                     $datos['socio_n'] = '';
                     $error = "?e=socio_n";
                 }
-                $datos['r1'] = $datos['r1-id'];
-                $datos['r2'] = $datos['r2-id'];
-                $datos['tutor'] = $datos['r3-id'];
-                unset($datos['r1-id']);
-                unset($datos['r2-id']);
-                unset($datos['r3-id']);
-                unset($datos['r3']);
                 if(isset($datos['deuda'])){
                     $deuda = $datos['deuda'];
                     unset($datos['deuda']);
                 }
                 $this->load->model("socios_model");
 
+		// Controlo validez del email
+		$dirmail=$datos['mail'];
+		if ( $dirmail != '' ) {
+	                $this->load->library('VerifyEmail');
+                	$vmail = new verifyEmail();
+                	$vmail->setStreamTimeoutWait(5);
+                	$vmail->Debug= FALSE;
+
+                	$vmail->setEmailFrom('avisos@clubvillamitre.com');
+                	if (!$vmail->check($dirmail)) {
+                    		$data['username'] = $this->session->userdata('username');
+                    		$data['rango'] = $this->session->userdata('rango');
+	                        $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                        	$data['baseurl'] = base_url();
+                        	$data['section'] = 'ppal-mensaje';
+                        	$this->load->view('admin',$data);
+		 		break;
+                	}
+		}
+                // Controlo nacimineto vs categoria
+                $hoy=new DateTime(date('Y-m-d'));
+                $nacimiento=new DateTime($datos['nacimiento']);
+                $difd = $hoy->diff($nacimiento);
+                $edad = $difd->days/365;
+
+                // Si es mayor y tiene categoria menor no esta bien
+                if ( $edad > 18 && $datos['categoria'] == 1 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es mayor y tiene categoria menor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+                if ( $edad < 18 && $datos['categoria'] == 2 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es menor y tiene categoria mayor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+
 		// Controlo DNI duplicado salvo que sea sponsor 
                 if($prev_user = $this->socios_model->checkDNI($datos['dni']) && $datos['categoria'] != 12){
                     //el dni esta repetido, incluimos la vista de listado con el usuario coincidente
-                    $data['username'] = $this->session->userdata('username');
-                    $data['rango'] = $this->session->userdata('rango');
-                    $data['prev_user'] = $prev_user;
-                    $data['baseurl'] = base_url();
-                    $data['section'] = 'socio-dni-repetido';
-                    $this->load->view('admin',$data);
-                }else{
-                    if($datos['categoria'] == 12){
+                    	$data['username'] = $this->session->userdata('username');
+                    	$data['rango'] = $this->session->userdata('rango');
+                    	$data['prev_user'] = $prev_user;
+                    	$data['baseurl'] = base_url();
+                    	$data['section'] = 'socio-dni-repetido';
+                    	$this->load->view('admin',$data);
+			break;
+		}
+		    if($datos['categoria'] == 12){
 			$datos['dni'] = '';
 		    }
-                    //llamamos al modelo en insertamos los datos
-                    //$fecha = explode('-',$datos['nacimiento']);
-                    //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
                     unset($datos['files']);
 		    $datos['update_ts']=date('Y-m-d H:i:s');
+                    unset($datos['tutor_dni']);
+                    $tutor = $datos['tutor_sid'];
+                    unset($datos['tutor_sid']);
+                    $datos['tutor']=$tutor;
+		    if ( $dirmail == '' ) {
+                    	$datos['validmail_st']=9;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+		    } else {
+                    	$datos['validmail_st']=1;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+                    }
+                    if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
+
                     $uid = $this->socios_model->register($datos);
 
                 	// Grabo log de cambios
@@ -1590,7 +1639,6 @@ class Admin extends CI_Controller {
 
                     redirect(base_url()."admin/socios/registrado/".$uid);
 
-                }
                 break;
 
             case 'nuevo-tutor':
@@ -1658,8 +1706,6 @@ class Admin extends CI_Controller {
 		$this->load->model("socios_model");
 		$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
 		if($data['socio']){
-			$data['contacto1'] = $this->socios_model->get_socio($data['socio']->r1);
-			$data['contacto2'] = $this->socios_model->get_socio($data['socio']->r2);
 			$data['tutor'] = $this->socios_model->get_socio($data['socio']->tutor);
 			if(!$data['socio']->socio_n){
 				$data['socio']->socio_n = $this->uri->segment(4);
@@ -1681,7 +1727,7 @@ class Admin extends CI_Controller {
 
 		$data['username'] = $this->session->userdata('username');
 		$data['rango'] = $this->session->userdata('rango');
-		if ( $datos['r3-id'] == $id ) {
+		if ( $datos['tutor_sid'] == $id ) {
 			$data['mensaje1'] = "No puede ponerse como tutor al mismo socio....";
 			$data['baseurl'] = base_url();
 			$data['section'] = 'ppal-mensaje';
@@ -1697,13 +1743,56 @@ class Admin extends CI_Controller {
 				$datos['socio_n'] = '';
 				$error = "?e=socio_n";
 			}
-			$datos['r1'] = $datos['r1-id'];
-			$datos['r2'] = $datos['r2-id'];
-			$datos['tutor'] = $datos['r3-id'];
-			unset($datos['r1-id']);
-			unset($datos['r2-id']);
-			unset($datos['r3-id']);
-			unset($datos['r3']);
+
+                // Controlo validez del email
+                $dirmail=$datos['mail'];
+                $dirmail_orig=$datos['mail_orig'];
+		$hoy=new DateTime(date('Y-m-d'));
+		$ult_cambio=new DateTime($datos['validmail_ts']);
+		$dias = $hoy->diff($ult_cambio)->days;
+                if ( $dirmail != $dirmail_orig || $dias > 300 ) {
+                        $this->load->library('VerifyEmail');
+                        $vmail = new verifyEmail();
+                        $vmail->setStreamTimeoutWait(5);
+                        $vmail->Debug= FALSE;
+
+                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        if (!$vmail->check($dirmail)) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                        }
+		}
+
+
+                // Controlo nacimineto vs categoria
+                $hoy=new DateTime(date('Y-m-d'));
+                $nacimiento=new DateTime($datos['nacimiento']);
+                $difd = $hoy->diff($nacimiento);
+                $edad = $difd->days/365;
+		// Si es mayor y tiene categoria menor no esta bien
+                if ( $edad > 18 && $datos['categoria'] == 1 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es mayor y tiene categoria menor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+                if ( $edad < 18 && $datos['categoria'] == 2 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es menor y tiene categoria mayor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
 
 			if($prev_user = $this->socios_model->checkDNI($datos['dni'],$id)){
 				//el dni esta repetido, incluimos la vista de listado con el usuario coincidente
@@ -1719,7 +1808,18 @@ class Admin extends CI_Controller {
 					rename("images/temp/".$this->session->userdata('img_token').".jpg","images/socios/".$id.".jpg");
 				}
 				unset($datos['files']);
-				$this->socios_model->update_socio($id,$datos);
+				unset($datos['tutor_dni']);
+		                $tutor = $datos['tutor_sid'];
+                		unset($datos['tutor_sid']);
+                		$datos['tutor']=$tutor;
+		                    if ( $dirmail != $dirmail_orig || $dias > 300 ) {
+                        		$datos['validmail_st']=1;
+                        		$datos['validmail_ts']=date('Y-m-d H:i:s');
+                    			}
+                		unset($datos['mail_orig']);
+                		if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
+
+			$this->socios_model->update_socio($id,$datos);
 
 				// Grabo log de cambios
 				$login = $this->session->userdata('username');
