@@ -1,27 +1,27 @@
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Imprimir</title>
-		<style type="text/css">
-		body{
-			font-family: 'Arial';
-			font-size: 10px;            
-			background: #ffffff;            
-		}
-        	strong{
-            		font-size: 10px;
-            		font-weight: normal; 
-        	}
-        	.nap{
-            		height:15px;overflow: hidden;
-        	}
-        	.carnet{
-            		width: 300px;
-            		height: 194px;
-            		float: left;
-        	}
-            <?
-            switch ($socio->categoria){
+	<html>
+		<head>
+			<meta charset="utf-8">
+			<title>Imprimir</title>
+			<style type="text/css">
+			body{
+				font-family: 'Arial';
+				font-size: 10px;            
+				background: #ffffff;            
+			}
+			strong{
+				font-size: 10px;
+				font-weight: normal; 
+			}
+			.nap{
+				height:15px;overflow: hidden;
+			}
+			.carnet{
+				width: 300px;
+				height: 194px;
+				float: left;
+			}
+		    <?
+		    switch ($socio->categoria){
 	
 		case '11':
 			$frente=base_url()."images/Prensa_Frente_300.jpg";
@@ -125,6 +125,46 @@
         	</div>
     		<div class="carnet dorso"> </div>
 	<? break;
+
+                case '14':
+        ?>
+                <div class="carnet frente"></div>
+    		<div class="carnet dorso">
+                        <div class="imagen">
+                        <?
+                                if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+                        ?>
+                                        <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+                        <?
+                        }else{
+                        ?>
+                                        <img src="<?=base_url()?>images/noPic.jpg" width="80">
+                        <?
+                        }
+                        ?>
+                        </div>
+                <?
+                        if($socio->socio_n){
+                                $num = $socio->socio_n;
+                        }else{
+                                $num = $socio->Id;
+                        }
+                        $fecha = explode(' ', $socio->alta);
+                        $fecha = explode('-', $fecha[0]);
+                        $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
+                ?>
+
+                        <div class="datos">
+
+                        <div class="nap" style="font-weight:bold"><?=$apynom?></div>
+                        <div class="nap" style="font-weight:bold"> SOCIO MASCOTA </div>
+                        <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
+                        <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
+
+                        </div>
+                </div>
+        <? break;
+
 
 		default:
 	?>
