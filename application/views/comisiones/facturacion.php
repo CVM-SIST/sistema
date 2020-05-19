@@ -46,11 +46,11 @@
 	            		<th>Socios</th>
 	            		<th>Cuotas</th>	                      
 	            		<th>Facturado</th>
-	            		<th>Cobrado Mes</th>
+	            		<th>Cobrado al Dia</th>
 	            		<th>Efectividad</th>
 	            		<th>Cobrado Atrasado</th>
 	            		<th>% Mora</th>
-	            		<th>Pago Parcial</th>
+	            		<th>Ingreso Mes</th>
 	            		<th>Impago</th>
 	            		<th>% Impago</th>
 	        	   </tr>
@@ -66,11 +66,11 @@
 					<td align="right"><?=$mes->socios?></td>
 					<td align="right"><?=$mes->cuotas?></td>
 					<td align="right"><?=$mes->facturado?></td>
-					<td align="right"><?=$mes->pagado_mes?></td>
+					<td align="right"><?=$mes->pagado_mes_mes?></td>
 					<td align="right"><?=$mes->porc_cobranza?></td>
 					<td align="right"><?=$mes->pagado_mora?></td>
 					<td align="right"><?=$mes->porc_mora?></td>
-					<td align="right"><?=$mes->pago_parcial?></td>
+					<td align="right"><?=$mes->pagado_mes?></td>
 					<td align="right"><?=$mes->impago?></td>
 					<td align="right"><?=$mes->porc_impago?></td>
 				</tr>
