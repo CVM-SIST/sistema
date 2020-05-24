@@ -855,7 +855,8 @@ class Cron extends CI_Controller {
 				"descripcion" => $descripcion,
 				"debe" => '0',
 				"haber" => $importe,
-				"total" => $saldo_cc
+				"total" => $saldo_cc,
+				"origen" => 5
 			);
 
 
@@ -1611,11 +1612,109 @@ echo "suspender";
             return $result;
     }
 
+    public function intereses_jardin() {
+        if(date('d') < 15){ die(); }
+	$dia = date('d');
+        $this->load->model('general_model');
+	// Busco el ID=2 del Jardin
+        $config = $this->general_model->get_config(2);
+        $recargo = $config->interes_mora;
+        $this->load->model('actividades_model');
+        $this->load->model('pagos_model');
+	// Busco la comision=15 que es la comision de jardin para tener los socios 
+	// que tienen actividades de esa comision
+        $socact = $this->actividades_model->get_actsoc_comision(15);
+	$aviso = "";
+	foreach ( $socact as $socio ) {
+		$sid = $socio->sid;
+		$apynom = $socio->apynom;
+		$descr_actividad = $socio->descr_actividad;
+		$aid = $socio->aid;
+        	switch ( $dia ) {
+			case 15:
+			case 25:
+				$deuda = $this->pagos_model->get_deuda_jardin($sid);
+				if ( $deuda ) {
+                			$total = $this->pagos_model->get_socio_total($sid);
+					$mes_deuda = $deuda[0]->mes;
+					$monto_deuda = $deuda[0]->monto;
+					// Meto recargo porque estamos a 15 y no pago el mes
+					$total_act = $total - $recargo;
+
+					$facturacion = array(
+						'sid' => $sid,
+						'descripcion'=>'Recargo '.$descr_actividad.' por atraso en el pago',
+						'debe'=>$recargo,
+						'haber'=>0,
+						'total'=>$total_act
+						);
+					$this->pagos_model->insert_facturacion($facturacion);
+
+					$pago = array(
+						'sid' => $sid,
+						'tutor_id' => $sid,
+						'aid' => $aid,
+						'generadoel' => date('Y-m-d'),
+						'descripcion' => "Recargo '.$descr_actividad.' por atraso en el pago",
+						'monto' => $recargo,
+						'tipo' => 10,
+						);
+					$this->pagos_model->insert_pago_nuevo($pago);
+	
+					$aviso .= "Facturo recargo al socio $sid - $apynom recargo de $ $recargo por atraso en el pago de la cuota de $descr_actividad por $ $monto_deuda del mes de $mes_deuda  \n";
+				}
+
+				break;
+			default:
+				// Controlo si se imputo un pago con fecha anterior a los limites
+				$recjardin = $this->pagos_model->revierte_recargo_jardin($sid);
+var_dump($recjardin);
+				if ( $recjardin ) {
+                                       	// Anulo recargo porque imputamos despues un pago anterior al recargo
+                			$total = $this->pagos_model->get_socio_total($sid);
+                                       	$total_act = $total + $recargo;
+					$id_recargo = $recjardin['id_recargo'];
+					$imp_recargo = $recjardin['imp_recargo'];
+					$fch_pago = $recjardin['fecha_pago'];
+
+                                       	$facturacion = array(
+                                               	'sid' => $sid,
+                                               	'descripcion'=>'Anulo recargo '.$descr_actividad.' porque el pago llego posterior',
+                                               	'debe'=>0,
+                                               	'haber'=>$recargo,
+                                               	'total'=>$total_act
+                                               	);
+                                       	$this->pagos_model->insert_facturacion($facturacion);
+
+echo "Fecha: ".$fch_pago."\n";
+echo "pagado: ".$imp_recargo."\n";
+					$this->db->where('id',$id_recargo); 
+					$this->db->update('pagos',array('pagadoel'=>$fch_pago, 'pagado'=>$imp_recargo, 'estado'=>'0'));
+echo "despues update"."\n";
+
+                                       	$aviso .= "Anulo recargo al socio $sid - $apynom de $ $imp_recargo por imputacion posterior del pago de la cuota de $descr_actividad  \n";
+				} else {
+					// Aviso que ese socio sigue sin pagar el mes
+					$aviso .= "El socio $sid - $apynom sigue sin abonar la cuota de $descr_actividad \n";
+				}
+				
+				break;
+		}
+	}
+	$xahora=date('Y-m-d G:i:s');
+
+echo $xahora;
+echo $aviso;
+            // Me mando email de aviso que el proceso termino OK
+//            mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema el proceso termino asi $aviso ....".$xahora."\n");
+    }
+
     public function intereses()
     {
         if(date('d') != 20){ die(); }
         $this->load->model('general_model');
-        $config = $this->general_model->get_config();
+	// Busco el ID=1 del interes general
+        $config = $this->general_model->get_config(1);
         if($config->interes_mora > 0){
             $this->load->model("socios_model");            
             $this->load->model('pagos_model');
