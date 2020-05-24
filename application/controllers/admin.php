@@ -3903,56 +3903,233 @@ class Admin extends CI_Controller {
 			$this->load->view('admin',$data);
 			break;
         	case 'cobranza_act':
-			if ( $this->uri->segment(4) ) {
-				$id_actividad = $this->uri->segment(4);
-                		$this->load->model('actividades_model');
-                		$data['actividades'] = $this->actividades_model->get_actividades();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad, 0);
-				$data['section'] = 'estadisticas-cobranza-act';
-				$data['id_actividad'] = $id_actividad;
-				$this->load->view('admin',$data);
-				break;
-			} else {
-                		$this->load->model('actividades_model');
-                		$data['actividades'] = $this->actividades_model->get_actividades();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
-				$data['id_actividad'] = -1;
-				$data['section'] = 'estadisticas-cobranza-act';
-				$this->load->view('admin',$data);
-				break;
+                        $actividad = $this->input->post('actividad');
+                        $excel = $this->input->post('arma_excel');
+                        if ( $excel == 1 ) {
+                                $this->exportar_estad_cobranza_act($actividad);
+                        } else {
+				if ( $this->uri->segment(4) ) {
+					$id_actividad = $this->uri->segment(4);
+                			$this->load->model('actividades_model');
+                			$data['actividades'] = $this->actividades_model->get_actividades();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad, 0);
+					$data['section'] = 'estadisticas-cobranza-act';
+					$data['id_actividad'] = $id_actividad;
+					$this->load->view('admin',$data);
+				} else {
+                			$this->load->model('actividades_model');
+                			$data['actividades'] = $this->actividades_model->get_actividades();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
+					$data['id_actividad'] = -1;
+					$data['section'] = 'estadisticas-cobranza-act';
+					$this->load->view('admin',$data);
+				}
 			}
+			break;
         	case 'cobranza_comi':
-			if ( $this->uri->segment(4) ) {
-				$id_comision = $this->uri->segment(4);
-                		$this->load->model('comisiones_model');
-                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, $id_comision);
-				$data['section'] = 'estadisticas-cobranza-comi';
-				$data['id_comision'] = $id_comision;
-				$this->load->view('admin',$data);
-				break;
-			} else {
-                		$this->load->model('comisiones_model');
-                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
-				$data['id_comision'] = -1;
-				$data['section'] = 'estadisticas-cobranza-comi';
-				$this->load->view('admin',$data);
-				break;
+                        $comision = $this->input->post('comision');
+                        $excel = $this->input->post('arma_excel');
+                        if ( $excel == 1 ) {
+                                $this->exportar_estad_cobranza_comi($comision);
+                        } else {
+				if ( $this->uri->segment(4) ) {
+					$id_comision = $this->uri->segment(4);
+                			$this->load->model('comisiones_model');
+                			$data['comisiones'] = $this->comisiones_model->get_comisiones();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, $id_comision);
+					$data['section'] = 'estadisticas-cobranza-comi';
+					$data['id_comision'] = $id_comision;
+					$this->load->view('admin',$data);
+				} else {
+                			$this->load->model('comisiones_model');
+                			$data['comisiones'] = $this->comisiones_model->get_comisiones();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
+					$data['id_comision'] = -1;
+					$data['section'] = 'estadisticas-cobranza-comi';
+					$this->load->view('admin',$data);
+				}
 			}
+			break;
+
+                case 'ingresos':
+        		$mes = $this->input->post('meses');
+        		$excel = $this->input->post('arma_excel');
+			if ( $excel == '1' ) {
+				$this->exportar_estad_ingresos($mes);
+			} else {
+                        	$this->load->model('pagos_model');
+				$meses = $this->pagos_model->get_meses_ingresos();
+                        	if ( $mes ) {
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+                                	$data['ingresos_tabla'] = $this->estadisticas_model->ingresos_tabla($mes);
+                                	$data['section'] = 'estadisticas-ingresos';
+                                	$data['meses'] = $meses;
+                                	$data['mes'] = $mes;
+                                	$this->load->view('admin',$data);
+                        	} else {
+                                	$mes = date('Ym');
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+                                	$data['meses'] = $meses;
+                                	$data['mes'] = $mes;
+                                	$data['ingresos_tabla'] = $this->estadisticas_model->ingresos_tabla($mes);
+                                	$data['section'] = 'estadisticas-ingresos';
+                                	$this->load->view('admin',$data);
+                        	}
+			}
+			break;
         }
+    }
+
+    public function exportar_estad_ingresos($mes) {
+	$archivo="Estadistica_Ingresos_".$mes;
+	$fila1=false;
+	$titulo="Ingesos_".$mes;
+	$headers=array();
+	$headers[]="Dia";
+	$headers[]="Ingesos Cooperativa";
+	$headers[]="Ingresos Cta Digital";
+	$headers[]="Ingresos Manual";
+	$headers[]="Ajustes";
+
+	$ingresos = $this->estadisticas_model->ingresos_tabla($mes);
+	$datos= array();
+
+	foreach ( $ingresos as $ingreso ) {
+
+		$dato = array (
+			'dia' => $ingreso->dia,
+			'ing_col' => $ingreso->ing_col,
+			'ing_cd' => $ingreso->ing_cd,
+			'ing_manual' => $ingreso->ing_manual,
+			'ajustes' => $ingreso->ajustes
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+
+    }
+
+    public function exportar_estad_cobranza_act($id_actividad) {
+
+	if ( $id_actividad > 0 ) {
+		$this->load->model('actividades_model');
+		$actividad = $this->actividades_model->get_actividad($id_actividad);
+		$xactiv = $id_actividad.'-'.$actividad->nombre;
+	} else {
+		if ( $id_actividad == -1 ) { $xactiv = 'Todas'; }
+		if ( $id_actividad == -2 ) { $xactiv = 'Socio Hincha'; }
+		if ( $id_actividad == -3 ) { $xactiv = 'Cuota Social'; }
+	}
+
+        $archivo="Estadistica_Cobranza".$xactiv;
+        $fila1=false;
+        $titulo="Cobranza_".$xactiv;
+
+        $headers=array();
+        $headers[]="Periodo";
+        $headers[]="Actividad";
+        $headers[]="Socios";
+        $headers[]="Cuotas";
+        $headers[]="Facturado";
+        $headers[]="Pagado al Dia";
+        $headers[]="Efectividad";
+        $headers[]="Pagado Mora";
+        $headers[]="% Mora";
+        $headers[]="Ingresos Mes";
+        $headers[]="Impago";
+        $headers[]="% Impago";
+
+	$cobranzas = $this->estadisticas_model->cobranza_tabla($id_actividad,0);
+        $datos= array();
+	foreach ( $cobranzas as $mes ) {
+
+		$dato = array (
+			'periodo' => $mes->periodo,
+			'actividad' => $xactiv,
+			'socios' => $mes->socios,
+			'cuotas' => $mes->cuotas,
+			'facturado' => $mes->facturado,
+			'pagado' => $mes->pagado_mes_mes,
+			'efectividad' => $mes->porc_cobranza,
+			'pago_mora' => $mes->pagado_mora,
+			'porc_mora' => $mes->porc_mora,
+			'ingreso_mes' => $mes->pagado_mes,
+			'impago' => $mes->impago,
+			'porc_impago' => $mes->porc_impago
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+    }
+
+    public function exportar_estad_cobranza_comi($id_comision) {
+
+	if ( $id_comision > 0 ) {
+		$this->load->model('comisiones_model');
+		$comision = $this->comisiones_model->get_comision_id($id_comision);
+		$xcomi = $id_comision.'-'.$comision->descripcion;
+	} else {
+		if ( $id_comision == -1 ) { $xcomi = 'Todas'; }
+	}
+
+        $archivo="Estadistica_Cobranza".$xcomi;
+        $fila1=false;
+        $titulo="Cobranza_".$xcomi;
+
+        $headers=array();
+        $headers[]="Periodo";
+        $headers[]="Actividad";
+        $headers[]="Socios";
+        $headers[]="Cuotas";
+        $headers[]="Facturado";
+        $headers[]="Pagado al Dia";
+        $headers[]="Efectividad";
+        $headers[]="% Mora";
+        $headers[]="Ingresos Mes ";
+        $headers[]="Impago";
+        $headers[]="% Impago";
+
+	$cobranzas = $this->estadisticas_model->cobranza_tabla(0,$id_comision);
+        $datos= array();
+	foreach ( $cobranzas as $mes ) {
+
+		$dato = array (
+			'periodo' => $mes->periodo,
+			'comision' => $xcomi,
+			'socios' => $mes->socios,
+			'cuotas' => $mes->cuotas,
+			'facturado' => $mes->facturado,
+			'pagado' => $mes->pagado_mes_mes,
+			'efectividad' => $mes->porc_cobranza,
+			'pago_mora' => $mes->pagado_mora,
+			'porc_mora' => $mes->porc_mora,
+			'pagado_mes' => $mes->pagado_mes,
+			'impago' => $mes->impago,
+			'porc_impago' => $mes->porc_impago
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+
     }
     function mostrar_fecha($fecha)
     {

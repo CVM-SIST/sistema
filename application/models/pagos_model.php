@@ -580,7 +580,7 @@ class Pagos_model extends CI_Model {
         $total = $this->get_deuda($pago['sid']);
         $total = $total + $pago['monto'];
         $descripcion = "Pago acreditado desde: La Coope <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
-        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion));
+        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion,'origen'=>'1'));
 
     }
 
@@ -589,11 +589,11 @@ class Pagos_model extends CI_Model {
         $total = $this->get_deuda($pago['sid']);
         $total = $total + $pago['monto'];
         $descripcion = "Pago acreditado desde: CuentaDigital <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
-        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion));
+        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion,'origen'=>'2'));
 
     }
 
-    public function registrar_pago($tipo,$sid,$monto,$des,$actividad,$ajuste)
+    public function registrar_pago($tipo,$sid,$monto,$des,$actividad,$ajuste,$origen='0')
     {
         $total = $this->get_socio_total($sid);
 
@@ -631,12 +631,18 @@ class Pagos_model extends CI_Model {
             $total = $total + $haber;
             $this->registrar_pago2($sid,$monto,$ajuste);
         }
+        if ( $ajuste == 1 ) {
+                $orig=4;
+        } else {
+                $orig=3;
+        }
         $data = array(
                 "sid" => $sid,
                 "descripcion" => $des,
                 "debe" => $debe,
                 "haber" => $haber,
-                "total" => $total
+                "total" => $total,
+		"origen" => $orig
             );
         $this->db->insert("facturacion",$data);
         $data['iid'] = $this->db->insert_id();
@@ -1540,7 +1546,8 @@ echo "dia <>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<".$fch_pago."&/()(/()=/()
 		'descripcion'=> "REVERSION FACTURACION",
 		'debe'=>0,
 		'haber'=>$monto,
-		'total'=>$total+$monto
+		'total'=>$total+$monto,
+		'origen'=>0
 	);
 	$this->db->insert('facturacion', $facturacion);
 
@@ -1589,7 +1596,8 @@ echo "dia <>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<".$fch_pago."&/()(/()=/()
                 'descripcion'=> "CORRECCIÓN MANUAL DE PAGOS: ".$descripcion,
                 'debe'=>0,
                 'haber'=>$facturacion,
-                'total'=>$total+$facturacion
+                'total'=>$total+$facturacion,
+		'origen'=>3
             );
             $this->db->insert('facturacion', $facturacion);
         }
@@ -1598,6 +1606,45 @@ echo "dia <>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<".$fch_pago."&/()(/()=/()
         $this->db->delete('pagos');
         $query->free_result();
         return $pago->tutor_id;
+    }
+
+    public function get_meses_ingresos() {
+	$qry="DROP TEMPORARY TABLE IF EXISTS tmp_meses; ";
+        $this->db->query($qry);
+	$qry="CREATE TEMPORARY TABLE tmp_meses ( mes integer, descr_mes char(30), INDEX(mes) );  ";
+        $this->db->query($qry);
+	$qry=" INSERT INTO tmp_meses VALUES (  1, 'Enero' ); ";
+        $this->db->query($qry);
+	$qry=" INSERT INTO tmp_meses VALUES (  2, 'Febrero' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  3, 'Marzo' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  4, 'Abril' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  5, 'Mayo' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  6, 'Junio' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  7, 'Julio' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  8, 'Agosto' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES (  9, 'Setiembre' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES ( 10, 'Octubre' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES ( 11, 'Noviembre' );";
+        $this->db->query($qry);
+	$qry="INSERT INTO tmp_meses VALUES ( 12, 'Diciembre' ); ";
+        $this->db->query($qry);
+	$qry="SELECT DATE_FORMAT(f.date,'%Y%m') mes, CONCAT(m.descr_mes,'-',DATE_FORMAT(f.date,'%Y')) descr_mes, COUNT(*) movimientos 
+		FROM facturacion f
+			JOIN tmp_meses m ON DATE_FORMAT(f.date, '%m') = m.mes
+		WHERE f.date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) 
+		GROUP BY 1; ";
+        $meses = $this->db->query($qry)->result();
+
+        return $meses;
     }
 
     public function get_facturacion_all()

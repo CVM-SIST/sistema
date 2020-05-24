@@ -77,6 +77,23 @@ class Estadisticas_model extends CI_Model {
         return $ret;
     }
 
+    public function ingresos_tabla($mes){
+        $qry = "SELECT DATE_FORMAT(f.date, '%d-%m-%Y') dia, 
+                        SUM(IF(f.origen=1 , f.haber, 0 )) ing_col,
+                        SUM(IF(f.origen=2 , f.haber, 0 )) ing_cd,
+                        SUM(IF(f.origen=3 , f.haber, 0 )) ing_manual,
+                        SUM(IF(f.origen=0 , f.haber, 0 )) ajustes
+                FROM facturacion f 
+                WHERE DATE_FORMAT(f.date,'%Y%m') = $mes AND
+                        haber > 0 
+                GROUP BY 1
+                ORDER BY 1; ";
+
+        $resultado = $this->db->query($qry)->result();
+        return $resultado;
+
+    }
+
 
     public function cobranza_tabla($id_actividad='-1', $id_comision='0'){        
 	$qry = "DROP TEMPORARY TABLE IF EXISTS tmp_cobranza;";

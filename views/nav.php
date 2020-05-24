@@ -113,6 +113,7 @@ function is_active($uri,$actual){
             <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/facturacion"><i class="fa fa-caret-right"></i><span data-i18n="Facturación"></span></a></li>
             <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/cobranza_act"><i class="fa fa-caret-right"></i><span data-i18n="Cobranza x Actividad"></span></a></li>            
             <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/cobranza_comi"><i class="fa fa-caret-right"></i><span data-i18n="Cobranza x Comisión"></span></a></li>            
+            <li><a href="<?=$_GET['baseurl']?>admin/estadisticas/ingresos"><i class="fa fa-caret-right"></i><span data-i18n="Ingresos x Cobranza"></span></a></li>            
         </ul>
     </li>
 
