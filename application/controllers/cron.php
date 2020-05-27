@@ -1075,6 +1075,7 @@ echo "suspender";
                 }
 
                 // Me mando email de aviso que el proceso termino OK
+                mail('secretaria@villamitre.com.ar', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
                 mail('cvm.agonzalez@gmail.com', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
 
 
