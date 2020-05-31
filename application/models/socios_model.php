@@ -30,6 +30,16 @@ class Socios_model extends CI_Model {
         }
     }
 
+    public function getmails_check() {
+	$qry="SELECT Id sid, categoria, CONCAT(nombre,', ',apellido) apynom, mail FROM socios WHERE suspendido = 0 AND validmail_st IN (0, 2) AND mail != '' LIMIT 100";
+        $resultado = $this->db->query($qry)->result();
+	if ( $resultado ) {
+		return $resultado;
+	} else {
+		return false;
+	}
+    }
+
     public function listar(){
 /*	Cambiado por el SQL con JOIN para optimizar lecturas Ago2017 */
         $this->load->model('pagos_model');

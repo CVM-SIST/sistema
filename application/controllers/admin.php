@@ -1551,6 +1551,10 @@ class Admin extends CI_Controller {
                     	$datos['validmail_ts']=date('Y-m-d H:i:s');
                     }
                     if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
+                    unset($datos['r1-id']);
+                    unset($datos['r2-id']);
+                    unset($datos['r3']);
+                    unset($datos['r3-id']);
 
                     $uid = $this->socios_model->register($datos);
 

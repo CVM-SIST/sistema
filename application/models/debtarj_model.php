@@ -77,6 +77,7 @@ class Debtarj_model extends CI_Model {
         return $query->result();
     }
 
+
     public function inicializa_contra($periodo, $id_marca)
     {
         $qry="UPDATE socios_debitos sd 
@@ -139,11 +140,12 @@ class Debtarj_model extends CI_Model {
 
     public function get_contracargos($periodo, $id_marca)
     {
-	$qry="SELECT sdt.id_marca, sdt.sid, sdt.nro_tarjeta, CONCAT(s.apellido,', ',s.nombre) apynom, sd.id_debito, sdg.fecha_debito, sdg.fecha_acreditacion, sd.nro_renglon, sd.importe 
+	$qry="SELECT sdt.id_marca, sdt.sid, t.descripcion descr_marca, sdt.nro_tarjeta, CONCAT(s.apellido,', ',s.nombre) apynom, s.mail, sd.id_debito, sdg.fecha_debito, sdg.fecha_acreditacion, sd.nro_renglon, sd.importe 
 		FROM socios_debitos_gen sdg 
 			JOIN socios_debitos sd ON sdg.id = sd.id_cabecera AND sd.estado = 0
 			JOIN socios_debito_tarj sdt ON sd.id_debito = sdt.id AND sdt.id_marca = sdg.id_marca 
 			JOIN socios s ON sdt.sid = s.Id 
+			JOIN tarj_marca t ON sdt.id_marca = t.id 
 		WHERE sdg.periodo = $periodo AND sdg.id_marca = $id_marca AND sdg.estado = 1; ";
         $contras = $this->db->query($qry)->result();
         if ($contras) {

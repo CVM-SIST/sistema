@@ -15,7 +15,7 @@
 					echo $body;
 				}else{
 					?>
-					<img src="<?=$img_path?>vm-head.png">
+					<img src="<?=$img_path?>cvm-encabezado-mail.jpg">
                     <br>
 					<?
 					if ( $img_attach ) {
@@ -25,6 +25,8 @@
 					}
 				}
 				?>
+                    		<br>
+				<img src="<?=$img_path?>cvm-zocalo-mail.jpg">
 
 			</textarea>
 		</div>

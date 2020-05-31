@@ -80,11 +80,11 @@ class Cron extends CI_Controller {
         $file = './application/logs/facturacion-'.$xanio.'-'.$xmes.'.log';        
         $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';        
         if( !file_exists($file) ){
-            echo "existe";
+            echo "creo";
             $log = fopen($file,'w');
             $col = fopen($file_col,'w');
         }else{
-            echo "creo";
+            echo "existe";
             $log = fopen($file,'a');
             $col = fopen($file_col,'a');
         }
@@ -421,9 +421,7 @@ class Cron extends CI_Controller {
 		// Armo encabezado con escudo y datos de cabecera
 		$cuerpo  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
         	$cuerpo .= "<thead>";
-		$cuerpo .= "<tr style='background-color: #105401 ;'>";
-		$cuerpo .= "<th> <img src='http://clubvillamitre.com/images/Escudo-CVM_100.png' alt='' ></th>";
-                $cuerpo .= "<th style='font-size:30; background-color: #105401; color:#FFF' align='center'>CLUB VILLA MITRE</th>";
+		$cuerpo .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
                 $cuerpo .= "</tr>";
         	$cuerpo .= "</thead>";
 		$cuerpo .= "</table>";
@@ -437,11 +435,11 @@ class Cron extends CI_Controller {
 
 		// Analizo deuda previa a la facturación para poner mensaje acorde
                 if($deuda < 0 ){
-                    	$cuerpo .= "<h4 style='font-family:verdana' ><strong>Al d&iacute;a de la fecha Ud. adeuda $ ".abs($deuda)."</strong></h4>";
+                    	$cuerpo .= "<h4 style='font-family:verdana' ><strong>Al dia de la fecha Ud. adeuda $ ".abs($deuda)."</strong></h4>";
                     	$cuerpo .= "<h4 style='font-family:verdana' ><strong>PONGASE EN CONTACTO CON SECRETARIA PARA REGULARIZAR SU SITUACION</strong></h4>";
                 } else {
 			if($deuda == 0) {
-                    		$cuerpo .= "<h4 style='font-family:verdana' ><strong>Usted esta al d&iacute;a con sus cuotas</strong></h4>";
+                    		$cuerpo .= "<h4 style='font-family:verdana' ><strong>Usted esta al dia con sus cuotas</strong></h4>";
 			} else {
 				if ( $mail['debtarj'] == null ) {
                     			$cuerpo .= "<h4 style='font-family:verdana' ><strong>Usted posee un saldo a favor de $ ".abs($deuda)."</strong></h4>";                
@@ -465,7 +463,7 @@ class Cron extends CI_Controller {
             	$cuerpo .= '<table class="table table-hover" width="100%" style="font-family: "Verdana";">
                 		<thead>
                     		  <tr style="background-color: #666 !important; color:#FFF;">                        
-                        	    <th style="padding:5px;" align="left">Facturaci&oacute;n del Mes</th>
+                        	    <th style="padding:5px;" align="left">Facturacion del Mes</th>
                         	    <th style="padding:5px;" align="right">Monto</th>                        
                     		  </tr>
                 		</thead>
@@ -560,7 +558,7 @@ class Cron extends CI_Controller {
 		if($cuota3['financiacion']){
 			foreach ($cuota3['financiacion'] as $plan) {                 
 				$cuerpo .= '<tr style="background: #CCC;">                    
-                                		<td style="padding: 5px;">Financiaci&oacute;n de Deuda - Cuota '.$plan->actual.'/'.$plan->cuotas.' ('.$plan->detalle.')</td>
+                                		<td style="padding: 5px;">Financiacion de Deuda - Cuota '.$plan->actual.'/'.$plan->cuotas.' ('.$plan->detalle.')</td>
                                 		<td style="padding: 5px;" align="right">$ '.round($plan->monto/$plan->cuotas,2).'</td>
                             		</tr>';
                         }
@@ -659,7 +657,7 @@ class Cron extends CI_Controller {
 
             	if($acobrar < 0){
                 	$total = abs($acobrar);
-                	$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que iene 10 d&iacute;as para regularizar su situaci&oacute;n, contactese con Secretaria</p>';
+                	$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que tiene 10 dias para regularizar su situacion, contactese con Secretaria</p>';
 
                     	// Aca grabo el archivo para mandar a cobrar a COL
 			$col_periodo=$xperiodo;
@@ -689,22 +687,17 @@ class Cron extends CI_Controller {
 
             	} else {
 			if ($resta_pagar > 0 ) {
-                		$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que tiene hasta el d&iacute;a 10 para cancelar su saldo</p>';
+                		$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que tiene hasta el dia 10 para cancelar su saldo</p>';
 			}
 		}
 
                 $cuerpo .= "<p style='font-family:verdana'>Le informamos que los socios que paguen sus cuotas con <b>tarjeta de credito VISA, COOPEPLUS o BBPS</b> tendran beneficios extras como sorteos de entradas a eventos deportivos del Club, Indumentaria, Vouchers de comida, entradas al cine, etc; entre otros. <b>LLAME A SECRETARIA Y HAGA EL CAMBIO</b> </p>";
 
                 $cuerpo .= "<p style='font-family:verdana'>Recuerde que estando al dia Ud. puede disfrutar de los <b>beneficios de nuestra RED</b> </p>";
-		$cuerpo .= "<p style='font-family:verdana'> <a href='https://villamitre.com.ar/beneficios-2/'>En este link podr&aacute; encontrar COMERCIOS ADHERIDOS Y DESCUENTOS<img src='http://clubvillamitre.com/images/Logo-Red-de-BeneficiosOK_70.jpg'></a></p>";
+		$cuerpo .= "<p style='font-family:verdana'> <a href='https://villamitre.com.ar/beneficios-2/'>En este link podra encontrar COMERCIOS ADHERIDOS Y DESCUENTOS<img src='http://clubvillamitre.com/images/Logo-Red-de-BeneficiosOK_70.jpg'></a></p>";
 		$cuerpo .= "<br> <br>";
 
-		$cuerpo .= "<p style='font-family:verdana'> <b>ADMINISTRACION</b></p>";
-		$cuerpo .= "<p style='font-family:verdana'> <b>CLUB VILLA MITRE - BAHIA BLANCA</b></p>";
-		$cuerpo .= "<p style='font-family:verdana'> <b>Garibaldi 149 - (291)-4817878</b> </p>";
-		$cuerpo .= "<br> <br>";
-
-		$cuerpo .= "<img src='http://clubvillamitre.com/images/2doZocalo3.png' alt=''>";
+		$cuerpo .= "<img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt=''>";
 
             	$email = array(
                     'email' => $mail['mail'],
@@ -814,6 +807,169 @@ class Cron extends CI_Controller {
                 $this->db->insert('facturacion_mails',$email);
             }
         }
+    }
+
+    public function check_mails() {
+	//log
+	$file = './application/logs/checkmails.log';
+	if( !file_exists($file) ){
+		echo "creo";
+		$log = fopen($file,'w');
+	} else {
+		echo "existe";
+		$log = fopen($file,'a');
+	}
+	// Tomo cien direcciones de correo y las verifico con la rutina
+        $this->load->model('socios_model');
+	$grupo_check = $this->socios_model->getmails_check();
+	if ( $grupo_check ) {
+        	fwrite($log, "Comienzo de proceso de chequeo de direcciones de email".date('Y-m-d G:i:s'));            
+		//ciclo los 100 socios a verificar
+		foreach ( $grupo_check as $socio ) {
+        		fwrite($log, "Chequeando socio $socio->sid - $socio->apynom con correo $socio->mail ----->");            
+                	// Controlo validez del email
+                	$dirmail=$socio->mail;
+                        $this->load->library('VerifyEmail');
+                        $vmail = new verifyEmail();
+                        $vmail->setStreamTimeoutWait(30);
+                        $vmail->Debug= FALSE;
+	
+                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        if ($vmail->check($dirmail)) {
+				$arrsoc=array( 'Id' => $socio->sid,
+						'categoria' => $socio->categoria,
+						'validmail_st' => '1',
+						'validmail_ts' => date('Y-m-d G:i:s')
+					);
+				$this->socios_model->update_socio($socio->sid, $arrsoc);
+        			fwrite($log, "Chequeo OK actualizado \n");            
+                	} else {
+				$arrsoc=array( 'Id' => $socio->sid,
+						'categoria' => $socio->categoria,
+						'validmail_st' => '2',
+						'validmail_ts' => date('Y-m-d G:i:s')
+					);
+				$this->socios_model->update_socio($socio->sid, $arrsoc);
+        			fwrite($log, "Chequeo fallido \n");            
+			}
+		}
+	}
+        fwrite($log, "FIN de proceso de check de direcciones de email".date('Y-m-d G:i:s'));            
+
+    }
+
+    public function aviso_rechazo_debitos() {
+	// Si viene fecha por parametro la tomo, sino el date
+        if ($this->uri->segment(3)) {
+                $xhoy = $this->uri->segment(3);
+        } else {
+                $xhoy=date('Y-m-d');
+        }
+
+        // Periodo y fechas del proceso.....
+        $xanio=date('Y', strtotime($xhoy));
+        $xmes=date('m', strtotime($xhoy));
+        $xperiodo=date('Ym', strtotime($xhoy));
+        $xahora=date('Y-m-d G:i:s', strtotime($xhoy));
+
+        //log
+        $file = './application/logs/aviso-rechdebito-'.$xanio.'-'.$xmes.'.log';
+        if( !file_exists($file) ){
+            echo "creo";
+            $log = fopen($file,'w');
+        }else{
+            echo "existe";
+            $log = fopen($file,'a');
+        }
+	
+        fwrite($log, "Comienzo de proceso de envio de aviso de rechazo de debitos".date('Y-m-d G:i:s'));            
+
+	// Busco los rechazados del periodo
+        $this->load->model('debtarj_model');
+        $this->load->model('tarjeta_model');
+	
+	// Busco las tarjetas
+	$tarjetas = $this->tarjeta_model->get_tarjetas();
+	foreach ( $tarjetas as $tarjeta ) {
+		$id_marca = $tarjeta->id;
+		echo $xperiodo." - ".$id_marca;
+		$rechazados = $this->debtarj_model->get_contracargos($xperiodo, $id_marca);
+		var_dump($rechazados);
+		if ( $rechazados ) {
+            		$this->load->library('email');
+            		$enviados=0;
+			$aviso_mail="";
+			foreach ( $rechazados as $rechazado ) {
+				echo $rechazado->mail;
+ 				if ( $rechazado->mail != '' ) { 
+                                	$largo = strlen($rechazado->nro_tarjeta);
+                                	if ( $largo > 8 ) {
+                                        	$nrotarj = substr($rechazado->nro_tarjeta,0,4)."****".substr($rechazado->nro_tarjeta,$largo-4,$largo);
+                                	} else {
+                                        	$nrotarj = "MAL";
+                                	}
+	
+					$txt = "Se envio aviso a $rechazado->sid - $rechazado->apynom al email $rechazado->mail porque se le rechazo el debito de su tarjeta $rechazado->descr_marca nro $nrotarj por un importe de $ $rechazado->importe\n";
+					$aviso_mail = $aviso_mail . $txt;
+        				fwrite($log, $txt);            
+	
+                			$this->email->from('pagos@clubvillamitre.com','Club Villa Mitre');
+                			$this->email->to($rechazado->mail);
+                			$this->email->bcc('cvm.agonzalez@gmail.com');
+	
+                			$asunto='Debito CVM rechazado';
+                			$this->email->subject($asunto);
+	
+					// Armo cuerpo del email
+					$txt_mail="";
+	
+                			// Armo encabezado con escudo y datos de cabecera
+                			$txt_mail  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
+                			$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
+                			$txt_mail .= "</table>";
+			
+	
+                			// Datos del Titular
+                			$txt_mail .= '<p style="font-family:verdana; color:black"><strong>Socio/a : '.$rechazado->sid.'-'.$rechazado->apynom.'</strong></p>';
+		
+		
+					$txt_mail .= "<p style='color:red'><strong>AVISO DE DEBITO RECHAZADO</strong></p>";
+					$txt_mail .= "<p style='color:black'><strong>Generado el ".date('d-m-Y')."</strong></p><br>";
+					$txt_mail .= "<p style='color:black'>La tarjeta de credito $rechazado->descr_marca $nrotarj que ud. registro para el debito automatico del Club Villa Mitre, <strong> no pudo realizar el debito</strong></p>";
+					$txt_mail .= '<p style="font-family:verdana; font-style:italic; color:black">Ponganse en contacto con la secretaria del Club para regularizar su situacion.</p>';
+					$txt_mail .= '<p style="font-family:verdana; color:black">Recuerde que al no estar al dia con sus pagos ud. no puede aprovechar nuestra RED de Beneficios </p>';
+					$txt_mail .= '<p style="font-family:verdana; color:black">Al club lo hacemos entre todos y es de suma importancia su aporte </p>';
+					$txt_mail .= "<br>";
+					$txt_mail .= '<p style="font-family:verdana; color:black">Muchas gracias</p>';
+					$txt_mail .= "<br>";
+		
+                			$txt_mail .= "<table class='table table-hover' style='font-family:verdana' width='100%' >";
+                			$txt_mail .= "<tr><th> <img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt='' ></th></tr>";
+                			$txt_mail .= "</table>";
+		
+                			$this->email->message($txt_mail);
+					// Fin armado del cuerpo
+	
+                			fwrite($log,  date('d/m/Y G:i:s').": Enviando: ".$rechazado->email);
+	
+                			if($this->email->send()){
+                    				fwrite($log,  " ----> Enviado OK "." \n");
+                    				$enviados++;
+                			} else {
+                    				$msg_error=$this->email->print_debugger();
+                    				fwrite($log, " ----> Error de Envio:".$msg_error." \n");
+                			}
+				}
+			}
+		}
+	}
+
+        fwrite($log, "Se enviaron $enviados emails");            
+        fwrite($log, "FIN de proceso de envio de aviso de rechazo de debitos".date('Y-m-d G:i:s'));            
+        fclose($log);      
+
+        mail('cvm.agonzalez@gmail.com', "El proceso de Aviso de rechazos de debitos termino correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de aviso de rechazos finalizó correctamente ".date('Y-m-d G:i:s')."\n".$aviso_mail);
+
     }
 
     public function debitos_tarjetas($xperiodo, $log) {
@@ -986,7 +1142,7 @@ echo "suspender";
                 		$txt_mail  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
                 		$txt_mail .= "<thead>";
                 		$txt_mail .= "<tr style='background-color: #105401 ;'>";
-                		$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/Escudo-CVM_100.png' alt='' ></th>";
+                		$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
                 		$txt_mail .= "<th style='font-size:30; background-color: #105401; color:#FFF' align='center'>CLUB VILLA MITRE</th>";
                 		$txt_mail .= "</tr>";
                 		$txt_mail .= "</thead>";
@@ -1001,20 +1157,18 @@ echo "suspender";
 				$txt_mail .= "<br>";
 				$txt_mail .= "<h1>Al dia de hoy ud. tiene una deuda de $ ".$deudor->deuda."</h1>";
 				$txt_mail .= "<br>";
-				$txt_mail .= '<p style="font-family:verdana; ">Si ud. realizo alg&uacuten pago en el d&iacutea de ayer puede que no este reflejado en este resumen </p>';
+				$txt_mail .= '<p style="font-family:verdana; ">Si ud. realizo algun pago en el dia de ayer puede que no este reflejado en este resumen </p>';
 				$txt_mail .= "<br>";
-				$txt_mail .= '<p style="font-family:verdana; font-style:italic;">Ponganse en contacto con la secretaria del Club para regularizar su situaci&oacuten. Existen diferentes formas para financiar su deuda </p>';
+				$txt_mail .= '<p style="font-family:verdana; font-style:italic;">Ponganse en contacto con la secretaria del Club para regularizar su situacion. Existen diferentes formas para financiar su deuda </p>';
 				$txt_mail .= "<br>";
-				$txt_mail .= '<p style="font-family:verdana; ">Recuerde que al no estar al d&iacutea con sus pagos ud. no puede aprovechar nuestra RED de Beneficios </p>';
+				$txt_mail .= '<p style="font-family:verdana; ">Recuerde que al no estar al dia con sus pagos ud. no puede aprovechar nuestra RED de Beneficios </p>';
 				$txt_mail .= "<br>";
 				$txt_mail .= '<p style="font-family:verdana; ">Al club lo hacemos entre todos y es de suma importancia su aporte </p>';
 				$txt_mail .= "<br>";
-				$txt_mail .= '<p style="font-family:verdana; ">Mas informaci&oacuten en <a href="https://www.villamitre.com.ar/"> www.villamitre.com.ar</a></p>';
+				$txt_mail .= '<p style="font-family:verdana; ">Mas informacion en <a href="https://www.villamitre.com.ar/"> www.villamitre.com.ar</a></p>';
 				$txt_mail .= "<br>";
 	
-                		$txt_mail .= "<p style='font-family:verdana'> <b>ADMINISTRACION</b></p>";
-	                	$txt_mail .= "<p style='font-family:verdana'> <b>CLUB VILLA MITRE - BAHIA BLANCA</b></p>";
-                		$txt_mail .= "<p style='font-family:verdana'> <b>Garibaldi 149 - (291)-4817878</b> </p>";
+                		$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt='' ></th>";
                 		$txt_mail .= "<br> <br>";
 	
                 		$txt_mail .= "<img src='http://clubvillamitre.com/images/2doZocalo3.png' alt=''>";
