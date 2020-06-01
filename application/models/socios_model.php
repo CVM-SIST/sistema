@@ -165,9 +165,9 @@ class Socios_model extends CI_Model {
                 $query .= "AND s.mail != '' ";
         }
         if ( $filtro_tele == "sin" ) {
-                $query .= "AND s.telefono = '' ";
+                $query .= "AND ( s.telefono = '' AND s.celular = '' )";
         } else {
-                $query .= "AND s.telefono != '' ";
+                $query .= "AND ( s.telefono != '' OR s.celular != '' )";
         }
 
         $query .= ";";
@@ -183,9 +183,9 @@ class Socios_model extends CI_Model {
 		$query .= "AND s.mail != '' ";
 	}
         if ( $filtro_tele == "sin" ) {
-                $query .= "AND s.telefono = '' ";
+                $query .= "AND ( s.telefono = '' AND s.celular = '' ) ";
         } else {
-                $query .= "AND s.telefono != '' ";
+                $query .= "AND ( s.telefono != '' OR s.celular != '' ) ";
         }
 
 	$query .= "ORDER BY s.update_ts ASC ";
