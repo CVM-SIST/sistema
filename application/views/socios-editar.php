@@ -199,15 +199,6 @@
                 </div>
                 <div class="clearfix"></div>
                 <div class="form-group col-lg-6">
-                    <label for="" class="col-sm-3">Descuento $</label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="number" name="descuento" id="descuento"  step="any" max="100" min="0" required class="form-control" value="<?=$socio->descuento?>">                            
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group col-lg-6">
                     <div class="alert alert-info">Este socio abonará $ <span id="a_pagar"></span> de cuota social.</div>
                 </div>
                 <div class="clearfix"></div>

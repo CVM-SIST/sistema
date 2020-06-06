@@ -1289,7 +1289,7 @@ $("#comi-activ-form").submit(function(){
 
         function calcular_cuota(){
             var monto = $("#s_cate").find(':selected').attr('data-precio');
-            var descuento = $("#descuento").val();
+	    var descuento = 0;
             var a_pagar = monto - ( monto*descuento/100 );
             $("#a_pagar").text(a_pagar);
         }

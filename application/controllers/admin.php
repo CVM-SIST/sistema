@@ -951,6 +951,32 @@ class Admin extends CI_Controller {
 		$filtro_mail = $this->uri->segment(5);
 		$filtro_tele = $this->uri->segment(6);
 		$sid = $this->uri->segment(7);
+
+                // Controlo validez del email
+                $dirmail=$this->input->post('mail');
+                if ( $dirmail != '' ) {
+                        $this->load->library('VerifyEmail');
+                        $vmail = new verifyEmail();
+                        $vmail->setStreamTimeoutWait(10);
+                        $vmail->Debug= FALSE;
+
+                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        if (!$vmail->check($dirmail)) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                        }
+                    	$datos['validmail_st']=1;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+                } else {
+                    	$datos['validmail_st']=9;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+		}
+
 		$datos['nombre'] = $this->input->post('nombre');
 		$datos['apellido'] = $this->input->post('apellido');
 		$datos['mail'] = $this->input->post('mail');
