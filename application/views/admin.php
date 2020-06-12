@@ -352,10 +352,15 @@
 
 		$("#save_btn").click(function() {
 		    var categ = $("#s_cate").val();
-		    // No controlo para categoria sponsor
-		    if ( categ != 12 ) {
+		    // No controlo para categoria sponsor ni mascota
+		    if ( categ != 12 && categ != 14 ) {
                     	var fecha = $("#fechan").val();
+		        var dni = $("#dni").val();
 			<?  $hoy=date('Y-m-d'); ?>
+		    	if ( dni == 0 ) {
+				alert ("Error el DNI no puede ser 0");
+				return false;
+			}
 		    	if ( fecha == 0 || fecha == "0000-00-00" ) {
 				alert ("Error en la fecha de nacimiento, no puede ser 0");
 				return false;
@@ -364,7 +369,8 @@
                         	alert ("Error en la fecha de nacimiento, no puede ser mayor a hoy");
                         	return false;
                    	}
-		  };
+		    };
+
 		})
 
                 <?

@@ -18,7 +18,7 @@
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">DNI</label>                    
                     <div class="col-sm-9">
-                        <input type="number" class="form-control" name="dni" required>
+                        <input type="number" class="form-control" id="dni" name="dni" >
                     </div>
                 </div>                
                                     
