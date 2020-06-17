@@ -15,6 +15,7 @@
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="socios_table">
     <thead>
         <tr>
+            <th>SID</th>
             <th>Nombre y Apellido</th>
             <th>Teléfono</th>
             <th>DNI</th>
@@ -30,6 +31,7 @@
     	foreach ($socios as $socio) {    	
     	?>
         <tr>
+            <td><?=@$socio->Id?> </td>
             <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td><?=@$socio->telefono?></td>
             <td><?=@$socio->dni?></td>
