@@ -162,7 +162,11 @@ class Socios_model extends CI_Model {
         if ( $filtro_mail == "sin" ) {
                 $query .= "AND s.mail = '' ";
         } else {
-                $query .= "AND s.mail != '' ";
+		if ( $filtro_mail == "cone" ) {
+			$query .= "AND validmail_st = 2 ";
+		} else {
+                	$query .= "AND s.mail != '' ";
+		}
         }
         if ( $filtro_tele == "sin" ) {
                 $query .= "AND ( s.telefono = '' AND s.celular = '' )";
@@ -180,7 +184,11 @@ class Socios_model extends CI_Model {
 	if ( $filtro_mail == "sin" ) {
 		$query .= "AND s.mail = '' ";
 	} else {
-		$query .= "AND s.mail != '' ";
+		if ( $filtro_mail == "cone" ) {
+			$query .= "AND validmail_st = 2 ";
+		} else {
+                	$query .= "AND s.mail != '' ";
+		}
 	}
         if ( $filtro_tele == "sin" ) {
                 $query .= "AND ( s.telefono = '' AND s.celular = '' ) ";
@@ -189,7 +197,7 @@ class Socios_model extends CI_Model {
         }
 
 	$query .= "ORDER BY s.update_ts ASC ";
-	$query .= "LIMIT 20; ";
+	$query .= "LIMIT 100; ";
         $result = $this->db->query($query)->result();
 	
 	$salida = array();
