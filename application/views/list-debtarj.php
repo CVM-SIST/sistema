@@ -88,11 +88,11 @@
                     <th><div class="th">
                         Nro Tarjeta
                         <span class="glyphicon glyphicon-chevron-up"
-                              data-ng-click=" order('nro_tarjeta) "
-                              data-ng-class="{active: row == 'nro_tarjeta}"></span>
+                              data-ng-click=" order('nro_tarjeta') "
+                              data-ng-class="{active: row == 'nro_tarjeta'}"></span>
                         <span class="glyphicon glyphicon-chevron-down"
-                              data-ng-click=" order('-nro_tarjeta) "
-                              data-ng-class="{active: row == '-nro_tarjeta}"></span>
+                              data-ng-click=" order('-nro_tarjeta') "
+                              data-ng-class="{active: row == '-nro_tarjeta'}"></span>
                     <th><div class="th">
                         Importe
                         <span class="glyphicon glyphicon-chevron-up"
