@@ -98,6 +98,7 @@
 
         <? 
 	    $apynom = substr($socio->nombre.", ".$socio->apellido, 0, 30);
+	    $apynom_2 = substr($socio->nombre." ".$socio->apellido, 0, 30);
             switch ($socio->categoria){
 
 		case '11':
@@ -156,7 +157,7 @@
 
                         <div class="datos">
 
-                        <div class="nap" style="font-weight:bold"><?=$apynom?></div>
+                        <div class="nap" style="font-weight:bold"><?=$apynom_2?></div>
                         <div class="nap" style="font-weight:bold"> SOCIO MASCOTA </div>
                         <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
                         <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
@@ -165,6 +166,44 @@
                 </div>
         <? break;
 
+                case '15':
+        ?>
+                <div class="carnet frente"></div>
+    		<div class="carnet dorso">
+                        <div class="imagen">
+                        <?
+                                if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+                        ?>
+                                        <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+                        <?
+                        }else{
+                        ?>
+                                        <img src="<?=base_url()?>images/noPic.jpg" width="80">
+                        <?
+                        }
+                        ?>
+                        </div>
+                <?
+                        if($socio->socio_n){
+                                $num = $socio->socio_n;
+                        }else{
+                                $num = $socio->Id;
+                        }
+                        $fecha = explode(' ', $socio->alta);
+                        $fecha = explode('-', $fecha[0]);
+                        $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
+                ?>
+
+                        <div class="datos">
+
+                        <div class="nap" style="font-weight:bold"><?=$apynom_2?></div>
+                        <div class="nap" style="font-weight:bold"> SOCIO COMERCIO </div>
+                        <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
+                        <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
+
+                        </div>
+                </div>
+        <? break;
 
 		default:
 	?>
