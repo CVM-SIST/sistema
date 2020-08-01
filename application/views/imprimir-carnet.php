@@ -36,7 +36,7 @@
 	    			background-size: 100% 100%;
         		}
         		.imagen{
-			margin-top:70px;
+			margin-top:73px;
             			margin-left: 25px;
             			width: 80px;
             			float: left;
@@ -55,6 +55,39 @@
             			margin-top: 0px;
         		}
 			<?
+			break;
+                case '15':
+                        $frente=base_url()."images/Comercio_Frente.jpg";
+                        $dorso=base_url()."images/Comercio_Dorso.jpg";
+                        ?>
+                        .frente{
+                                background-image:url(<?=$frente?>);
+                                background-size: 100% 100%;
+                        }
+                        .dorso{
+                                background-image:url(<?=$dorso?>);
+                                background-size: 100% 100%;
+                        }
+                        .imagen{
+                        margin-top:75px;
+                                margin-left: 5px;
+                                width: 60px;
+                                float: left;
+                        }
+                        .datos{
+                                float:right;
+                                width: 205px;
+                                color: #000;
+                                margin-top:65px;
+                                line-height: 28px;
+                        }
+                        .clear{
+                                clear: both;
+                        }
+                        .barcode{
+                                margin-top: 0px;
+                        }
+                        <?
 			break;
 		default:
 			$frente=base_url()."images/carnet-frente-new.png";
@@ -168,8 +201,7 @@
 
                 case '15':
         ?>
-                <div class="carnet frente"></div>
-    		<div class="carnet dorso">
+                <div class="carnet frente">
                         <div class="imagen">
                         <?
                                 if(file_exists('images/socios/'.$socio->Id.'.jpg')){
@@ -181,28 +213,24 @@
                                         <img src="<?=base_url()?>images/noPic.jpg" width="80">
                         <?
                         }
-                        ?>
-                        </div>
-                <?
-                        if($socio->socio_n){
-                                $num = $socio->socio_n;
-                        }else{
-                                $num = $socio->Id;
-                        }
                         $fecha = explode(' ', $socio->alta);
                         $fecha = explode('-', $fecha[0]);
                         $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
-                ?>
 
+                        ?>
+                        </div>
                         <div class="datos">
 
-                        <div class="nap" style="font-weight:bold"><?=$apynom_2?></div>
-                        <div class="nap" style="font-weight:bold"> SOCIO COMERCIO </div>
-                        <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
-                        <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
-
+                        	<div style="font-weight:bold"><?=$apynom_2?></div>
+                        	<div style="font-weight:bold"><?=$socio->domicilio?></div>
+                        	<div style="font-weight:bold">
+					<div style="width: 50%; float:left"> <?=$socio->Id?></div>
+					<div style="width: 50%; float:right"> <?=$fecha?></div>
+                        	</div>
                         </div>
                 </div>
+                <div class="carnet dorso"> </div>
+
         <? break;
 
 		default:
