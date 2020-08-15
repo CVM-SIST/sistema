@@ -68,24 +68,21 @@
                                 background-image:url(<?=$dorso?>);
                                 background-size: 100% 100%;
                         }
-                        .imagen{
-                        margin-top:75px;
-                                margin-left: 5px;
-                                width: 60px;
-                                float: left;
-                        }
                         .datos{
-                                float:right;
+                                float:left;
                                 width: 205px;
                                 color: #000;
-                                margin-top:65px;
+                                margin-top:75px;
+                                margin-left:20px;
                                 line-height: 28px;
                         }
                         .clear{
                                 clear: both;
                         }
                         .barcode{
-                                margin-top: 0px;
+                                width: 80px;
+                                margin-left: 30px;
+                                margin-bottom: 1px;
                         }
                         <?
 			break;
@@ -202,34 +199,37 @@
                 case '15':
         ?>
                 <div class="carnet frente">
-                        <div class="imagen">
+
                         <?
-                                if(file_exists('images/socios/'.$socio->Id.'.jpg')){
-                        ?>
-                                        <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
-                        <?
-                        }else{
-                        ?>
-                                        <img src="<?=base_url()?>images/noPic.jpg" width="80">
-                        <?
-                        }
                         $fecha = explode(' ', $socio->alta);
                         $fecha = explode('-', $fecha[0]);
                         $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
 
                         ?>
-                        </div>
                         <div class="datos">
 
-                        	<div style="font-weight:bold"><?=$apynom_2?></div>
-                        	<div style="font-weight:bold"><?=$socio->domicilio?></div>
                         	<div style="font-weight:bold">
-					<div style="width: 50%; float:left"> <?=$socio->Id?></div>
-					<div style="width: 50%; float:right"> <?=$fecha?></div>
+					<div style="width: 80%; float:left"> <?=$apynom_2?></div>
+					<div style="width: 20%; float:right"> <?=$socio->Id?></div>
+                        	</div>
+                        	<div style="font-weight:bold">
+                        		<div style="width: 80%; float:left"><?=$socio->domicilio?></div>
+					<div style="width: 20%; float:right"> <?=$fecha?></div>
                         	</div>
                         </div>
+			<div class="barcode">
+                		<?
+                			if( file_exists("images/cupones/".$cupon->Id.".png") ){
+                		?>
+                			<br>
+                			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                		<?
+                			}
+                		?>
+                	</div>
                 </div>
                 <div class="carnet dorso"> </div>
+
 
         <? break;
 
