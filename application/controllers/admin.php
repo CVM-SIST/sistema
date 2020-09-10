@@ -305,6 +305,7 @@ class Admin extends CI_Controller {
 				if ( trim($mensaje) == "DEBITO EXITOSO" ||  trim(substr($mensaje,0,15)) == "DEBITO ACEPTADO" ) {
 					$by=array("id_marca"=>$id_marca, "nro_tarjeta"=>$nro_tarjeta);
 					$debtarj=$this->debtarj_model->get_debtarj_by($by);
+		// TODO FIX - Informan siempre el numero de tarjeta nuevo..... Hacer punto de correccion manual ?
 
 					foreach ( $debtarj as $debtj) {
 						if ( $debtj ) {
@@ -1840,7 +1841,9 @@ class Admin extends CI_Controller {
 				unset($datos['files']);
 				unset($datos['tutor_dni']);
 		                $tutor = $datos['tutor_sid'];
+		                $tutor_orig = $datos['tutor_orig'];
                 		unset($datos['tutor_sid']);
+                		unset($datos['tutor_orig']);
                 		$datos['tutor']=$tutor;
 		                    if ( $dirmail != $dirmail_orig || $dias > 300 ) {
                         		$datos['validmail_st']=1;
@@ -1859,6 +1862,21 @@ class Admin extends CI_Controller {
 				$llave = $id;
 				$observ = substr(json_encode($datos),0,255);
 				$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+
+		                // Verifico cambio de estado de tutor
+                		if ( $tutor != $tutor_orig ) {
+                        		$this->load->model("pagos_model");
+                        		// tenia tutor y se lo saco
+                        		if ( $tutor == 0 ) {
+                        			$soc_tutor = $this->socios_model->get_socio($tutor_orig);
+
+                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Dejo de estar tutoreado por : '.$tutor_orig."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
+
+                        		} else {
+                        			$soc_tutor = $this->socios_model->get_socio($tutor);
+                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Pasa a estar tutoreado por : '.$tutor."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
+                        		}
+                		}
 
 				if(!isset($error)){
 					$error = '';

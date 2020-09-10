@@ -102,8 +102,9 @@
                     <label for="" class="col-sm-3">Tutor de Grupo Familiar</label>
                         <div id="tutor_dni-data" <? if($tutor->Id != 0){ echo 'class="hidden"'; }?>>
                             <div class="col-sm-5">
-                                <input type="number" name="tutor_dni" id="tutor_dni" value='0' class="form-control">
-                                <input type="hidden" name="tutor_sid" id="tutor_sid" value='0' class="form-control">
+                                <input type="number" name="tutor_dni" id="tutor_dni" value='<? if($tutor->Id != 0) { echo $tutor->dni; } else { echo "0"; } ?>' class="form-control">
+                                <input type="hidden" name="tutor_sid" id="tutor_sid" value='<? if($tutor->Id != 0) { echo $tutor->Id; } else { echo "0"; } ?>' class="form-control">
+                                <input type="hidden" name="tutor_orig" id="tutor_orig" value='<?=$tutor->Id?>' class="form-control">
                             </div>
                             <div class="col-sm-4">
                                 <a href="#" id="r-buscar" data-id="tutor_dni" class="btn btn-primary">Buscar</a> <i id="tutor_dni-loading" class="fa fa-spinner fa-spin hidden"></i>
