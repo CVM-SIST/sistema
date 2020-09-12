@@ -1736,9 +1736,9 @@ echo "suspender";
         $count = 0;
         $result = false;
         if(!$venc){
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
         }else{
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
         }
         
         do{
@@ -1758,6 +1758,7 @@ echo "suspender";
                 $result = array();
                 $result['image'] = $xml->INVOICE->BARCODEBASE64;
                 $result['barcode'] = $xml->INVOICE->PAYMENTCODE1;
+                $result['codlink'] = $xml->INVOICE->PAYMENTCODE2;
                 //$result = $xml->INVOICE->INVOICEURL;
 
             }        

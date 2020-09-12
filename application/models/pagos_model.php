@@ -356,7 +356,8 @@ class Pagos_model extends CI_Model {
                 'sid' => $sid,
                 'monto' => $monto,
                 'estado' => '1',
-                'barcode' => $cupon['barcode']
+                'barcode' => $cupon['barcode'],
+                'codlink' => $cupon['codlink']
             );
         $this->db->insert('cupones',$data);
         return $this->db->insert_id();
