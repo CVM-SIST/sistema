@@ -1758,7 +1758,7 @@ echo "suspender";
                 $result = array();
                 $result['image'] = $xml->INVOICE->BARCODEBASE64;
                 $result['barcode'] = $xml->INVOICE->PAYMENTCODE1;
-                $result['codlink'] = $xml->INVOICE->PAYMENTCODE2;
+                $result['codlink'] = substr($xml->INVOICE->PAYMENTCODE2,-10);
                 //$result = $xml->INVOICE->INVOICEURL;
 
             }        
