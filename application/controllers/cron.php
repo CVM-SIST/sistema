@@ -1569,6 +1569,59 @@ echo "suspender";
 	}
 
 	function get_pagos_COL($fecha,$suc_filtro) {           
+		
+        	$this->load->model('pagos_model');
+		$cupones = $this->_newCOL($fecha,$suc_filtro);
+		//echo $cupones->estado."---->>>><<<<<----\n";
+		//echo $cupones->msg."---->>>><<<<<----\n";
+		//echo "%&/(/((/#$#(/$(#/$(/#$(\n";
+		//var_dump($cupones->result->cupones_cobrados);
+		$pago = array();
+		foreach ($cupones->result->cupones_cobrados as $cupon) {
+			//var_dump($cupon[0]);
+			$nro_socio = $cupon->nro_socio;
+			$suc = $cupon->sucursal;
+			$xfecha = $cupon->fecha_cobro;
+			$fecha_pago = date("Y-m-d",strtotime($cupon->fecha_cobro));
+			$hora_pago = date("H:i:s",strtotime($cupon->fecha_cobro));
+			$importe = $cupon->importe_cobrado;
+			$periodo=substr($xfecha,0,4).substr($xfecha,5,2);
+			$nro_cupon = ( date("ymdHi", strtotime($cupon->fecha_cobro)) * 1000 ) + $suc;
+
+			// Si viene una sucursal de filtro salteo las sucursales distintas
+			if ( $suc_filtro > 0 ) {
+				if ( $suc != $suc_filtro ) {
+					continue;
+				}
+			}
+	
+			// Verifico si el pago no fue procesado
+			$cobro_col =  $this->pagos_model->get_cobcol_id($nro_socio, $periodo, $nro_cupon);
+			if ( !$cobro_col) {
+				$pago[] = array(
+					"fecha" => date('d-m-Y',strtotime($fecha_pago)),
+					"hora" => $hora_pago,
+					"monto" => $importe,
+					"sid" => $nro_socio,
+					"pid" => $nro_cupon
+					);
+				$p = array(
+					"sid" => $nro_socio,
+					"periodo" => $periodo,
+					"fecha_pago" => date('Y-m-d',strtotime($fecha_pago)),
+					"suc_pago" => $suc,
+					"nro_cupon" => $nro_cupon,
+					"importe" => $importe
+					);
+	
+				$this->pagos_model->insert_cobranza_col($p);
+			} else {
+				echo "EXISTE PAGO";
+			}
+                };
+		return $pago;
+/*
+		return false;
                 $url = 'https://extranet.cooperativaobrera.coop/xml/Consorcios/index/30553537602/13809/'.$fecha;
                 if($a = file_get_contents($url)){
 			$data = explode("\n",$a);
@@ -1623,7 +1676,56 @@ echo "suspender";
 		} else {
 			return false;
 		}
+*/
 	}
+
+    function _newCOL($fecha,$suc_filtro) {           
+    	$url = "https://extranet.cooperativaobrera.coop/proveedores/Importa_Socios_Mes/consultaCobros";
+    
+    	//Prueba villa mitre
+    	$login = "agonzalez.lacoope";
+    	$token = "ewrewry23k5bc1436lnlahbg23218g12g1h3g1vm";
+
+    	$headers= array("Content-Type: multipart/form-data","Authorization: Token $token");
+
+		$anio=substr($fecha,0,4);
+		$mes=substr($fecha,5,2);
+		$hfecha = date("Y-m-t", strtotime($fecha));
+		$dfecha = date("Y-m-d", strtotime($anio."-".$mes."-01"));
+
+
+    	$post = array('login' => $login, 'fecha_inicial' => "$dfecha", 'fecha_final'=> "$hfecha");
+
+    	$ch = curl_init($url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	
+    	$resultado = curl_exec($ch);
+    	$errno  = curl_errno($ch);
+    	$error  = curl_error($ch);
+
+    	//var_dump($resultado);
+    	//echo 'status: '.print_r($status, true);
+
+    	//echo 'Resultado: '.$resultado;
+    	curl_close($ch);
+
+    	if($errno !== 0) {
+        	throw new Exception($error, $errno);
+    	}
+
+    	$obj_resultado = json_decode($resultado);
+
+	return $obj_resultado;
+    	//estado = 1 -----> OK
+    	//estado >= 100 --> ERROR
+    	//echo "<br /><br />Estado: ".$obj_resultado->estado;
+    	//echo "<br />Mensaje: ".$obj_resultado->msg;
+    }
 
     function debito_nuevacard() {
 	$exitoso=FALSE;

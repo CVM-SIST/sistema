@@ -463,6 +463,19 @@ class Pagos_model extends CI_Model {
 	}
     }
 
+    function get_cobcol_id($sid, $periodo, $nro_cupon) {
+        $this->db->where('sid', $sid);
+        $this->db->where('periodo', $periodo);
+        $this->db->where('nro_cupon', $nro_cupon);
+        $query = $this->db->get('cobranza_col');
+        if($query->num_rows() == 0){
+                return false;
+        } else {
+                return $query->row();
+        }
+    }
+
+
     public function check_cron($periodo)
     { //comprueba si ya se ejecuto la tarea este mes o si esta en curso
 	$anio=substr($periodo,0,4);
