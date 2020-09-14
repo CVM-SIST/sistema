@@ -1053,6 +1053,30 @@ class Cron extends CI_Controller {
 
     }
 
+    public function regulariza_vitalicios() {
+
+        $this->load->model('socios_model');
+	$query="DROP TEMPORARY TABLE IF EXISTS tmp_vitalicios; ";
+	$this->db->query($query);
+
+	$query="CREATE TEMPORARY TABLE tmp_vitalicios
+		SELECT s.Id sid, s.dni, s.apellido, s.nombre, s.suspendido, SUM(p.pagado-p.monto) saldo
+		FROM socios s
+        		JOIN pagos p ON s.Id = p.tutor_id
+		WHERE s.categoria=5 AND suspendido = 0 AND p.tipo = 1
+		GROUP BY 1; ";
+	$this->db->query($query);
+
+	$query="INSERT INTO facturacion
+		SELECT 0, sid, NOW(), 'Regularizacion Saldos Vitalicios', 0, -saldo, 0, 0
+		FROM tmp_vitalicios
+		WHERE saldo < 0; ";
+	$this->db->query($query);
+
+	$query="UPDATE pagos p JOIN tmp_vitalicios t ON p.tutor_id = t.sid AND t.saldo < 0 SET estado = 0, pagado = monto, pagadoel=NOW() WHERE p.tipo = 1 AND p.estado = 1; ";
+	$this->db->query($query);
+    }
+
     public function suspender($log)
     {
 echo "suspender";
