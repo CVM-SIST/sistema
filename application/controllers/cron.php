@@ -739,6 +739,15 @@ class Cron extends CI_Controller {
 		$info_total="No encontre registro en facturacion_cron !!!!";
 	}
 
+	// Subo el archivo al WS de La Coope para que se importe
+	// Primero lo renombre con el md5sum del contenido
+        $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';
+	$md5 = md5_file($file_col);
+        $file_col_new = './application/logs/asociados_'.$md5.'.csv';
+	rename($file_col,$file_col_new);
+	// Luego llamo a la rutina que lo sube con el WS
+	$this->_sube_facturacion_COL($file_col_new);
+
 	// Me mando email de aviso que el proceso termino OK
         mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total);
 	}
@@ -1485,9 +1494,12 @@ echo "suspender";
 			// Busco los pagos registrados en COL
 			$pagos_COL = $this->get_pagos_COL($ayer,$suc_filtro);
 
+			// Separo los dos arrays que devuelve
+			$pagosCOL = $pagos_COL[1];
+			$descartadoCOL = $pagos_COL[0];
 
 			// Si bajo algo del sitio
-			if($pagos_COL) {
+			if($pagosCOL) {
 				// Ciclo los pagos encontrados
 				foreach ($pagos_COL as $pago) {
 					// Si vino en la URL que genera solo un local descarto el resto
@@ -1514,8 +1526,14 @@ echo "suspender";
 			$this->pagos_model->insert_pagos_cron($fecha); 
 		}
 
+	// Actualizo en la base de la Coope los que tuvieron algun cambio
+echo "antes de Actualizar";
+	$actualizados = $this->_actualiza_COL();
+
         // Me mando email de aviso que el proceso termino OK
-	$info_total="Procese fecha de cobro = $ayer \n Procese $cant_cd pagos de CuentaDigital por un total de $ $total_cd \n Procese $cant_col pagos de LaCoope por un total de $ $total_col.\n Reactive $cant_react socios. \n";
+	$qdesc = $descartadoCOL['descartados'];
+	$pdesc = $descartadoCOL['tot_descartado'];
+	$info_total="Procese fecha de cobro = $ayer \n Procese $cant_cd pagos de CuentaDigital por un total de $ $total_cd \n Procese $cant_col pagos de LaCoope por un total de $ $total_col. Descarte pagos de COL anteriores $qdesc por $ $pdesc y actualice saldos de $actualizados socios. \n Reactive $cant_react socios. \n";
 	foreach ( $reactivados as $r ) {
 		$info_total.=$r."\n";
 	}
@@ -1576,12 +1594,15 @@ echo "suspender";
 		//echo $cupones->msg."---->>>><<<<<----\n";
 		//echo "%&/(/((/#$#(/$(#/$(/#$(\n";
 		//var_dump($cupones->result->cupones_cobrados);
+		$descartados=0;
+		$tot_descartado=0;
 		$pago = array();
 		foreach ($cupones->result->cupones_cobrados as $cupon) {
 			//var_dump($cupon[0]);
 			$nro_socio = $cupon->nro_socio;
 			$suc = $cupon->sucursal;
 			$xfecha = $cupon->fecha_cobro;
+			$fecha_ctrl = date("Ymd",strtotime($cupon->fecha_cobro));
 			$fecha_pago = date("Y-m-d",strtotime($cupon->fecha_cobro));
 			$hora_pago = date("H:i:s",strtotime($cupon->fecha_cobro));
 			$importe = $cupon->importe_cobrado;
@@ -1597,7 +1618,7 @@ echo "suspender";
 	
 			// Verifico si el pago no fue procesado
 			$cobro_col =  $this->pagos_model->get_cobcol_id($nro_socio, $periodo, $nro_cupon);
-			if ( !$cobro_col) {
+			if ( !$cobro_col && $fecha_ctrl > 20200914 ) {
 				$pago[] = array(
 					"fecha" => date('d-m-Y',strtotime($fecha_pago)),
 					"hora" => $hora_pago,
@@ -1616,10 +1637,16 @@ echo "suspender";
 	
 				$this->pagos_model->insert_cobranza_col($p);
 			} else {
-				echo "EXISTE PAGO";
+				$descartados++;
+				$tot_descartado = $tot_descartado + $importe;
 			}
                 };
-		return $pago;
+		$arr_result = array ();
+		$arr_descartados = array( 'descartados' => $descartados, 'tot_descartado' => $tot_descartado);
+		$arr_result[0] = $arr_descartados;
+		$arr_result[1] = $pago;
+var_dump($arr_result);
+		return $arr_result;
 /*
 		return false;
                 $url = 'https://extranet.cooperativaobrera.coop/xml/Consorcios/index/30553537602/13809/'.$fecha;
@@ -1678,6 +1705,89 @@ echo "suspender";
 		}
 */
 	}
+
+    function _actualiza_COL() {           
+	$hoy=date('Ymd');
+	$periodo=date('Ym');
+	$hfecha=date('Y-m-t');
+        $path_col = './application/logs/actcol-'.$hoy.'.csv';
+        $file_col = fopen($path_col,'w');
+        $this->load->model('pagos_model');
+	$novedades = $this->pagos_model->get_novcol();
+	$actualizados=0;
+	if ( $novedades ) {
+		foreach ( $novedades as $socio ) {
+			
+			$col_socio = $socio->sid;
+			$col_dni = $socio->dni;
+			$col_apynom = $socio->apynom;
+			if ( $socio->saldo < 0 ) {
+				$col_importe = 0;
+			} else {
+				$col_importe = $socio->saldo;
+			}
+			$col_recargo=0;
+			$txt = '"'.$periodo.'","'.$col_socio.'","'.$col_dni.'","'.$col_apynom.'","'.$col_importe.'","'.$hfecha.'","'.$col_recargo.'","'.$hfecha.'"'."\r\n";
+			fwrite($file_col, $txt);
+			$actualizados++;
+		}
+	}
+	fclose($file_col);
+        $md5 = md5_file($path_col);
+        $file_col_new = './application/logs/asociados_'.$md5.'.csv';
+        rename($path_col,$file_col_new);
+
+        // Luego llamo a la rutina que lo sube con el WS
+        $this->_sube_facturacion_COL($file_col_new);
+
+	return $actualizados;
+    }
+
+    function _sube_facturacion_COL($file_col_new) {           
+    	$url = "https://extranet.cooperativaobrera.coop/proveedores/Importa_Socios_Mes/procesaArchivo";
+
+    	//Prueba villa mitre
+    	$login = "agonzalez.lacoope";
+    	$token = "ewrewry23k5bc1436lnlahbg23218g12g1h3g1vm"; 
+    	$file_name_with_full_path = $file_col_new;
+
+    	$headers= array("Content-Type: multipart/form-data","Authorization: Token $token");
+
+    	if (function_exists('curl_file_create')) { // php 5.5+
+      		$cFile = curl_file_create($file_name_with_full_path);
+    	} else {  
+      		$cFile = '@' . realpath($file_name_with_full_path);
+    	}
+
+    	$post = array('login' => $login, 'userfile'=> $cFile);
+
+    	$ch = curl_init($url);
+    	curl_setopt($ch, CURLOPT_POST, true);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+
+    	$resultado = curl_exec($ch);
+    	$errno  = curl_errno($ch);
+    	$error  = curl_error($ch);
+
+    	echo 'Resultado: '.$resultado;
+    	curl_close($ch);
+
+    	if($errno !== 0) {
+        	throw new Exception($error, $errno);
+    	}
+
+    	$obj_resultado = json_decode($resultado);
+
+    	//estado = 1 -----> OK
+    	//estado >= 100 --> ERROR
+    	echo "<br /><br />Estado: ".$obj_resultado->estado;
+    	echo "<br />Mensaje: ".$obj_resultado->msg;
+    }
 
     function _newCOL($fecha,$suc_filtro) {           
     	$url = "https://extranet.cooperativaobrera.coop/proveedores/Importa_Socios_Mes/consultaCobros";

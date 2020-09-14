@@ -463,6 +463,29 @@ class Pagos_model extends CI_Model {
 	}
     }
 
+    function get_novcol() {
+	$hoy=date('Y-m-d');
+	$dfecha=date('Y-m-d', strtotime(substr($hoy,0,4)."-".substr($hoy,5,2)."-01 09:00:00") );
+	$query="DROP TEMPORARY TABLE IF EXISTS tmp_socfact; ";
+	$this->db->query($query);
+	$query="CREATE TEMPORARY TABLE tmp_socfact
+		SELECT DISTINCT sid
+		FROM facturacion f
+		WHERE f.debe > 0 AND f.date BETWEEN '$dfecha' AND '$hoy'
+		UNION 
+		SELECT DISTINCT c.sid
+		FROM cuentadigital c
+		WHERE c.fecha BETWEEN '$dfecha' AND '$hoy' ; ";
+	$this->db->query($query);
+	$query="SELECT t.sid, s.dni, CONCAT(TRIM(s.apellido),', ',TRIM(s.nombre)) apynom, SUM(p.monto-p.pagado) saldo
+		FROM tmp_socfact t
+			JOIN socios s ON t.sid = s.Id
+			JOIN pagos p ON t.sid = p.tutor_id
+		GROUP BY 1; ";
+	$novedades = $this->db->query($query)->result();
+	return $novedades;
+    }
+
     function get_cobcol_id($sid, $periodo, $nro_cupon) {
         $this->db->where('sid', $sid);
         $this->db->where('periodo', $periodo);
