@@ -478,7 +478,7 @@ class Pagos_model extends CI_Model {
 		UNION 
 		SELECT DISTINCT c.sid
 		FROM cuentadigital c
-		WHERE c.fecha = '$fecha' ; ";
+		WHERE c.fecha >= '$fecha' ; ";
 	$this->db->query($query);
 	$query="SELECT t.sid, s.dni, CONCAT(TRIM(s.apellido),', ',TRIM(s.nombre)) apynom, SUM(p.monto-p.pagado) saldo
 		FROM tmp_socfact t
