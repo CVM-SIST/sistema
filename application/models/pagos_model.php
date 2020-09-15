@@ -463,19 +463,22 @@ class Pagos_model extends CI_Model {
 	}
     }
 
-    function get_novcol() {
-	$hoy=date('Y-m-d');
-	$dfecha=date('Y-m-d', strtotime(substr($hoy,0,4)."-".substr($hoy,5,2)."-01 09:00:00") );
+    function get_novcol($fecha) {
+	if ( substr($fecha,8,2) == 1 ) {
+		$tsfecha = $fecha." 09:00:00";
+ 	} else {
+		$tsfecha = $fecha." 00:00:00";
+	}
 	$query="DROP TEMPORARY TABLE IF EXISTS tmp_socfact; ";
 	$this->db->query($query);
 	$query="CREATE TEMPORARY TABLE tmp_socfact
 		SELECT DISTINCT sid
 		FROM facturacion f
-		WHERE f.debe > 0 AND f.date BETWEEN '$dfecha' AND '$hoy'
+		WHERE f.debe > 0 AND f.date BETWEEN '$tsfecha' AND '$fecha'
 		UNION 
 		SELECT DISTINCT c.sid
 		FROM cuentadigital c
-		WHERE c.fecha BETWEEN '$dfecha' AND '$hoy' ; ";
+		WHERE c.fecha = '$fecha' ; ";
 	$this->db->query($query);
 	$query="SELECT t.sid, s.dni, CONCAT(TRIM(s.apellido),', ',TRIM(s.nombre)) apynom, SUM(p.monto-p.pagado) saldo
 		FROM tmp_socfact t

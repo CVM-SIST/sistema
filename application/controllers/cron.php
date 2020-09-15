@@ -1448,11 +1448,13 @@ echo "suspender";
 			echo "asigno fecha de parametro \n";
 			$ayer = $this->uri->segment(3);
 			echo "ayer = $ayer \n";
+			$si_act_col="N";
 		} else {
 			echo "tomo el date\n";
 			$ayer = date('Ymd',strtotime("-1 day"));
 			$fecha = date('Y-m-d');
 			if($this->pagos_model->check_cron_pagos()){exit('Esta tarea ya fue ejecutada hoy.');}	 
+			$si_act_col="S";
 		}
 
 
@@ -1551,8 +1553,11 @@ echo "suspender";
 		}
 
 	// Actualizo en la base de la Coope los que tuvieron algun cambio
-echo "antes de Actualizar";
-	$actualizados = $this->_actualiza_COL();
+	if ( $si_act_col = "S" ) {
+		$actualizados = $this->_actualiza_COL($ayer);
+	} else {
+		$actualizados = 0;
+	}
 
         // Me mando email de aviso que el proceso termino OK
 	$qdesc = $descartadoCOL['descartados'];
@@ -1671,73 +1676,14 @@ echo "antes de Actualizar";
 		$arr_result[1] = $pago;
 var_dump($arr_result);
 		return $arr_result;
-/*
-		return false;
-                $url = 'https://extranet.cooperativaobrera.coop/xml/Consorcios/index/30553537602/13809/'.$fecha;
-                if($a = file_get_contents($url)){
-			$data = explode("\n",$a);
-			$cont=0;
-			$serial=0;
-			$pago = array();
-			foreach ($data as $linea) {		   	  		 
-				if ( $linea ) {
-					$campos = explode(',', $linea);
-
-					$xnro_cupon=str_replace('"','',$campos[2]);
-					$suc=substr($xnro_cupon,0,4);
-					$nro_cupon=substr($xnro_cupon,4);
-					$nro_socio=str_replace('"','',$campos[3]);
-					$importe=str_replace('"','',$campos[6]);
-					$importe=$importe/100;
-					$xfecha1=str_replace('"','',$campos[5]);
-					$xfecha=substr($xfecha1,0,10);
-					$fecha_pago=substr($xfecha,0,4)."-".substr($xfecha,5,2)."-".substr($xfecha,8,2);
-					$fecha_pago2=substr($xfecha,8,2)."-".substr($xfecha,5,2)."-".substr($xfecha,0,4);
-			 		$periodo=substr($xfecha,0,4).substr($xfecha,5,2);
-					$hora=date('H:m');
-            
-					//echo $xfecha1."#".$xfecha."#".$periodo."#".$fecha_pago2."#".$nro_cupon."#".$nro_socio."#".$fecha_pago."#".$suc."#".$hora."#".$importe."\n";
-					// Si viene una sucursal de filtro salteo las sucursales distintas
-					if ( $suc_filtro > 0 ) {
-						if ( $suc != $suc_filtro ) {
-							continue;
-						}
-					}
-
-					$pago[] = array(
-						"fecha" => date('d-m-Y',strtotime($fecha_pago2)),
-						"hora" => $hora,
-						"monto" => $importe,
-						"sid" => $nro_socio,
-						"pid" => $nro_cupon
-					);
-					$p = array(
-						"sid" => $nro_socio,
-						"periodo" => $periodo,
-						"fecha_pago" => date('Y-m-d',strtotime($fecha_pago2)),
-						"suc_pago" => $suc,
-						"nro_cupon" => $nro_cupon,
-						"importe" => $importe
-					);
-
-					$this->pagos_model->insert_cobranza_col($p);
-				}
-			}
-			return $pago;
-		} else {
-			return false;
-		}
-*/
 	}
 
-    function _actualiza_COL() {           
-	$hoy=date('Ymd');
+    function _actualiza_COL($ayer) {           
 	$periodo=date('Ym');
-	$hfecha=date('Y-m-t');
         $path_col = './application/logs/actcol-'.$hoy.'.csv';
         $file_col = fopen($path_col,'w');
         $this->load->model('pagos_model');
-	$novedades = $this->pagos_model->get_novcol();
+	$novedades = $this->pagos_model->get_novcol($ayer);
 	$actualizados=0;
 	if ( $novedades ) {
 		foreach ( $novedades as $socio ) {
