@@ -1465,7 +1465,7 @@ echo "suspender";
 		if ( $this->uri->segment(4) ) {
 			$ctrl_gen=$this->uri->segment(4);
 			echo "Controlo generacion vino -> $ctrl_gen";
-			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen = "COL") ) {
+			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA" ) ) {
 				echo "EL PARAMETRO PARA GENERAR ES INCORRECTO";
 				exit;
 			}
@@ -1482,6 +1482,7 @@ echo "suspender";
 		$total_col = 0;
 
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "CD" ) {
+			echo "genero CD";
 			// Busco los pagos del sitio de Cuenta Digital
 			$pagos = $this->get_pagos($ayer);
 
@@ -1674,41 +1675,46 @@ echo "suspender";
 		$arr_descartados = array( 'descartados' => $descartados, 'tot_descartado' => $tot_descartado);
 		$arr_result[0] = $arr_descartados;
 		$arr_result[1] = $pago;
-var_dump($arr_result);
 		return $arr_result;
 	}
 
     function _actualiza_COL($ayer) {           
-	$periodo=date('Ym');
-        $path_col = './application/logs/actcol-'.$hoy.'.csv';
-        $file_col = fopen($path_col,'w');
-        $this->load->model('pagos_model');
-	$novedades = $this->pagos_model->get_novcol($ayer);
-	$actualizados=0;
-	if ( $novedades ) {
-		foreach ( $novedades as $socio ) {
-			
-			$col_socio = $socio->sid;
-			$col_dni = $socio->dni;
-			$col_apynom = $socio->apynom;
-			if ( $socio->saldo < 0 ) {
-				$col_importe = 0;
-			} else {
-				$col_importe = $socio->saldo;
-			}
-			$col_recargo=0;
-			$txt = '"'.$periodo.'","'.$col_socio.'","'.$col_dni.'","'.$col_apynom.'","'.$col_importe.'","'.$hfecha.'","'.$col_recargo.'","'.$hfecha.'"'."\r\n";
-			fwrite($file_col, $txt);
-			$actualizados++;
-		}
-	}
-	fclose($file_col);
-        $md5 = md5_file($path_col);
-        $file_col_new = './application/logs/asociados_'.$md5.'.csv';
-        rename($path_col,$file_col_new);
 
-        // Luego llamo a la rutina que lo sube con el WS
-        $this->_sube_facturacion_COL($file_col_new);
+	// Actualiza todos los dias salvo el 1 que va por el proceso de facturacion
+	$actualizados=0;
+	if ( date('d') > 1 ) {
+		$hfecha=date('Y-m-t');
+		$periodo=date('Ym');
+        	$path_col = './application/logs/actcol-'.$hoy.'.csv';
+        	$file_col = fopen($path_col,'w');
+        	$this->load->model('pagos_model');
+		$novedades = $this->pagos_model->get_novcol($ayer);
+	
+		if ( $novedades ) {
+			foreach ( $novedades as $socio ) {
+				
+				$col_socio = $socio->sid;
+				$col_dni = $socio->dni;
+				$col_apynom = $socio->apynom;
+				if ( $socio->saldo < 0 ) {
+					$col_importe = 0;
+				} else {
+					$col_importe = $socio->saldo;
+				}
+				$col_recargo=0;
+				$txt = '"'.$periodo.'","'.$col_socio.'","'.$col_dni.'","'.$col_apynom.'","'.$col_importe.'","'.$hfecha.'","'.$col_recargo.'","'.$hfecha.'"'."\r\n";
+				fwrite($file_col, $txt);
+				$actualizados++;
+			}
+		}
+		fclose($file_col);
+        	$md5 = md5_file($path_col);
+        	$file_col_new = './application/logs/asociados_'.$md5.'.csv';
+        	rename($path_col,$file_col_new);
+
+        	// Luego llamo a la rutina que lo sube con el WS
+        	$this->_sube_facturacion_COL($file_col_new);
+	}
 
 	return $actualizados;
     }

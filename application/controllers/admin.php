@@ -2966,7 +2966,7 @@ class Admin extends CI_Controller {
                 		$nivel_acceso = $this->session->userdata('rango');
                 		$tabla = "actividades_asociadas";
                 		$operacion = 3;
-                		$llave = $act->asoc_id;
+                		$llave = $sid;
 				$observ = substr(json_encode($act), 0, 255);
                 		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                 echo $act;
@@ -2986,7 +2986,7 @@ class Admin extends CI_Controller {
                 		$nivel_acceso = $this->session->userdata('rango');
                 		$tabla = "actividades_asociadas";
                 		$operacion = 1;
-                		$llave = $act->asoc_id;
+                		$llave = $data['sid'];
 				$observ = substr(json_encode($act), 0, 255);
                 		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
                 if(date('d') < $this->date_facturacion && $facturar == 'true'){ //si la fecha es anterior a la definida
@@ -3018,7 +3018,7 @@ class Admin extends CI_Controller {
                 		$operacion = 1;
                 		$llave = $tutor_id;
 				$observ = "facturo actividad del mes ".$descripcion;
-                		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+                 		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
 		    // Si la actividad tiene seguro y no es federado de la actividad lo registro
 		    if ( $actividad->seguro > 0 && $federado == 0 ) {
