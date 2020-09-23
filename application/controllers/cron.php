@@ -1528,7 +1528,7 @@ echo "suspender";
 			// Si bajo algo del sitio
 			if($pagosCOL) {
 				// Ciclo los pagos encontrados
-				foreach ($pagos_COL as $pago) {
+				foreach ($pagosCOL as $pago) {
 					// Si vino en la URL que genera solo un local descarto el resto
 					$data = $this->pagos_model->insert_pago_col($pago);
 					$this->pagos_model->registrar_pago2($pago['sid'],$pago['monto']);
@@ -1628,7 +1628,8 @@ echo "suspender";
 		$tot_descartado=0;
 		$pago = array();
 		foreach ($cupones->result->cupones_cobrados as $cupon) {
-			//var_dump($cupon[0]);
+			//echo "cupon ... ";
+			//var_dump($cupon);
 			$nro_socio = $cupon->nro_socio;
 			$suc = $cupon->sucursal;
 			$xfecha = $cupon->fecha_cobro;
@@ -1648,6 +1649,7 @@ echo "suspender";
 	
 			// Verifico si el pago no fue procesado
 			$cobro_col =  $this->pagos_model->get_cobcol_id($nro_socio, $periodo, $nro_cupon);
+
 			if ( !$cobro_col && $fecha_ctrl > 20200914 ) {
 				$pago[] = array(
 					"fecha" => date('d-m-Y',strtotime($fecha_pago)),
@@ -1665,7 +1667,7 @@ echo "suspender";
 					"importe" => $importe
 					);
 	
-				$this->pagos_model->insert_cobranza_col($p);
+				//$this->pagos_model->insert_cobranza_col($p);
 			} else {
 				$descartados++;
 				$tot_descartado = $tot_descartado + $importe;
@@ -1713,7 +1715,7 @@ echo "suspender";
         	rename($path_col,$file_col_new);
 
         	// Luego llamo a la rutina que lo sube con el WS
-        	$this->_sube_facturacion_COL($file_col_new);
+        	//$this->_sube_facturacion_COL($file_col_new);
 	}
 
 	return $actualizados;
