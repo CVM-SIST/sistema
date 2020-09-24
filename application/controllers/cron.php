@@ -1473,7 +1473,7 @@ echo "suspender";
 			echo "Generacion default busca TODO\n";
 			$ctrl_gen="TODO";
 		}
-		
+
 		$reactivados=array();
 		$cant_react=0;
 		$cant_cd = 0;
@@ -1715,7 +1715,7 @@ echo "suspender";
         	rename($path_col,$file_col_new);
 
         	// Luego llamo a la rutina que lo sube con el WS
-        	//$this->_sube_facturacion_COL($file_col_new);
+        	$this->_sube_facturacion_COL($file_col_new);
 	}
 
 	return $actualizados;
