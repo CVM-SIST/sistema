@@ -29,6 +29,12 @@ class Pagos_model extends CI_Model {
         }
     }
 
+    public function get_cupones_sincodlink()  {
+	$query="SELECT c.sid, CONCAT(s.apellido,', ',s.nombre) apynom FROM cupones c JOIN socios s ON c.sid = s.Id WHERE ( c.codlink is NULL OR c.codlink = 0 ) AND c.estado = 1 LIMIT 100; ";
+        $sincodlink = $this->db->query($query)->result();
+        return $sincodlink;
+    }
+
     public function get_cupones_old() 
     {
         $this->db->where('estado',0);

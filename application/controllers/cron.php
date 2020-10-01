@@ -867,6 +867,31 @@ class Cron extends CI_Controller {
 
     }
 
+	public function genera_cupon() {
+                /* COMENTO ESTA GENERACION PORQUE ME VOY A QUEDAR CON UN SOLO CUPON PARA CADA ASOCIADO*/
+                $this->load->model('pagos_model');
+                $socios = $this->pagos_model->get_cupones_sincodlink();
+		foreach ( $socios as $socio ) {
+			echo $socio->sid."--";
+                        $cupon = $this->cuentadigital($socio->sid,$socio->apynom,100);
+                        if($cupon && $socio->sid != 0){
+                                $cupon_id = $this->pagos_model->generar_cupon($socio->sid,100,$cupon);
+				echo "Id= ".$cupon_id."\n";
+                                $data = base64_decode($cupon['image']);
+                                $img = imagecreatefromstring($data);
+                                if ($img !== false) {
+                                        //@header('Content-Type: image/png');
+                                        imagepng($img,'images/cupones/'.$cupon_id.'.png',0);
+                                        imagedestroy($img);
+                                        $cupon = base_url().'images/cupones/'.$cupon_id.'.png';
+                                }else {
+                                        echo 'Ocurrió un error.';
+                                        $cupon = '';
+                                }
+                        }
+		}
+	}
+
     public function aviso_rechazo_debitos() {
 	// Si viene fecha por parametro la tomo, sino el date
         if ($this->uri->segment(3)) {
