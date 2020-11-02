@@ -438,7 +438,6 @@ class Socios_model extends CI_Model {
 
     public function get_padron_app()
     {
-echo "get_padron_app";
         $query="DROP TEMPORARY TABLE IF EXISTS tmp_saldos; ";
         $this->db->query($query);
 	$query="CREATE TEMPORARY TABLE tmp_saldos ( INDEX ( sid ) )
@@ -455,10 +454,8 @@ echo "get_padron_app";
                         LEFT JOIN cupones c ON ( s.id = c.sid AND c.estado = 1 ) 
                         LEFT JOIN tmp_saldos p ON ( s.id = p.sid ) 
                 WHERE s.suspendido = 0 
-                GROUP BY s.id
-	 	LIMIT 10;";
+                GROUP BY s.id; ";
         $result = $this->db->query($query)->result();
-var_dump($result);
         return $result;
     }
 
