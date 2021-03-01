@@ -104,12 +104,14 @@ class Comisiones extends CI_Controller {
                                                         $xobserv = $socio->beca."- NO Federado";
                                                 }
                                         }
+					$categoria = substr($socio->nacimiento,0,4);
 
 					$socact = array(
                                 		'Actividad' => $socio->aid."-".$socio->descr_act,
                                 		'sid' => $socio->Id,
                                 		'Apellido y Nombre' => $socio->apellido.", ".$socio->nombre,
                                 		'DNI' => $socio->dni,
+                                		'Categoria' => $categoria,
                                 		'domicilio' => $socio->domicilio,
                                 		'email' => $socio->mail,
                                 		'estado' => $xestado,
@@ -131,6 +133,7 @@ class Comisiones extends CI_Controller {
                                 $headers[]="SID";
                                 $headers[]="Apellido Nombre";
                                 $headers[]="DNI";
+                                $headers[]="Categoria";
                                 $headers[]="Domicilio";
                                 $headers[]="Email";
                                 $headers[]="Estado";

@@ -59,6 +59,7 @@
                       <td align="right">SID</td>
                       <td align="right">Apellido y Nombre</td>
                       <td align="right">DNI</td>
+                      <td align="right">Categoria</td>
                       <td align="right">Domicilio</td>
                       <td align="right">Email</td>
                       <td align="right">Estado</td>
@@ -92,12 +93,14 @@
 							$xobserv = $socio->beca."- NO Federado";
 						}
 					}
+					$categ = substr($socio->nacimiento,0,4);
 	    		?>
 				<tr>				
 					<td><?=$socio->aid."-".$socio->descr_act?></td>
 					<td align="right"><?=$socio->Id?></td>
 					<td align="right"><?=$socio->apellido.", ".$socio->nombre?></td>
 					<td align="right"><?=$socio->dni?></td>
+					<td align="right"><?=$categ?></td>
 					<td align="right"><?=$socio->domicilio?></td>
 					<td align="right"><?=$socio->mail?></td>
 					<td align="right"><?=$xestado?></td>
