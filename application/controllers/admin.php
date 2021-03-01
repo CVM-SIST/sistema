@@ -2075,14 +2075,25 @@ class Admin extends CI_Controller {
 					    }
 					    break;
 			    }
-			    // Grabo log de cambios
-			    $login = $this->session->userdata('username');
-			    $nivel_acceso = $this->session->userdata('rango');
-			    $tabla = "debtarj";
-			    $operacion = 5;
-			    $llave = $id_marca;
-			    $observ = "Bajo archivo de $id_marca para el periodo $periodo ";
-			    $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+			    if ( $ok ) {
+					// Grabo log de cambios
+			    		$login = $this->session->userdata('username');
+			    		$nivel_acceso = $this->session->userdata('rango');
+			    		$tabla = "debtarj";
+			    		$operacion = 5;
+			    		$llave = $id_marca;
+			    		$observ = "Bajo archivo de $id_marca para el periodo $periodo ";
+			    		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+			    } else {
+                            		$data['baseurl'] = base_url();
+                            		$data['mensaje1'] = "La generacion del archivo tuvo un ERROR";
+                            		$data['msj_boton'] = "Volver a debitos";
+                            		$data['url_boton'] = base_url()."admin/debtarj/gen-debtarj";
+                            		$data['section'] = 'ppal-mensaje';
+                            		$data['username'] = $this->session->userdata('username');
+                            		$data['rango'] = $this->session->userdata('rango');
+                            		$this->load->view("admin",$data);
+			    }
 			    break;
 		    case 'print':
 			    break;
@@ -2545,10 +2556,9 @@ class Admin extends CI_Controller {
 
         	$this->load->model("debtarj_model");
         	$debitos = $this->debtarj_model->get_debitos_by_marca_periodo($id_marca, $periodo);
+		$contenido = "";
         	if ( $debitos ) {
-		    header('Content-Type: application/text');
-		    header('Content-Disposition: attachment;filename="DEBLIQC.TXT"');
-		    echo "0DEBLIQC ".$nro_comercio."900000    ".$fecha.$hora."0                                                         *\r\n";
+		    $contenido .=  "0DEBLIQC ".$nro_comercio."900000    ".$fecha.$hora."0                                                         *\r\n";
 		    $total=0;
 		    $fila=1;
 		    $serial="";
@@ -2590,8 +2600,12 @@ class Admin extends CI_Controller {
 				      $nro_socio="000000000".$nro_soc;
 			         }
 
-			         echo "1".$nro_tarjeta.$serial.$fecha."000500000".$impo.$nro_socio."                             *\r\n";
-        			 $this->debtarj_model->upd_debito_rng($debito->id_debito, $fila);
+			         $contenido .= "1".$nro_tarjeta.$serial.$fecha."000500000".$impo.$nro_socio."                             *\r\n";
+
+				 if ($debito->nro_renglon != $fila) {
+					return false;
+				 }
+        			 //$this->debtarj_model->upd_debito_rng($debito->id_debito, $fila);
 			         $fila++;
 
                             }
@@ -2602,8 +2616,11 @@ class Admin extends CI_Controller {
 		    for ($i = 1; $i < 16-$largo ; $i++) {
 			    $filler=$filler."0";
     		    }
-		    echo "9DEBLIQC ".$nro_comercio."900000    ".$fecha.$hora.substr($serial,4,8).$filler.$totalx."                                    *\r\n";
+		    $contenido .= "9DEBLIQC ".$nro_comercio."900000    ".$fecha.$hora.substr($serial,4,8).$filler.$totalx."                                    *\r\n";
         }
+		    header('Content-Type: application/text');
+		    header('Content-Disposition: attachment;filename="DEBLIQC.TXT"');
+		    echo $contenido;
 	} catch ( Exception $ex ) {
 		return false;
 	}
