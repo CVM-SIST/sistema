@@ -951,6 +951,32 @@ class Admin extends CI_Controller {
 		$filtro_mail = $this->uri->segment(5);
 		$filtro_tele = $this->uri->segment(6);
 		$sid = $this->uri->segment(7);
+
+                // Controlo validez del email
+                $dirmail=$this->input->post('mail');
+                if ( $dirmail != '' ) {
+                        $this->load->library('VerifyEmail');
+                        $vmail = new verifyEmail();
+                        $vmail->setStreamTimeoutWait(10);
+                        $vmail->Debug= FALSE;
+
+                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        if (!$vmail->check($dirmail)) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                        }
+                    	$datos['validmail_st']=1;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+                } else {
+                    	$datos['validmail_st']=9;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+		}
+
 		$datos['nombre'] = $this->input->post('nombre');
 		$datos['apellido'] = $this->input->post('apellido');
 		$datos['mail'] = $this->input->post('mail');
@@ -1472,37 +1498,91 @@ class Admin extends CI_Controller {
                     $datos['socio_n'] = '';
                     $error = "?e=socio_n";
                 }
-                $datos['r1'] = $datos['r1-id'];
-                $datos['r2'] = $datos['r2-id'];
-                $datos['tutor'] = $datos['r3-id'];
-                unset($datos['r1-id']);
-                unset($datos['r2-id']);
-                unset($datos['r3-id']);
-                unset($datos['r3']);
                 if(isset($datos['deuda'])){
                     $deuda = $datos['deuda'];
                     unset($datos['deuda']);
                 }
                 $this->load->model("socios_model");
 
-		// Controlo DNI duplicado salvo que sea sponsor 
+		// Controlo validez del email
+		$dirmail=$datos['mail'];
+		if ( $dirmail != '' ) {
+	                $this->load->library('VerifyEmail');
+                	$vmail = new verifyEmail();
+                	$vmail->setStreamTimeoutWait(5);
+                	$vmail->Debug= FALSE;
+
+                	$vmail->setEmailFrom('avisos@clubvillamitre.com');
+                	if (!$vmail->check($dirmail)) {
+                    		$data['username'] = $this->session->userdata('username');
+                    		$data['rango'] = $this->session->userdata('rango');
+	                        $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                        	$data['baseurl'] = base_url();
+                        	$data['section'] = 'ppal-mensaje';
+                        	$this->load->view('admin',$data);
+		 		break;
+                	}
+		}
+                // Controlo nacimineto vs categoria
+                $hoy=new DateTime(date('Y-m-d'));
+                $nacimiento=new DateTime($datos['nacimiento']);
+                $difd = $hoy->diff($nacimiento);
+                $edad = $difd->days/365;
+
+                // Si es mayor y tiene categoria menor no esta bien
+                if ( $edad > 18 && $datos['categoria'] == 1 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es mayor y tiene categoria menor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+                if ( $edad < 18 && $datos['categoria'] == 2 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es menor y tiene categoria mayor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+
+                // Controlo DNI duplicado salvo que sea sponsor 
                 if($prev_user = $this->socios_model->checkDNI($datos['dni']) && $datos['categoria'] != 12){
                     //el dni esta repetido, incluimos la vista de listado con el usuario coincidente
-                    $data['username'] = $this->session->userdata('username');
-                    $data['rango'] = $this->session->userdata('rango');
-                    $data['prev_user'] = $prev_user;
-                    $data['baseurl'] = base_url();
-                    $data['section'] = 'socio-dni-repetido';
-                    $this->load->view('admin',$data);
-                }else{
+                        $data['username'] = $this->session->userdata('username');
+                        $data['rango'] = $this->session->userdata('rango');
+                        $data['prev_user'] = $prev_user;
+                        $data['baseurl'] = base_url();
+                        $data['section'] = 'socio-dni-repetido';
+                        $this->load->view('admin',$data);
+                        break;
+                }
                     if($datos['categoria'] == 12){
-			$datos['dni'] = '';
-		    }
-                    //llamamos al modelo en insertamos los datos
-                    //$fecha = explode('-',$datos['nacimiento']);
-                    //$datos['nacimiento'] = $fecha[2].'-'.$fecha[1].'-'.$fecha[0];
+                        $datos['dni'] = '';
+                    }
+
                     unset($datos['files']);
 		    $datos['update_ts']=date('Y-m-d H:i:s');
+                    unset($datos['tutor_dni']);
+                    $tutor = $datos['tutor_sid'];
+                    unset($datos['tutor_sid']);
+                    $datos['tutor']=$tutor;
+		    if ( $dirmail == '' ) {
+                    	$datos['validmail_st']=9;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+		    } else {
+                    	$datos['validmail_st']=1;
+                    	$datos['validmail_ts']=date('Y-m-d H:i:s');
+                    }
+                    if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
+                    unset($datos['r1-id']);
+                    unset($datos['r2-id']);
+                    unset($datos['r3']);
+                    unset($datos['r3-id']);
+
                     $uid = $this->socios_model->register($datos);
 
                 	// Grabo log de cambios
@@ -1590,7 +1670,6 @@ class Admin extends CI_Controller {
 
                     redirect(base_url()."admin/socios/registrado/".$uid);
 
-                }
                 break;
 
             case 'nuevo-tutor':
@@ -1658,8 +1737,6 @@ class Admin extends CI_Controller {
 		$this->load->model("socios_model");
 		$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
 		if($data['socio']){
-			$data['contacto1'] = $this->socios_model->get_socio($data['socio']->r1);
-			$data['contacto2'] = $this->socios_model->get_socio($data['socio']->r2);
 			$data['tutor'] = $this->socios_model->get_socio($data['socio']->tutor);
 			if(!$data['socio']->socio_n){
 				$data['socio']->socio_n = $this->uri->segment(4);
@@ -1681,7 +1758,7 @@ class Admin extends CI_Controller {
 
 		$data['username'] = $this->session->userdata('username');
 		$data['rango'] = $this->session->userdata('rango');
-		if ( $datos['r3-id'] == $id ) {
+		if ( $datos['tutor_sid'] == $id ) {
 			$data['mensaje1'] = "No puede ponerse como tutor al mismo socio....";
 			$data['baseurl'] = base_url();
 			$data['section'] = 'ppal-mensaje';
@@ -1697,13 +1774,56 @@ class Admin extends CI_Controller {
 				$datos['socio_n'] = '';
 				$error = "?e=socio_n";
 			}
-			$datos['r1'] = $datos['r1-id'];
-			$datos['r2'] = $datos['r2-id'];
-			$datos['tutor'] = $datos['r3-id'];
-			unset($datos['r1-id']);
-			unset($datos['r2-id']);
-			unset($datos['r3-id']);
-			unset($datos['r3']);
+
+                // Controlo validez del email
+                $dirmail=$datos['mail'];
+                $dirmail_orig=$datos['mail_orig'];
+		$hoy=new DateTime(date('Y-m-d'));
+		$ult_cambio=new DateTime($datos['validmail_ts']);
+		$dias = $hoy->diff($ult_cambio)->days;
+                if ( $dirmail != $dirmail_orig || $dias > 300 ) {
+                        $this->load->library('VerifyEmail');
+                        $vmail = new verifyEmail();
+                        $vmail->setStreamTimeoutWait(5);
+                        $vmail->Debug= FALSE;
+
+                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        if (!$vmail->check($dirmail)) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Direccion de Email INEXISTENTE o INVALIDA";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                        }
+		}
+
+
+                // Controlo nacimineto vs categoria
+                $hoy=new DateTime(date('Y-m-d'));
+                $nacimiento=new DateTime($datos['nacimiento']);
+                $difd = $hoy->diff($nacimiento);
+                $edad = $difd->days/365;
+		// Si es mayor y tiene categoria menor no esta bien
+                if ( $edad > 18 && $datos['categoria'] == 1 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es mayor y tiene categoria menor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
+                if ( $edad < 18 && $datos['categoria'] == 2 ) {
+                                $data['username'] = $this->session->userdata('username');
+                                $data['rango'] = $this->session->userdata('rango');
+                                $data['mensaje1'] = "Es menor y tiene categoria mayor";
+                                $data['baseurl'] = base_url();
+                                $data['section'] = 'ppal-mensaje';
+                                $this->load->view('admin',$data);
+                                break;
+                }
 
 			if($prev_user = $this->socios_model->checkDNI($datos['dni'],$id)){
 				//el dni esta repetido, incluimos la vista de listado con el usuario coincidente
@@ -1719,6 +1839,19 @@ class Admin extends CI_Controller {
 					rename("images/temp/".$this->session->userdata('img_token').".jpg","images/socios/".$id.".jpg");
 				}
 				unset($datos['files']);
+                                unset($datos['tutor_dni']);
+                                $tutor = $datos['tutor_sid'];
+                                $tutor_orig = $datos['tutor_orig'];
+                                unset($datos['tutor_sid']);
+                                unset($datos['tutor_orig']);
+                                $datos['tutor']=$tutor;
+                                    if ( $dirmail != $dirmail_orig || $dias > 300 ) {
+                                        $datos['validmail_st']=1;
+                                        $datos['validmail_ts']=date('Y-m-d H:i:s');
+                                        }
+                                unset($datos['mail_orig']);
+                                if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
+
 				$this->socios_model->update_socio($id,$datos);
 
 				// Grabo log de cambios
@@ -1729,6 +1862,21 @@ class Admin extends CI_Controller {
 				$llave = $id;
 				$observ = substr(json_encode($datos),0,255);
 				$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+
+		                // Verifico cambio de estado de tutor
+                		if ( $tutor != $tutor_orig ) {
+                        		$this->load->model("pagos_model");
+                        		// tenia tutor y se lo saco
+                        		if ( $tutor == 0 ) {
+                        			$soc_tutor = $this->socios_model->get_socio($tutor_orig);
+
+                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Dejo de estar tutoreado por : '.$tutor_orig."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
+
+                        		} else {
+                        			$soc_tutor = $this->socios_model->get_socio($tutor);
+                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Pasa a estar tutoreado por : '.$tutor."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
+                        		}
+                		}
 
 				if(!isset($error)){
 					$error = '';
@@ -3820,57 +3968,235 @@ class Admin extends CI_Controller {
 			$this->load->view('admin',$data);
 			break;
         	case 'cobranza_act':
-			if ( $this->uri->segment(4) ) {
-				$id_actividad = $this->uri->segment(4);
-                		$this->load->model('actividades_model');
-                		$data['actividades'] = $this->actividades_model->get_actividades();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad, 0);
-				$data['section'] = 'estadisticas-cobranza-act';
-				$data['id_actividad'] = $id_actividad;
-				$this->load->view('admin',$data);
-				break;
-			} else {
-                		$this->load->model('actividades_model');
-                		$data['actividades'] = $this->actividades_model->get_actividades();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
-				$data['id_actividad'] = -1;
-				$data['section'] = 'estadisticas-cobranza-act';
-				$this->load->view('admin',$data);
-				break;
+                        $actividad = $this->input->post('actividad');
+                        $excel = $this->input->post('arma_excel');
+                        if ( $excel == 1 ) {
+                                $this->exportar_estad_cobranza_act($actividad);
+                        } else {
+				if ( $this->uri->segment(4) ) {
+					$id_actividad = $this->uri->segment(4);
+                			$this->load->model('actividades_model');
+                			$data['actividades'] = $this->actividades_model->get_actividades();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla($id_actividad, 0);
+					$data['section'] = 'estadisticas-cobranza-act';
+					$data['id_actividad'] = $id_actividad;
+					$this->load->view('admin',$data);
+				} else {
+                			$this->load->model('actividades_model');
+                			$data['actividades'] = $this->actividades_model->get_actividades();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
+					$data['id_actividad'] = -1;
+					$data['section'] = 'estadisticas-cobranza-act';
+					$this->load->view('admin',$data);
+				}
 			}
+				break;
         	case 'cobranza_comi':
-			if ( $this->uri->segment(4) ) {
-				$id_comision = $this->uri->segment(4);
-                		$this->load->model('comisiones_model');
-                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, $id_comision);
-				$data['section'] = 'estadisticas-cobranza-comi';
-				$data['id_comision'] = $id_comision;
-				$this->load->view('admin',$data);
-				break;
-			} else {
-                		$this->load->model('comisiones_model');
-                		$data['comisiones'] = $this->comisiones_model->get_comisiones();
-				$data['username'] = $this->session->userdata('username');
-                		$data['rango'] = $this->session->userdata('rango');
-				$data['baseurl'] = base_url();
-				$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
-				$data['id_comision'] = -1;
-				$data['section'] = 'estadisticas-cobranza-comi';
-				$this->load->view('admin',$data);
-				break;
+                        $comision = $this->input->post('comision');
+                        $excel = $this->input->post('arma_excel');
+                        if ( $excel == 1 ) {
+                                $this->exportar_estad_cobranza_comi($comision);
+                        } else {
+				if ( $this->uri->segment(4) ) {
+					$id_comision = $this->uri->segment(4);
+                			$this->load->model('comisiones_model');
+                			$data['comisiones'] = $this->comisiones_model->get_comisiones();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, $id_comision);
+					$data['section'] = 'estadisticas-cobranza-comi';
+					$data['id_comision'] = $id_comision;
+					$this->load->view('admin',$data);
+				} else {
+                			$this->load->model('comisiones_model');
+                			$data['comisiones'] = $this->comisiones_model->get_comisiones();
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+					$data['cobranza_tabla'] = $this->estadisticas_model->cobranza_tabla( -1, 0);
+					$data['id_comision'] = -1;
+					$data['section'] = 'estadisticas-cobranza-comi';
+					$this->load->view('admin',$data);
+				}
 			}
+			break;
+
+                case 'ingresos':
+        		$mes = $this->input->post('meses');
+        		$excel = $this->input->post('arma_excel');
+			if ( $excel == '1' ) {
+				$this->exportar_estad_ingresos($mes);
+			} else {
+                        	$this->load->model('pagos_model');
+				$meses = $this->pagos_model->get_meses_ingresos();
+                        	if ( $mes ) {
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+                                	$data['ingresos_tabla'] = $this->estadisticas_model->ingresos_tabla($mes);
+                                	$data['section'] = 'estadisticas-ingresos';
+                                	$data['meses'] = $meses;
+                                	$data['mes'] = $mes;
+                                	$this->load->view('admin',$data);
+                        	} else {
+                                	$mes = date('Ym');
+					$data['username'] = $this->session->userdata('username');
+                			$data['rango'] = $this->session->userdata('rango');
+					$data['baseurl'] = base_url();
+                                	$data['meses'] = $meses;
+                                	$data['mes'] = $mes;
+                                	$data['ingresos_tabla'] = $this->estadisticas_model->ingresos_tabla($mes);
+                                	$data['section'] = 'estadisticas-ingresos';
+                                	$this->load->view('admin',$data);
+                        	}
+			}
+			break;
         }
     }
+
+    public function exportar_estad_ingresos($mes) {
+	$archivo="Estadistica_Ingresos_".$mes;
+	$fila1=false;
+	$titulo="Ingesos_".$mes;
+	$headers=array();
+	$headers[]="Dia";
+	$headers[]="Ingesos Cooperativa";
+	$headers[]="Ingresos Cta Digital";
+	$headers[]="Ingresos Manual";
+	$headers[]="Ajustes";
+
+	$ingresos = $this->estadisticas_model->ingresos_tabla($mes);
+	$datos= array();
+
+	foreach ( $ingresos as $ingreso ) {
+
+		$dato = array (
+			'dia' => $ingreso->dia,
+			'ing_col' => $ingreso->ing_col,
+			'ing_cd' => $ingreso->ing_cd,
+			'ing_manual' => $ingreso->ing_manual,
+			'ajustes' => $ingreso->ajustes
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+
+    }
+
+    public function exportar_estad_cobranza_act($id_actividad) {
+
+	if ( $id_actividad > 0 ) {
+		$this->load->model('actividades_model');
+		$actividad = $this->actividades_model->get_actividad($id_actividad);
+		$xactiv = $id_actividad.'-'.$actividad->nombre;
+	} else {
+		if ( $id_actividad == -1 ) { $xactiv = 'Todas'; }
+		if ( $id_actividad == -2 ) { $xactiv = 'Socio Hincha'; }
+		if ( $id_actividad == -3 ) { $xactiv = 'Cuota Social'; }
+	}
+
+        $archivo="Estadistica_Cobranza".$xactiv;
+        $fila1=false;
+        $titulo="Cobranza_".$xactiv;
+
+        $headers=array();
+        $headers[]="Periodo";
+        $headers[]="Actividad";
+        $headers[]="Socios";
+        $headers[]="Cuotas";
+        $headers[]="Facturado";
+        $headers[]="Pagado al Dia";
+        $headers[]="Efectividad";
+        $headers[]="Pagado Mora";
+        $headers[]="% Mora";
+        $headers[]="Ingresos Mes";
+        $headers[]="Impago";
+        $headers[]="% Impago";
+
+	$cobranzas = $this->estadisticas_model->cobranza_tabla($id_actividad,0);
+        $datos= array();
+	foreach ( $cobranzas as $mes ) {
+
+		$dato = array (
+			'periodo' => $mes->periodo,
+			'actividad' => $xactiv,
+			'socios' => $mes->socios,
+			'cuotas' => $mes->cuotas,
+			'facturado' => $mes->facturado,
+			'pagado' => $mes->pagado_mes_mes,
+			'efectividad' => $mes->porc_cobranza,
+			'pago_mora' => $mes->pagado_mora,
+			'porc_mora' => $mes->porc_mora,
+			'ingreso_mes' => $mes->pagado_mes,
+			'impago' => $mes->impago,
+			'porc_impago' => $mes->porc_impago
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+    }
+
+    public function exportar_estad_cobranza_comi($id_comision) {
+
+	if ( $id_comision > 0 ) {
+		$this->load->model('comisiones_model');
+		$comision = $this->comisiones_model->get_comision_id($id_comision);
+		$xcomi = $id_comision.'-'.$comision->descripcion;
+	} else {
+		if ( $id_comision == -1 ) { $xcomi = 'Todas'; }
+	}
+
+        $archivo="Estadistica_Cobranza".$xcomi;
+        $fila1=false;
+        $titulo="Cobranza_".$xcomi;
+
+        $headers=array();
+        $headers[]="Periodo";
+        $headers[]="Actividad";
+        $headers[]="Socios";
+        $headers[]="Cuotas";
+        $headers[]="Facturado";
+        $headers[]="Pagado al Dia";
+        $headers[]="Efectividad";
+        $headers[]="% Mora";
+        $headers[]="Ingresos Mes ";
+        $headers[]="Impago";
+        $headers[]="% Impago";
+
+	$cobranzas = $this->estadisticas_model->cobranza_tabla(0,$id_comision);
+        $datos= array();
+	foreach ( $cobranzas as $mes ) {
+
+		$dato = array (
+			'periodo' => $mes->periodo,
+			'comision' => $xcomi,
+			'socios' => $mes->socios,
+			'cuotas' => $mes->cuotas,
+			'facturado' => $mes->facturado,
+			'pagado' => $mes->pagado_mes_mes,
+			'efectividad' => $mes->porc_cobranza,
+			'pago_mora' => $mes->pagado_mora,
+			'porc_mora' => $mes->porc_mora,
+			'pagado_mes' => $mes->pagado_mes,
+			'impago' => $mes->impago,
+			'porc_impago' => $mes->porc_impago
+		);
+		$datos[] = $dato;
+	}
+
+        $this->gen_EXCEL($headers, $datos, $titulo, $archivo, $fila1);
+
+    }
+
     function mostrar_fecha($fecha)
     {
         $fecha = explode('-', $fecha);
@@ -3887,9 +4213,9 @@ class Admin extends CI_Controller {
         $count = 0;
         $result = false;
         if(!$venc){
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
         }else{
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
         }
 
         do{
@@ -3909,6 +4235,7 @@ class Admin extends CI_Controller {
                 $result = array();
                 $result['image'] = $xml->INVOICE->BARCODEBASE64;
                 $result['barcode'] = $xml->INVOICE->PAYMENTCODE1;
+                $result['codlink'] = substr($xml->INVOICE->PAYMENTCODE2,-10);
                 //$result = $xml->INVOICE->INVOICEURL;
 
             }
