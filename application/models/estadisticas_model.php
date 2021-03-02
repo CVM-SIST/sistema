@@ -128,7 +128,8 @@ class Estadisticas_model extends CI_Model {
 			ROUND((t.pagado_mora/t.facturado)*100,2) porc_mora,
 			t.pago_parcial, t.impago,
 			ROUND((t.impago/t.facturado)*100,2) porc_impago
-		FROM tmp_cobranza t; ";
+		FROM tmp_cobranza t
+		ORDER BY t.periodo DESC; ";
 
         $resultado = $this->db->query($qry)->result();
         return $resultado;
