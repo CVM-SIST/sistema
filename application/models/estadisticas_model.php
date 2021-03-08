@@ -77,59 +77,109 @@ class Estadisticas_model extends CI_Model {
         return $ret;
     }
 
+    public function ingresos_tabla($mes){        
+        $qry = "SELECT DATE_FORMAT(f.date, '%d-%m-%Y') dia, 
+                        SUM(IF(f.origen=1 , f.haber, 0 )) ing_col,
+                        SUM(IF(f.origen=2 , f.haber, 0 )) ing_cd,
+                        SUM(IF(f.origen=3 , f.haber, 0 )) ing_manual,
+                        SUM(IF(f.origen=5 , f.haber, 0 )) ing_debito,
+                        SUM(IF(f.origen IN (0,4) , f.haber, 0 )) ajustes
+                FROM facturacion f 
+		WHERE DATE_FORMAT(f.date,'%Y%m') = $mes AND
+			haber > 0 
+		GROUP BY 1
+		ORDER BY 1; ";
+
+        $resultado = $this->db->query($qry)->result();
+        return $resultado;
+
+    }
 
     public function cobranza_tabla($id_actividad='-1', $id_comision='0'){        
 	$qry = "DROP TEMPORARY TABLE IF EXISTS tmp_cobranza;";
+        $this->db->query($qry);
+
+	$qry = "DROP TEMPORARY TABLE IF EXISTS tmp_meses;";
         $this->db->query($qry);
 
 	if ( $id_comision > 0 ) {
 		$qry1 ="DROP TEMPORARY TABLE IF EXISTS tmp_actividades; ";
         	$this->db->query($qry1);
 		$qry1 ="CREATE TEMPORARY TABLE tmp_actividades ( INDEX ( aid ) )
-			SELECT a.Id as aid FROM actividades a WHERE a.comision = $id_comision; ";
+			SELECT a.id as aid FROM actividades a WHERE a.comision = $id_comision; ";
         	$this->db->query($qry1);
 	}
 
-	$qry = "CREATE TEMPORARY TABLE tmp_cobranza
-		SELECT DATE_FORMAT(p.generadoel, '%Y%m') periodo, COUNT(DISTINCT p.tutor_id) socios, COUNT(*) cuotas, SUM(p.monto) facturado,
-			$id_actividad id_act,
-			SUM(IF(p.estado=0 AND DATE_FORMAT(p.pagadoel, '%Y%m') = DATE_FORMAT(p.generadoel, '%Y%m'), p.pagado, 0 )) pagado_mes,
-			SUM(IF(p.estado=0 AND DATE_FORMAT(p.pagadoel, '%Y%m') > DATE_FORMAT(p.generadoel, '%Y%m'), p.pagado, 0 )) pagado_mora,
-			SUM(IF(p.estado=1 AND p.pagado > 0,  p.pagado, 0 )) pago_parcial,
-			SUM(IF(p.estado=1 AND p.pagado = 0,  p.monto, 0 )) impago
-		FROM pagos p ";
-	if ( $id_comision > 0 ) {
-		$qry .= "	JOIN tmp_actividades USING ( aid ) ";
-	}
-	if ( $id_actividad == -2 ) {
-		$qry .= "	LEFT JOIN actividades_asociadas aa ON ( p.tutor_id = aa.sid AND aa.estado = 1 ) ";
-	}
-	$qry .= "WHERE DATE_FORMAT(p.generadoel,'%Y%m') >= DATE_FORMAT( DATE_SUB(CURDATE(), INTERVAL 1 YEAR), '%Y%m' ) ";
-	if ( $id_actividad == -2 ) {
-		$qry .= "AND aa.aid IS NULL ";
-	} else {
-		if ( $id_actividad == -1 ) {
-		} else {
-			if ( $id_actividad == -3 ) {
-				$qry .= "AND p.aid = 0 ";
-			} else { 
-				if ( $id_actividad >= 0 && $id_comision == 0 ) {
-					$qry .= "AND p.aid = $id_actividad ";
-				}
-			}
-		}
-	}
-	$qry .= "GROUP BY 1; ";
+        $qry = "CREATE TEMPORARY TABLE tmp_meses ( INDEX ( periodo ) )
+                SELECT DATE_FORMAT(p.generadoel, '%Y%m') periodo, COUNT(DISTINCT p.tutor_id) socios, COUNT(*) cuotas,
+                        SUM(p.monto) facturado, $id_actividad id_act,
+                        SUM(IF(DATE_FORMAT(p.pagadoel, '%Y%m') = DATE_FORMAT(p.generadoel, '%Y%m'), p.pagado, 0 )) pagado_mes_mes,
+                        SUM(IF(DATE_FORMAT(p.pagadoel, '%Y%m') > DATE_FORMAT(p.generadoel, '%Y%m'), p.pagado, 0 )) pagado_mora,
+                        SUM(IF(p.estado=1 AND p.pagado > 0,  p.pagado, 0 )) pago_parcial,
+                        SUM(IF(p.estado=1 ,  p.monto-p.pagado, 0 )) impago
+                FROM pagos p ";
+        if ( $id_comision > 0 ) {
+                $qry .= "       JOIN tmp_actividades USING ( aid ) ";
+        }
+        if ( $id_actividad == -2 ) {
+                $qry .= "       LEFT JOIN actividades_asociadas aa ON ( p.tutor_id = aa.sid AND aa.estado = 1 ) ";
+        }
+        $qry .= "WHERE DATE_FORMAT(p.generadoel,'%Y%m') >= DATE_FORMAT( DATE_SUB(CURDATE(), INTERVAL 1 YEAR), '%Y%m' ) ";
+        if ( $id_actividad == -2 ) {
+                $qry .= "AND aa.aid IS NULL ";
+        } else {
+                if ( $id_actividad == -1 ) {
+                } else {
+                        if ( $id_actividad == -3 ) {
+                                $qry .= "AND p.aid = 0 ";
+                        } else {
+                                if ( $id_actividad >= 0 && $id_comision == 0 ) {
+                                        $qry .= "AND p.aid = $id_actividad ";
+                                }
+                        }
+                }
+        }
+        $qry .=" GROUP BY 1 ;";
+
         $this->db->query($qry);
 
-	$qry = "SELECT t.periodo, t.socios, t.cuotas, t.facturado, t.pagado_mes, 
+        $qry = "CREATE TEMPORARY TABLE tmp_cobranza
+                SELECT t.periodo, t.socios, t.cuotas, t.facturado, t.id_act, t.pagado_mes_mes, t.pagado_mora,
+                        SUM(IF(DATE_FORMAT(p.pagadoel, '%Y%m') = t.periodo, p.pagado, 0 )) pagado_mes,
+                        t.pago_parcial,
+                        t.impago
+                FROM tmp_meses t 
+                        JOIN pagos p ON DATE_FORMAT(p.pagadoel,'%Y%m') = t.periodo ";
+        if ( $id_comision > 0 ) {
+                $qry .= "       JOIN tmp_actividades USING ( aid ) ";
+        }
+        if ( $id_actividad == -2 ) {
+                $qry .= "       LEFT JOIN actividades_asociadas aa ON ( p.tutor_id = aa.sid AND aa.estado = 1 ) ";
+        }
+        if ( $id_actividad == -2 ) {
+                $qry .= "WHERE aa.aid IS NULL ";
+        } else {
+                if ( $id_actividad == -1 ) {
+                } else {
+                        if ( $id_actividad == -3 ) {
+                                $qry .= "WHERE p.aid = 0 ";
+                        } else {
+                                if ( $id_actividad >= 0 && $id_comision == 0 ) {
+                                        $qry .= "WHERE p.aid = $id_actividad ";
+                                }
+                        }
+                }
+        }
+        $qry .= " GROUP BY 1,2,3,4,5,6,7,9,10; ";
+        $this->db->query($qry);
+
+	$qry = "SELECT t.periodo, t.socios, t.cuotas, t.facturado, t.pagado_mes, t.pagado_mes_mes,
 			ROUND((t.pagado_mes/t.facturado)*100,2) porc_cobranza,
 			t.pagado_mora, 
 			ROUND((t.pagado_mora/t.facturado)*100,2) porc_mora,
 			t.pago_parcial, t.impago,
 			ROUND((t.impago/t.facturado)*100,2) porc_impago
-		FROM tmp_cobranza t
-		ORDER BY t.periodo DESC; ";
+		FROM tmp_cobranza t; ";
 
         $resultado = $this->db->query($qry)->result();
         return $resultado;

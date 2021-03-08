@@ -284,11 +284,11 @@ class Comisiones extends CI_Controller {
                                                 'Socios' => $mes->socios,
                                                 'Cuotas' => $mes->cuotas,
                                                 'Facturado' => $mes->facturado,
-                                                'Cobrado Mes' => $mes->pagado_mes,
+                                                'Cobrado al Dia' => $mes->pagado_mes_mes,
                                                 'Efectividad' => $mes->porc_cobranza,
                                                 'Cobrado Atrasado' => $mes->pagado_mora,
                                                 '% Mora' => $mes->porc_mora,
-                                                'Pago Parcial' => $mes->pago_parcial,
+                                                'Ingresos Mes' => $mes->pagado_mes,
                                                 'Impago' => $mes->impago,
                                                 '% Impago' => $mes->porc_impago
                                                 );
@@ -304,11 +304,11 @@ class Comisiones extends CI_Controller {
                                 $headers[]="Socios";
                                 $headers[]="Cuotas";
                                 $headers[]="Facturado";
-                                $headers[]="Cobrado Mes";
+                                $headers[]="Cobrado al Dia";
                                 $headers[]="% Efectividad";
                                 $headers[]="Cobrado Atrasado";
                                 $headers[]="% Mora";
-                                $headers[]="Pago Parcial";
+                                $headers[]="Ingresos Mes";
                                 $headers[]="Impago";
                                 $headers[]="% Impago";
                                 $datos=$result;
