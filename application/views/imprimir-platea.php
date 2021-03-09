@@ -36,9 +36,8 @@
 	    			background-size: 100% 100%;
         		}
         		.datos{
-  				display: grid;
-  				grid-template-columns: 200px 100px;
             			float:left;
+            			width: 250px;
             			color: #000;
 				margin-left:28px;
 				margin-top:85px;
@@ -65,17 +64,12 @@
 	    			background-size: 100% 100%;
         		}
         		.datos{
-                                display: grid;
-                                grid-template-columns: 200px 100px;
-                                float:left;
-                                color: #000;
-                                margin-left:28px;
-                                margin-top:85px;
-                                line-height: 30px;
-
-        		}
-        		.clear{
-            			clear: both;
+            			float:left;
+            			width: 250px;
+            			color: #FFF;
+				margin-left:28px;
+            			margin-top:85px;
+            			line-height: 30px;
         		}
         		.clear{
             			clear: both;
@@ -91,34 +85,45 @@
 	</head>
 
 	<!-- <body onload="window.print(); window.close();"> -->
+<?		
+		$largo1=strlen(trim($platea->socio));
+		if ( $largo1 > 40 ) {
+			$relleno1=5;
+			$nombre_socio=substr(trim($platea->socio), 0, 40);
+		} else {
+			if ( $largo1 < 25 ) {
+				if ( $largo1 < 15 ) {
+					$relleno1=63-$largo1;
+					$nombre_socio=trim($platea->socio);
+				} else { 
+					$relleno1=50-$largo1;
+					$nombre_socio=trim($platea->socio);
+				}
+			} else {
+				$relleno1=50-$largo1;
+				$nombre_socio=trim($platea->socio);
+			}
+		}
+		$largo2=strlen($platea->dni);
+		$relleno2=70-$largo2;
+?>
 
-     		<div class="carnet frente">
-<div class="datos">
-
-   <div class="item1">
+		<div class="carnet frente">
+        		<div class="datos">
+            	
 			   <div style="font-weight:bold">
 				<?=$platea->socio?>  
+<?for ($i=1; $i<=$relleno1; $i++ ) { echo "&nbsp"; }?>
+				<?=$platea->fila?>
 			   </div>
-   </div>
-   <div class="item2">
-			   <div style="font-weight:bold">
-				<?=$platea->fila?>  
+            		   <div style="font-weight:bold">
+				<?=$platea->dni?> 
+<?for ($i=1; $i<=$relleno2; $i++ ) { echo "&nbsp"; }?>
+				<?=$platea->numero?>
 			   </div>
-   </div>
-   <div class="item3">
-                           <div style="font-weight:bold">
-                                <?=$platea->dni?>
-                           </div>
-   </div>
-   <div class="item4">
-                           <div style="font-weight:bold">
-                                <?=$platea->numero?>
-                           </div>
-   </div>
-</div>
+        		</div>
 
         	</div>
-
     		<div class="carnet dorso"> </div>
 
 

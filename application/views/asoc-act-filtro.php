@@ -5,6 +5,7 @@
                      <div class="col-sm-5">
                        <span class=" ui-select">
                        <select name="actividad" id="actividad" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
+				<option value="0" >Sin filtro meses</option>
 				<option value="6" >+ 6 meses</option>
 				<option value="12" >+ 12 meses</option>
 				<option value="18" >+ 18 meses</option>
@@ -20,6 +21,7 @@
                        <select id="email" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
 				<option value="" > Seleccionar filtro email</option>
 				<option value="con" > Con Email </option>
+				<option value="cone" > Con Email con Error</option>
 				<option value="sin" > Sin Email</option>
                        </select>
                        </span>

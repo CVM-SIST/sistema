@@ -12,11 +12,11 @@
                      		<div class="col-sm-5">
                        			<span class=" ui-select">
                        			<select name="actividad" id="actividad" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
-					<option value="-1" <? if($id_actividad == -1){ echo 'selected'; } ?>> Total Cobranza</option>
-					<option value="-2" <? if($id_actividad == -2){ echo 'selected'; } ?>> Socio Hincha</option>
-					<option value="-3" <? if($id_actividad == -3){ echo 'selected'; } ?>> Cuota Social</option>
+					<option value="-1" <? if($id_actividad == -1){ echo 'selected'; $xactiv='Total'; } ?>> Total Cobranza</option>
+					<option value="-2" <? if($id_actividad == -2){ echo 'selected'; $xactiv='Socio Hincha'; } ?>> Socio Hincha</option>
+					<option value="-3" <? if($id_actividad == -3){ echo 'selected'; $xactiv='Cuota Social'; } ?>> Cuota Social</option>
                        			<? foreach ( $actividades as $actividad ) { ?>
-				                        <option value="<?=$actividad->Id?>" <? if($actividad->Id == $id_actividad){ echo 'selected'; } ?>><?=$actividad->nombre?></option>
+				                        <option value="<?=$actividad->Id?>" <? if($actividad->Id == $id_actividad){ echo 'selected'; $xactiv=$actividad->nombre; } ?>><?=$actividad->nombre?></option>
                         			<?}?>
                        			</select>
                        			</span>
@@ -25,7 +25,9 @@
 	
                 	<div class="form-group col-lg-18">
                      		<div class="col-sm-5">
-                                        	<button class="btn btn-success">Procesar</button> <i id="reg-cargando" class="fa fa-spinner fa-spin hidden"></i>
+                                                <button id="btn_procesar" class="btn btn-success">Procesar</button> <i id="reg-cargando" class="fa fa-spinner fa-spin hidden"></i>
+                                                <button id="estad_act_excel" value="" class="btn btn-success">EXCEL</button>
+                                                <input type="hidden" name="arma_excel" id="arma_excel" value='0' class="form-control">
 	
                      		</div>
                 	</div>
@@ -41,11 +43,11 @@
 	            		<th>Socios</th>
 	            		<th>Cuotas</th>	                      
 	            		<th>Facturado</th>
-	            		<th>Cobrado Mes</th>
+	            		<th>Cobrado al Dia</th>
 	            		<th>Efectividad</th>
 	            		<th>Cobrado Atrasado</th>
 	            		<th>% Mora</th>
-	            		<th>Pago Parcial</th>
+	            		<th>Ingresos Mes</th>
 	            		<th>Impago</th>
 	            		<th>% Impago</th>
 	        	   </tr>
@@ -57,15 +59,15 @@
 	    		?>
 				<tr>				
 					<td><?=$mes->periodo?></td>
-					<td>Todas</td>
+					<td><?=$xactiv?></td>
 					<td align="right"><?=$mes->socios?></td>
 					<td align="right"><?=$mes->cuotas?></td>
 					<td align="right"><?=$mes->facturado?></td>
-					<td align="right"><?=$mes->pagado_mes?></td>
+					<td align="right"><?=$mes->pagado_mes_mes?></td>
 					<td align="right"><?=$mes->porc_cobranza?></td>
 					<td align="right"><?=$mes->pagado_mora?></td>
 					<td align="right"><?=$mes->porc_mora?></td>
-					<td align="right"><?=$mes->pago_parcial?></td>
+					<td align="right"><?=$mes->pagado_mes?></td>
 					<td align="right"><?=$mes->impago?></td>
 					<td align="right"><?=$mes->porc_impago?></td>
 				</tr>

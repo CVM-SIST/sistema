@@ -23,20 +23,20 @@
 							case 99: $xestado = "NO EXISTE"; break;
 							default: $xestado = "INDEFINIDO"; break;
 						}
-                                                if ($asoc['actividad'] == 1) { 
-							$xact='Relacionada'; 
-						} else { if ( $asoc['actividad'] == 99 ) { 
+						if ($asoc['actividad'] == 1) {
+							$xact='Relacionada';
+						} else { if ( $asoc['actividad'] == 99 ) {
 								$xact='No Existe';
-							 } else {
-								$xact='Sin Relacionar'; 
-							 }
+							} else {
+								$xact='Sin Relacionar';
+							}
 						}
 						?>
                                                 <td><?=$asoc['sid']?></td>
                                                 <td><?=$asoc['dni']?></td>
                                                 <td><?=$asoc['apynom']?></td>
                                                 <td><?=$xestado?></td>
-					<td><?=$xact?></td>
+						<td><?=$xact?></td>
                                         </tr>
 					<? } ?>
                                                                     
