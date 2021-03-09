@@ -18,6 +18,14 @@ class Comisiones_model extends CI_Model {
 	return $comisiones;
     }
 
+    public function get_comision_id($id_comision) {
+        $query = $this->db->where('Id',$id_comision);
+        $query = $this->db->get('comisiones');
+        if($query->num_rows() == 0){return false;}
+        $comision = $query->row();
+	return $comision;
+    }
+
     public function get_comision() {
         $this->db->where('Id',$this->session->userdata('Id'));
         $query = $this->db->get('profesores');
