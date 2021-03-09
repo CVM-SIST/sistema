@@ -620,9 +620,9 @@ AHG Comentado 20170105 porque no se usa..... creo
         $count = 0;
         $result = false;
         if(!$venc){
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
         }else{
-            $url = 'http://www.CuentaDigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
+            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
         }
         
         do{
@@ -642,6 +642,7 @@ AHG Comentado 20170105 porque no se usa..... creo
                 $result = array();
                 $result['image'] = $xml->INVOICE->BARCODEBASE64;
                 $result['barcode'] = $xml->INVOICE->PAYMENTCODE1;
+                $result['codlink'] = substr($xml->INVOICE->PAYMENTCODE2,-10);
                 //$result = $xml->INVOICE->INVOICEURL;
 
             }        
@@ -675,7 +676,7 @@ AHG Comentado 20170105 porque no se usa..... creo
                                      ->setTitle("Listado")
                                      ->setSubject("Listado de Socios");
         
-        $this->phpexcel->getActiveSheet()->getStyle('A1:F1')->getFill()->applyFromArray(
+        $this->phpexcel->getActiveSheet()->getStyle('A1:H1')->getFill()->applyFromArray(
             array(
                 'type'       => PHPExcel_Style_Fill::FILL_SOLID,
                 'startcolor' => array('rgb' => 'E9E9E9'),
@@ -684,13 +685,14 @@ AHG Comentado 20170105 porque no se usa..... creo
          
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Teléfono')
-                    ->setCellValue('C1', 'Domicilio')
-                    ->setCellValue('D1', 'DNI')
-                    ->setCellValue('E1', 'Fecha de Alta')                   
-                    ->setCellValue('F1', 'Monto Adeudado')                   
-                    ->setCellValue('G1', 'Meses Adeudados');
+                    ->setCellValue('A1', 'SID')
+                    ->setCellValue('B1', 'Nombre y Apellido')
+                    ->setCellValue('C1', 'Teléfono')
+                    ->setCellValue('D1', 'Domicilio')
+                    ->setCellValue('E1', 'DNI')
+                    ->setCellValue('F1', 'Fecha de Alta')                   
+                    ->setCellValue('G1', 'Monto Adeudado')                   
+                    ->setCellValue('H1', 'Meses Adeudados');
 
 
 
@@ -727,19 +729,20 @@ AHG Comentado 20170105 porque no se usa..... creo
                 $monto_a = "Cuota al Día";        
             }
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->nombre.' '.$cliente->apellido)
-                        ->setCellValue('B'.$cont, $cliente->telefono)
-                        ->setCellValue('C'.$cont, $cliente->domicilio)
-                        ->setCellValue('D'.$cont, $cliente->dni)
-                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->alta)))
-                        ->setCellValue('F'.$cont, $monto_a)
-                        ->setCellValue('G'.$cont, $meses_a);
+                        ->setCellValue('A'.$cont, $cliente->Id)
+                        ->setCellValue('B'.$cont, $cliente->nombre.' '.$cliente->apellido)
+                        ->setCellValue('C'.$cont, $cliente->telefono)
+                        ->setCellValue('D'.$cont, $cliente->domicilio)
+                        ->setCellValue('E'.$cont, $cliente->dni)
+                        ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
+                        ->setCellValue('G'.$cont, $monto_a)
+                        ->setCellValue('H'.$cont, $meses_a);
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','G') as $columnID) {
+        foreach(range('A','H') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }

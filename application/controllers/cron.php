@@ -419,12 +419,12 @@ class Cron extends CI_Controller {
             	$cuota3 = $mail['resumen'];            
 
 		// Armo encabezado con escudo y datos de cabecera
-                $cuerpo  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
-                $cuerpo .= "<thead>";
-                $cuerpo .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
+		$cuerpo  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
+        	$cuerpo .= "<thead>";
+		$cuerpo .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
                 $cuerpo .= "</tr>";
-                $cuerpo .= "</thead>";
-                $cuerpo .= "</table>";
+        	$cuerpo .= "</thead>";
+		$cuerpo .= "</table>";
 
 		// Datos del Titular
 		if ( $mail['socio_n'] > 0 ) {
@@ -657,7 +657,7 @@ class Cron extends CI_Controller {
 
             	if($acobrar < 0){
                 	$total = abs($acobrar);
-                	$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que iene 10 dias para regularizar su situacion, contactese con Secretaria</p>';
+                	$cuerpo .= '<p style="font-family:verdana; font-style:italic;">Recuerde que tiene 10 dias para regularizar su situacion, contactese con Secretaria</p>';
 
                     	// Aca grabo el archivo para mandar a cobrar a COL
 			$col_periodo=$xperiodo;
@@ -697,7 +697,7 @@ class Cron extends CI_Controller {
 		$cuerpo .= "<p style='font-family:verdana'> <a href='https://villamitre.com.ar/beneficios-2/'>En este link podra encontrar COMERCIOS ADHERIDOS Y DESCUENTOS<img src='http://clubvillamitre.com/images/Logo-Red-de-BeneficiosOK_70.jpg'></a></p>";
 		$cuerpo .= "<br> <br>";
 
-                $cuerpo .= "<img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt=''>";
+		$cuerpo .= "<img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt=''>";
 
             	$email = array(
                     'email' => $mail['mail'],
@@ -739,14 +739,14 @@ class Cron extends CI_Controller {
 		$info_total="No encontre registro en facturacion_cron !!!!";
 	}
 
-        // Subo el archivo al WS de La Coope para que se importe
-        // Primero lo renombre con el md5sum del contenido
+	// Subo el archivo al WS de La Coope para que se importe
+	// Primero lo renombre con el md5sum del contenido
         $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';
-        $md5 = md5_file($file_col);
+	$md5 = md5_file($file_col);
         $file_col_new = './application/logs/asociados_'.$md5.'.csv';
-        rename($file_col,$file_col_new);
-        // Luego llamo a la rutina que lo sube con el WS
-        $this->_sube_facturacion_COL($file_col_new);
+	rename($file_col,$file_col_new);
+	// Luego llamo a la rutina que lo sube con el WS
+	$this->_sube_facturacion_COL($file_col_new);
 
 	// Me mando email de aviso que el proceso termino OK
         mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total);
@@ -1195,15 +1195,15 @@ echo "suspender";
 			if ( !$debito ) {
 				$txt_mail="";
 
-                                // Armo encabezado con escudo y datos de cabecera
-                                $txt_mail  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
-                                $txt_mail .= "<thead>";
-                                $txt_mail .= "<tr style='background-color: #105401 ;'>";
-                                $txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
-                                $txt_mail .= "<th style='font-size:30; background-color: #105401; color:#FFF' align='center'>CLUB VILLA MITRE</th>";
-                                $txt_mail .= "</tr>";
-                                $txt_mail .= "</thead>";
-                                $txt_mail .= "</table>";
+                		// Armo encabezado con escudo y datos de cabecera
+                		$txt_mail  = "<table class='table table-hover' style='font-family:verdana' width='100%' >";
+                		$txt_mail .= "<thead>";
+                		$txt_mail .= "<tr style='background-color: #105401 ;'>";
+                		$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-encabezado-mail.jpg' alt='' ></th>";
+                		$txt_mail .= "<th style='font-size:30; background-color: #105401; color:#FFF' align='center'>CLUB VILLA MITRE</th>";
+                		$txt_mail .= "</tr>";
+                		$txt_mail .= "</thead>";
+                		$txt_mail .= "</table>";
 		
                 		// Datos del Titular
                 		$txt_mail .= '<h3 style="font-family:verdana"><strong>Titular:</strong> '.$deudor->sid.'-'.$deudor->nombre.', '.$deudor->apellido.'</h3>';
@@ -1225,7 +1225,7 @@ echo "suspender";
 				$txt_mail .= '<p style="font-family:verdana; ">Mas informacion en <a href="https://www.villamitre.com.ar/"> www.villamitre.com.ar</a></p>';
 				$txt_mail .= "<br>";
 	
-                                $txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt='' ></th>";
+                		$txt_mail .= "<th> <img src='http://clubvillamitre.com/images/cvm-zocalo-mail.jpg' alt='' ></th>";
                 		$txt_mail .= "<br> <br>";
 	
                 		$txt_mail .= "<img src='http://clubvillamitre.com/images/2doZocalo3.png' alt=''>";
@@ -1472,13 +1472,13 @@ echo "suspender";
 			echo "asigno fecha de parametro \n";
 			$ayer = $this->uri->segment(3);
 			echo "ayer = $ayer \n";
-                        $si_act_col="N";
+			$si_act_col="N";
 		} else {
 			echo "tomo el date\n";
 			$ayer = date('Ymd',strtotime("-1 day"));
 			$fecha = date('Y-m-d');
 			if($this->pagos_model->check_cron_pagos()){exit('Esta tarea ya fue ejecutada hoy.');}	 
-                        $si_act_col="S";
+			$si_act_col="S";
 		}
 
 
@@ -1489,7 +1489,7 @@ echo "suspender";
 		if ( $this->uri->segment(4) ) {
 			$ctrl_gen=$this->uri->segment(4);
 			echo "Controlo generacion vino -> $ctrl_gen";
-			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA") ) {
+			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA" ) ) {
 				echo "EL PARAMETRO PARA GENERAR ES INCORRECTO";
 				exit;
 			}
@@ -1506,7 +1506,7 @@ echo "suspender";
 		$total_col = 0;
 
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "CD" ) {
-                        echo "genero CD";
+			echo "genero CD";
 			// Busco los pagos del sitio de Cuenta Digital
 			$pagos = $this->get_pagos($ayer);
 
@@ -1545,9 +1545,9 @@ echo "suspender";
 			// Busco los pagos registrados en COL
 			$pagos_COL = $this->get_pagos_COL($ayer,$suc_filtro);
 
-                        // Separo los dos arrays que devuelve
-                        $pagosCOL = $pagos_COL[1];
-                        $descartadoCOL = $pagos_COL[0];
+			// Separo los dos arrays que devuelve
+			$pagosCOL = $pagos_COL[1];
+			$descartadoCOL = $pagos_COL[0];
 
 			// Si bajo algo del sitio
 			if($pagosCOL) {
@@ -1577,20 +1577,19 @@ echo "suspender";
 			$this->pagos_model->insert_pagos_cron($fecha); 
 		}
 
-        // Actualizo en la base de la Coope los que tuvieron algun cambio
+	// Actualizo en la base de la Coope los que tuvieron algun cambio
 /*
-        if ( $si_act_col = "S" ) {
-                $actualizados = $this->_actualiza_COL($ayer);
-        } else {
-                $actualizados = 0;
-        }
+	if ( $si_act_col = "S" ) {
+		$actualizados = $this->_actualiza_COL($ayer);
+	} else {
+		$actualizados = 0;
+	}
 */
 
-
         // Me mando email de aviso que el proceso termino OK
-        $qdesc = $descartadoCOL['descartados'];
-        $pdesc = $descartadoCOL['tot_descartado'];
-        $info_total="Procese fecha de cobro = $ayer \n Procese $cant_cd pagos de CuentaDigital por un total de $ $total_cd \n Procese $cant_col pagos de LaCoope por un total de $ $total_col. Descarte pagos de COL anteriores $qdesc por $ $pdesc y actualice saldos de $actualizados socios. \n Reactive $cant_react socios. \n";
+	$qdesc = $descartadoCOL['descartados'];
+	$pdesc = $descartadoCOL['tot_descartado'];
+	$info_total="Procese fecha de cobro = $ayer \n Procese $cant_cd pagos de CuentaDigital por un total de $ $total_cd \n Procese $cant_col pagos de LaCoope por un total de $ $total_col. Descarte pagos de COL anteriores $qdesc por $ $pdesc y actualice saldos de $actualizados socios. \n Reactive $cant_react socios. \n";
 	foreach ( $reactivados as $r ) {
 		$info_total.=$r."\n";
 	}
@@ -1635,7 +1634,7 @@ echo "suspender";
 			return $pago;
 		} else {
 			if($a === FALSE) {
-                		mail("cvm.agonzalez@gmail.com","Fallo en Cron VM no pude acceder CD",date('Y-m-d H:i:s'));
+                		mail("cvm.agonzalez@gmail.com","Fallo en Cron VM no pudo acceder CD",date('Y-m-d H:i:s'));
                 		exit();
 			}
 			return false;
@@ -2083,7 +2082,7 @@ echo $aviso;
     {
         if(date('d') != 20){ die(); }
         $this->load->model('general_model');
-        // Busco el ID=1 del interes general
+	// Busco el ID=1 del interes general
         $config = $this->general_model->get_config(1);
         if($config->interes_mora > 0){
             $this->load->model("socios_model");            
