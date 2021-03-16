@@ -1464,8 +1464,19 @@ echo "suspender";
 	}
        
 	function pagos(){
+
+
 		$this->load->model("pagos_model");
 		$this->load->model("socios_model");
+
+		$xahora=date('Y-m-d G:i:s');
+                $path_col = './application/logs/pagocron-'.date('Ymd').'.csv';
+		if( !file_exists($path_col) ){
+			$log = fopen($path_col,'w');
+		} else {
+			$log = fopen($fl,'a');
+		}
+		fwrite($log, "Comienzo a procesar cron de pagos $xahora \n");
 
 		// Si me vino una fecha en el URL fuerzo la generacion de esa fecha en particular sin controlar cron
         	if ($this->uri->segment(3)) {
@@ -1473,12 +1484,14 @@ echo "suspender";
 			$ayer = $this->uri->segment(3);
 			echo "ayer = $ayer \n";
 			$si_act_col="N";
+			fwrite($log, "Puse fecha de parametro URI $ayer \n");
 		} else {
 			echo "tomo el date\n";
 			$ayer = date('Ymd',strtotime("-1 day"));
 			$fecha = date('Y-m-d');
 			if($this->pagos_model->check_cron_pagos()){exit('Esta tarea ya fue ejecutada hoy.');}	 
 			$si_act_col="S";
+			fwrite($log, "Puse fecha de DATE $ayer \n");
 		}
 
 
@@ -1489,6 +1502,7 @@ echo "suspender";
 		if ( $this->uri->segment(4) ) {
 			$ctrl_gen=$this->uri->segment(4);
 			echo "Controlo generacion vino -> $ctrl_gen";
+			fwrite($log, "Vino URI 4 $ctrl_gen \n");
 			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA" ) ) {
 				echo "EL PARAMETRO PARA GENERAR ES INCORRECTO";
 				exit;
@@ -1507,6 +1521,7 @@ echo "suspender";
 
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "CD" ) {
 			echo "genero CD";
+			fwrite($log, "Genero CD \n");
 			// Busco los pagos del sitio de Cuenta Digital
 			$pagos = $this->get_pagos($ayer);
 
@@ -1530,12 +1545,14 @@ echo "suspender";
 					$cant_cd++;
 					$total_cd=$total_cd+$pago['monto'];
 				}
+				fwrite($log, "Procese $cant_cd pagos de CD por un total de $total_cd \n");
 			}
 		}
 
 		
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "COL" ) {
 			echo "genero COL";
+			fwrite($log, "Genero COL \n");
 			if ( $this->uri->segment(5) ) {
 				echo "vino parametro 5 = ".$this->uri->segment(5)." \n";
 				$suc_filtro=$this->uri->segment(5);
@@ -1570,11 +1587,13 @@ echo "suspender";
 					$cant_col++;
 					$total_col=$total_col+$pago['monto'];
 				}
+				fwrite($log, "Procese $cant_col pagos de COL por un total de $total_col \n");
 			}
 		}
 
 		if (!$this->uri->segment(3)) {
 			$this->pagos_model->insert_pagos_cron($fecha); 
+			fwrite($log, "Actualizo pagos_cron \n");
 		}
 
 	// Actualizo en la base de la Coope los que tuvieron algun cambio
@@ -1585,6 +1604,7 @@ echo "suspender";
 		$actualizados = 0;
 	}
 */
+		$actualizados = 0;
 
         // Me mando email de aviso que el proceso termino OK
 	$qdesc = $descartadoCOL['descartados'];
