@@ -594,7 +594,7 @@ class Pagos_model extends CI_Model {
         $total = $this->get_deuda($pago['sid']);
         $total = $total + $pago['monto'];
         $descripcion = "Pago acreditado desde: La Coope <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
-        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion));
+        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion, 'origen'=>'1'));
 
     }
 
@@ -603,11 +603,11 @@ class Pagos_model extends CI_Model {
         $total = $this->get_deuda($pago['sid']);
         $total = $total + $pago['monto'];
         $descripcion = "Pago acreditado desde: CuentaDigital <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
-        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion));
+        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion, 'origen'=>'2'));
 
     }
 
-    public function registrar_pago($tipo,$sid,$monto,$des,$actividad,$ajuste)
+    public function registrar_pago($tipo,$sid,$monto,$des,$actividad,$ajuste, $origen='0')
     {
         $total = $this->get_socio_total($sid);
 
@@ -645,12 +645,18 @@ class Pagos_model extends CI_Model {
             $total = $total + $haber;
             $this->registrar_pago2($sid,$monto,$ajuste);
         }
+        if ( $ajuste == 1 ) {
+                $orig=4;
+        } else {
+                $orig=3;
+        }
         $data = array(
                 "sid" => $sid,
                 "descripcion" => $des,
                 "debe" => $debe,
                 "haber" => $haber,
-                "total" => $total
+                "total" => $total,
+		"origen" => $orig
             );
         $this->db->insert("facturacion",$data);
         $data['iid'] = $this->db->insert_id();
