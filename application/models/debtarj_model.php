@@ -224,6 +224,18 @@ class Debtarj_model extends CI_Model {
         return $debtarj;
     }
 
+    public function get_debtarj_by_sid_tarjeta($sid, $id_marca, $nro_tarjeta)
+    {
+        $this->db->where('sid', $sid);
+        $this->db->where('id_marca', $id_marca);
+        $this->db->where('nro_tarjeta', $nro_tarjeta);
+        $query = $this->db->get('socios_debito_tarj');
+        if( $query->num_rows() == 0 ){ return false; }
+        $debtarj = $query->row();
+        $query->free_result();
+        return $debtarj;
+    }
+
     public function get_debtarj_by_sid($sid)
     {
         $this->db->where('sid', $sid);
