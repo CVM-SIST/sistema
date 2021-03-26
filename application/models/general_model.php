@@ -243,6 +243,12 @@ ENVIOS
         $this->db->update('envios_data',array('estado'=>1));
     }
 
+    public function enviado_error($id='')
+    {
+        $this->db->where('Id',$id);
+        $this->db->update('envios_data',array('estado'=>9));
+    }
+
     public function get_enviados($id='')
     {
         $this->db->where('eid',$id);

@@ -4262,6 +4262,14 @@ class Admin extends CI_Controller {
             case 'send':
                 $this->load->model('general_model');
                 $envio_info = $this->general_model->get_envio($id);
+
+                $path_log = './application/logs/envios.log';
+		if( !file_exists($path_log) ){
+			$log = fopen($path_log,'w');
+		} else {
+			$log = fopen($path_log,'a');
+		}
+
                 $envio = $this->general_model->get_envio_data($id);
                 if($envio){
                     $this->load->library('email');
@@ -4269,14 +4277,23 @@ class Admin extends CI_Controller {
                     $this->email->to($envio->email);
                     $this->email->subject($envio_info->titulo);
                     $this->email->message($envio_info->body);
-                    $this->email->send();
+                    $st = $this->email->send();
 
                     //echo $this->email->print_debugger();
+		    if ( $st ) {
+		    	fwrite($log,"Envie email a $envio->email\n");
+                    	$this->general_model->enviado($envio->Id);
+                    	$data['estado'] = date('H:i:s').' - '.$envio->email.' <i class="fa fa-check" style="color:#1e9603"></i>';
+                    	$data['enviados'] = $this->general_model->get_enviados($id);
+                    	$data = json_encode($data);
+		    } else {
+		    	fwrite($log,"Fallo envio email a $envio->email\n");
+                    	$this->general_model->enviado_error($envio->Id);
+                        $data['estado'] = date('H:i:s').' - '.$envio->email.' <i class="fa fa-times" style="color:#c80428"></i>';
+                        $data['enviados'] = $this->general_model->get_enviados($id);
+                        $data = json_encode($data);
+                    }
 
-                    $this->general_model->enviado($envio->Id);
-                    $data['estado'] = date('H:i:s').' - '.$envio->email.' <i class="fa fa-check" style="color:#1e9603"></i>';
-                    $data['enviados'] = $this->general_model->get_enviados($id);
-                    $data = json_encode($data);
                     echo $data;
                 }else{
                     echo 'end';
