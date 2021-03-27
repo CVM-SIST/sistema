@@ -2004,6 +2004,7 @@ echo "suspender";
 
     public function intereses_jardin() {
         if(date('d') < 15){ die(); }
+        if(date('d') > 25){ die(); }
 	$dia = date('d');
         $this->load->model('general_model');
 	// Busco el ID=2 del Jardin
@@ -2020,9 +2021,10 @@ echo "suspender";
 		$apynom = $socio->apynom;
 		$descr_actividad = $socio->descr_actividad;
 		$aid = $socio->aid;
+		$recargos=0;
+		$revierte=0;
         	switch ( $dia ) {
 			case 15:
-			case 25:
 				$deuda = $this->pagos_model->get_deuda_jardin($sid);
 				if ( $deuda ) {
                 			$total = $this->pagos_model->get_socio_total($sid);
@@ -2050,6 +2052,7 @@ echo "suspender";
 						'tipo' => 10,
 						);
 					$this->pagos_model->insert_pago_nuevo($pago);
+					$recargos++;
 	
 					$aviso .= "Facturo recargo al socio $sid - $apynom recargo de $ $recargo por atraso en el pago de la cuota de $descr_actividad por $ $monto_deuda del mes de $mes_deuda  \n";
 				}
@@ -2058,7 +2061,6 @@ echo "suspender";
 			default:
 				// Controlo si se imputo un pago con fecha anterior a los limites
 				$recjardin = $this->pagos_model->revierte_recargo_jardin($sid);
-var_dump($recjardin);
 				if ( $recjardin ) {
                                        	// Anulo recargo porque imputamos despues un pago anterior al recargo
                 			$total = $this->pagos_model->get_socio_total($sid);
@@ -2076,11 +2078,9 @@ var_dump($recjardin);
                                                	);
                                        	$this->pagos_model->insert_facturacion($facturacion);
 
-echo "Fecha: ".$fch_pago."\n";
-echo "pagado: ".$imp_recargo."\n";
 					$this->db->where('id',$id_recargo); 
 					$this->db->update('pagos',array('pagadoel'=>$fch_pago, 'pagado'=>$imp_recargo, 'estado'=>'0'));
-echo "despues update"."\n";
+					$revierte++;
 
                                        	$aviso .= "Anulo recargo al socio $sid - $apynom de $ $imp_recargo por imputacion posterior del pago de la cuota de $descr_actividad  \n";
 				} else {
@@ -2093,11 +2093,10 @@ echo "despues update"."\n";
 	}
 	$xahora=date('Y-m-d G:i:s');
 
-echo $xahora;
-echo $aviso;
-            // Me mando email de aviso que el proceso termino OK
-//            mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema el proceso termino asi $aviso ....".$xahora."\n");
+        // Me mando email de aviso que el proceso termino OK
+        mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n");
     }
+
     public function intereses()
     {
         if(date('d') != 20){ die(); }

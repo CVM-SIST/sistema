@@ -1296,51 +1296,40 @@ class Pagos_model extends CI_Model {
 	$fch_where = date('Y-m-');
 	// Busco si tuvo recargo si no devuelvo false
 	if ( $dia <= 25 ) {
-		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."14' AND p.tipo = 10; ";
-	} else {
-		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."25' AND p.tipo = 10; ";
-	}
+		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."15' AND p.tipo = 10; ";
         $recargo = $this->db->query($qry);
-        if ( $recargo->num_rows() == 0 ) { return false; }
-        $neto_recargo = $recargo->row();
-	if ( $neto_recargo->neto == 0 ) { return false; }
+        	if ( $recargo->num_rows() == 0 ) { return false; }
+        	$neto_recargo = $recargo->row();
+		if ( $neto_recargo->neto == 0 ) { return false; }
+
+		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."15' ; ";
 		
-	// Busco si hay algun pago posterior con fecha valor anterior
-	if ( $dia < 25 ) {
-		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."14' ; ";
-	} else {
-		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."25' ; ";
-	}
-        $movimientos = $this->db->query($qry)->result();
-	$ret_valor = false;
-	foreach ( $movimientos as $movimiento ) {
-echo "movi";
-		$descr = $movimiento->descripcion;
-		$fecha = $movimiento->date;
-		$pos1 = strpos($descr , "go acreditado desde:");
-echo "descr:".$descr."---";
-echo "pos1:".$pos1."-----";
-		if ( $pos1 ) {
-echo "pos1";
-			$pos2 = strpos($descr,"Fecha:");
+        	$movimientos = $this->db->query($qry)->result();
+		$ret_valor = false;
+		foreach ( $movimientos as $movimiento ) {
+			$descr = $movimiento->descripcion;
+			$fecha = $movimiento->date;
+			$pos1 = strpos($descr , "go acreditado desde:");
+			if ( $pos1 ) {
+				$pos2 = strpos($descr,"Fecha:");
 
-			$diap=substr($descr,$pos2+7,2);
-			$mesp=substr($descr,$pos2+10,2);
-			$anop=substr($descr,$pos2+13,4);
-			$fch_pago=$anop."-".$mesp."-".$diap;
+				$diap=substr($descr,$pos2+7,2);
+				$mesp=substr($descr,$pos2+10,2);
+				$anop=substr($descr,$pos2+13,4);
+				$fch_pago=$anop."-".$mesp."-".$diap;
 
-echo $diap . "----" . $dia;
-			if ( $diap < $dia ) {
-echo "dia <>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<".$fch_pago."&/()(/()=/()";
-				$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
-				 break;
-			}
+				if ( $diap < $dia ) {
+					$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
+				 	break;
+				}
 			
-		}
+			}
+	   	}
+		return $ret_valor;
 	}
-	return $ret_valor;
 	
     }
+
     public function get_deuda_jardin($sid)  
     {
 	$mes = date('Ym');
