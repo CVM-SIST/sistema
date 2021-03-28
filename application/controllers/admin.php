@@ -2378,26 +2378,40 @@ class Admin extends CI_Controller {
 			    $datos['fecha_adhesion'] = substr($fecha_view,6,4)."-".substr($fecha_view,3,2)."-".substr($fecha_view,0,2);
 			    $datos['estado'] = 1;
 
-			    $this->load->model('debtarj_model');
-			    // Alta
-			    $aid = $this->debtarj_model->grabar($datos);
-			    // Grabo log de cambios
-			    $login = $this->session->userdata('username');
-			    $nivel_acceso = $this->session->userdata('rango');
-			    $tabla = "debtarj";
-			    $operacion = 1;
-			    $llave = $aid;
-			    $observ = substr(json_encode($datos), 0, 255);
-			    $this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
-			    $data['baseurl'] = base_url();
-			    $data['mensaje1'] = "El debito se actualizo correctamente";
-			    $data['msj_boton'] = "Volver a debitos";
-			    $data['url_boton'] = base_url()."admin/debtarj/";
-			    $data['section'] = 'ppal-mensaje';
-			    $data['username'] = $this->session->userdata('username');
-			    $data['rango'] = $this->session->userdata('rango');
-			    $this->load->view("admin",$data);
+			    $this->load->model('debtarj_model');
+			    $exist_dt = $this->debtarj_model->get_debtarj_by_sid($datos['sid']);
+
+			    if ( !$exist_dt ) {
+			    	// Alta
+			    	$aid = $this->debtarj_model->grabar($datos);
+			    	// Grabo log de cambios
+			    	$login = $this->session->userdata('username');
+			    	$nivel_acceso = $this->session->userdata('rango');
+			    	$tabla = "debtarj";
+			    	$operacion = 1;
+			    	$llave = $aid;
+			    	$observ = substr(json_encode($datos), 0, 255);
+			    	$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
+	
+			    	$data['baseurl'] = base_url();
+			    	$data['mensaje1'] = "El debito se actualizo correctamente";
+			    	$data['msj_boton'] = "Volver a debitos";
+			    	$data['url_boton'] = base_url()."admin/debtarj/";
+			    	$data['section'] = 'ppal-mensaje';
+			    	$data['username'] = $this->session->userdata('username');
+			    	$data['rango'] = $this->session->userdata('rango');
+			    	$this->load->view("admin",$data);
+			   } else {
+			    	$data['baseurl'] = base_url();
+			    	$data['mensaje1'] = "El debito NO SE GRABO porque ese socio ya tiene cargado uno";
+			    	$data['msj_boton'] = "Volver a debitos";
+			    	$data['url_boton'] = base_url()."admin/debtarj/";
+			    	$data['section'] = 'ppal-mensaje';
+			    	$data['username'] = $this->session->userdata('username');
+			    	$data['rango'] = $this->session->userdata('rango');
+			    	$this->load->view("admin",$data);
+			   }
 
 			break;
 
