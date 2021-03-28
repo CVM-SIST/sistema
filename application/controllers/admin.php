@@ -504,7 +504,12 @@ class Admin extends CI_Controller {
         		$this->load->view('login-form',$data);
 		} else {
         		if($this->session->userdata('prox_vto') == 1 ){
+        			$data['username'] = $this->session->userdata('username');
+        			$data['rango'] = $this->session->userdata('rango');
+        			$data['baseurl'] = base_url();
+            			$data['force_page'] = base_url()."admin/socios";
             			$data['mensaje1'] = "La contraseña actual se vence en 10 dias o menos recuerde cambiarla";
+            			$data['force_msj'] = "Continuar";
             			$data['section'] = 'ppal-mensaje';
             			$this->load->view('admin',$data);
         		} else {
@@ -553,14 +558,19 @@ class Admin extends CI_Controller {
 			}
 			$hoy=new DateTime(date('Y-m-d'));
 			$ult_cambio=new DateTime($check_user->last_chpwd);
-			$dias = $hoy->diff($ult_cambio);
-			if ( $dias->days > 90 ) {
-				$prox_vto = -1;
-			} else {
-				if ( $dias->days > 80 ) {
-					$prox_vto = 1;
-				} else {
+			if ( $ult_cambio > $hoy ) {
 					$prox_vto = 0;
+
+			} else {
+				$dias = $hoy->diff($ult_cambio);
+				if ( $dias->days > 90 ) {
+					$prox_vto = -1;
+				} else {
+					if ( $dias->days > 80 ) {
+						$prox_vto = 1;
+					} else {
+						$prox_vto = 0;
+					}
 				}
 			}
 
@@ -582,7 +592,7 @@ class Admin extends CI_Controller {
                     		$tabla = "login";
                     		$operacion = 0;
                     		$llave = $this->session->userdata('id_usuario');
-                    		$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-str_fecha".$str_fecha."---";
+                    		$observ = "Logueo exitoso.".$prox_vto."-ucambio".$check_user->ult_cambio."-prox_vto".$prox_vto."---";
                     		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
                     		redirect(base_url().'admin');
