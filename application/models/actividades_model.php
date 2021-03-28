@@ -11,9 +11,29 @@ class Actividades_model extends CI_Model {
     }
     
     public function reg_profesor($datos){
+	$ano=date('Y');
+	$mes=date('m');
+	$dia=date('d');
+	$ano3=$ano;
+	if ( $mes > 3 ) {
+        	$mes3 = $mes - 3;
+        	if ( $mes3 < 10 ) {
+                	$mes3 = '0'.$mes3;
+        	}
+	} else  {
+        	switch ($mes) {
+                	case 3: $mes3 = 12; $ano3 = $ano - 1 ; break;
+                	case 2: $mes3 = 11; $ano3 = $ano - 1 ; break;
+                	case 1: $mes3 = 10; $ano3 = $ano - 1 ; break;
+        	}
+	}
+	$lstch = $ano3."-".$mes3."-".$dia;
+
+	$datos['last_chgpwd']=$lstch;
         $this->db->insert('profesores', $datos);
         return $this->db->insert_id();   
     }
+
     public function update_profesor($datos,$id){
         $this->db->where("Id",$id);
         $this->db->update('profesores', $datos);

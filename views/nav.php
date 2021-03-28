@@ -57,7 +57,7 @@ function is_active($uri,$actual){
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades"><i class="fa fa-caret-right"></i><span data-i18n="Listado"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/agregar"><i class="fa fa-caret-right"></i><span data-i18n="Nuevo"></span></a></li>                
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/comisiones"><i class="fa fa-caret-right"></i><span data-i18n="Comisiones"></span></a></li>
-            			<li><a href="<?=$_GET['baseurl']?>admin/actividades/profesores"><i class="fa fa-caret-right"></i><span data-i18n="Profesores"></span></a></li>
+            			<li><a href="<?=$_GET['baseurl']?>admin/actividades/profesores"><i class="fa fa-caret-right"></i><span data-i18n="Acceso Comisiones"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/lugares"><i class="fa fa-caret-right"></i><span data-i18n="Lugares"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/asociar"><i class="fa fa-caret-right"></i><span data-i18n="Asociar Actividad"></span></a></li>
             			<li><a href="<?=$_GET['baseurl']?>admin/actividades/load-asoc-activ"><i class="fa fa-caret-right"></i><span data-i18n="Relacion Masiva"></span></a></li>

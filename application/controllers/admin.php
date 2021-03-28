@@ -3540,12 +3540,19 @@ class Admin extends CI_Controller {
                 }else if($this->uri->segment(4) == 'guardar'){
                     foreach($_POST as $key => $val)
                     {
-			if ( $key == 'pass' ) {
-                        	$datos[$key] = sha1($this->input->post($key));
-			} else {
-                        	$datos[$key] = $this->input->post($key);
-			}
+                    	$datos[$key] = $this->input->post($key);
                     }
+
+		    echo $datos['pass']; echo "\n" ; echo $datos['pass_old'];
+		    if ( $datos['pass'] != $datos['pass_old'] ) {
+                        	$datos['pass'] = sha1($datos['pass']);
+				unset($datos['pass_old']);
+                        	$datos['last_chgpwd'] = date('Y-m-d');
+		    } else {
+				unset($datos['pass']);
+				unset($datos['pass_old']);
+		    }
+
                     if($datos['nombre'] && $datos['apellido']){
                         $this->load->model("actividades_model");
                         $this->actividades_model->update_profesor($datos,$this->uri->segment(5));

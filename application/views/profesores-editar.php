@@ -1,7 +1,7 @@
                     
 <section class="page page-profile">
     <div class="panel panel-default">
-        <div class="panel-heading"><strong><span class="fa fa-plus"></span> Editar Profesor</strong></div>
+        <div class="panel-heading"><strong><span class="fa fa-plus"></span> Editar Usuario Acceso Comisión</strong></div>
         <div class="panel-body">
             <form class="form-horizontal ng-pristine ng-valid" action="<?=$baseurl?>admin/actividades/profesores/guardar/<?=$profesor->Id?>" method="post">
 
@@ -87,6 +87,7 @@
                     <label for="" class="col-sm-2">Contraseña</label>
                     <div class="col-sm-10">
                         <input type="password" class="form-control" name="pass" value="<?=$profesor->pass?>">
+                        <input type="hidden" class="form-control" name="pass_old" value="<?=$profesor->pass?>">
                     </div>
                 </div>                              
                 <button type="submit" id="btn_profesor" class="btn btn-success">Guardar Cambios</button>

@@ -1,6 +1,6 @@
                     <div class="page page-profile">
                         <div class="panel panel-default">
-                            <div class="panel-heading"><strong><span class="fa fa-group"></span> USUARIOS</strong></div>
+                            <div class="panel-heading"><strong><span class="fa fa-group"></span> USUARIOS ACCESO COMISIONES </strong></div>
                             <table class="table">
                                 <thead>
                                     <tr>
