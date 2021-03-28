@@ -1305,63 +1305,48 @@ $("#load-debtarj-form").submit(function(){
 })
 
 
-$("#edit_debtarj_form").submit(function(){
+$("#boton-deb").on("click", function(){
+        var boton = $(this).data("text");
+	if ( boton == "btnnuevo" ) {
+        	var msg = "Seguro que desea agregar este nuevo debito?";
+        	var url = "<?=$baseurl?>admin/debtarj/grabar/";
+	} else {
+        	var msg = "Seguro que desea actualizar este debito?";
+		var url = "<?=$baseurl?>admin/debtarj/regrabar/";
+	}
 
-	var url = "admin/debtarj/regrabar/";
-	var msg = "Seguro que desea modificar este debito?";
 
-        var agree = confirm(msg);
-        if(!agree){return false;}
-        $("#reg-cargando").removeClass('hidden');
-
-        var id_debito = $("#id_debito").val();
         var id_marca = $("#id_marca").val();
         var nro_tarjeta = $("#nro_tarjeta").val();
-	var largo = nro_tarjeta.length;
         var fecha_adhesion = $("#fecha_adhesion").val();
         var sid = $("#sid").val();
 
-	if ( largo < 16 ) {
-		var sigue = confirm("Seguro que el numero es tan corto?");
-		if (!sigue){return false;}
+        if ( id_marca == 1 &&  ( nro_tarjeta < 4000000000000000 || nro_tarjeta > 4999999999999999 ) ) {
+                alert ( "El nro de tarjeta no es de VISA!!!!");
+                return false;
 	}
-
-        $.post("<?=$baseurl?>"+url,{id_debito: id_debito, sid: sid, id_marca: id_marca, nro_tarjeta: nro_tarjeta, fecha_adhesion: fecha_adhesion })
-        .done(function(data){
-		alert("Debito correctamente actualizado");
-                $("#reg-cargando").addClass('hidden');
-        })
-
-        return false;
-})
-
-$("#nvo_debtarj_form").submit(function(){
-
-        var url = "admin/debtarj/grabar/";
-        var msg = "Seguro que desea agregar este nuevo debito?";
+        if ( id_marca == 2 &&  ( nro_tarjeta < 627620000000000000 || nro_tarjeta > 627620999999999999 )) {
+                alert ( "El nro de tarjeta no es de COOPEPLUS!!!!");
+                return false;
+	}
+        if ( id_marca == 3 &&  ( nro_tarjeta < 627401000000000000 || nro_tarjeta > 627401999999999999 )) {
+                alert ( "El nro de tarjeta no es de VISA!!!!");
+                return false;
+	}
 
         var agree = confirm(msg);
         if(!agree){return false;};
         $("#reg-cargando").removeClass('hidden');
 
-        var id_marca = $("#id_marca").val();
-        var nro_tarjeta = $("#nro_tarjeta").val();
-        var largo = nro_tarjeta.length;
-        var fecha_adhesion = $("#fecha_adhesion").val();
-        var sid = $("#sid").val();
+	if ( boton == "btnnuevo" ) {
+        	$("#nvo_debtarj_form").attr("action",url);
+        	$("#nvo_debtarj_form").submit();
+	} else {
+        	$("#edit_debtarj_form").attr("action",url);
+        	$("#edit_debtarj_form").submit();
+	}
 
-        if ( largo < 16 ) {
-                var sigue = confirm("Seguro que el numero es tan corto?");
-                if (!sigue){return false;};
-        }
-
-        $.post("<?=$baseurl?>"+url,{sid: sid, id_marca: id_marca, nro_tarjeta: nro_tarjeta, fecha_adhesion: fecha_adhesion })
-        .done(function(data){
-                alert("Debito correctamente guardado");
-                $("#reg-cargando").addClass('hidden');
-        })
-
-        return false;
+        return true;
 })
 
 

@@ -2337,6 +2337,7 @@ class Admin extends CI_Controller {
 			    $this->load->view('admin',$data);
 			    break;
 		    case 'regrabar':
+
 			    $datos['id'] = $this->input->post('id_debito');
 			    $datos['sid'] = $this->input->post('sid');
 			    $datos['id_marca'] = $this->input->post('id_marca');

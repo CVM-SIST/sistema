@@ -46,7 +46,7 @@
             </div>
 
         	<div class="panel-body">
-				<form class="form-horizontal ng-pristine ng-valid" id="edit_debtarj_form" >
+				<form class="form-horizontal ng-pristine ng-valid" id="edit_debtarj_form" method="post" >
 
 		                <div class="form-group col-lg-6">
                     		<label for="" class="col-sm-3">Marca Tarjeta</label>
@@ -66,7 +66,6 @@
 				           	<label for="" class="col-sm-3">Nro de Tarjeta</label>
 				    <div class="col-sm-4">
 				               	<input class="form-control" name="nro_tarjeta" id="nro_tarjeta" value="<?if ($debtarj) { echo $debtarj->nro_tarjeta; } else { echo ""; } ?>" required>
-		                                <input type="hidden" id="id_debito" value="<?if ($debtarj) { echo $debtarj->id; } else { echo '0'; }?>">
 				            </div>
 				        </div>	
 				    </div>
@@ -80,6 +79,7 @@
 				    </div>
 			        <div>
                         <input type="hidden" name="sid" id="sid" class="form-control" value="<?=$socio->Id?>">
+		        <input type="hidden" name="id_debito" id="id_debito" value="<?if ($debtarj) { echo $debtarj->id; } else { echo '0'; }?>">
 			        </div>
 
 				    <div class="clearfix"></div>

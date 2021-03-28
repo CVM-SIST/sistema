@@ -20,7 +20,7 @@
             </div>
 
         	<div class="panel-body">
-				<form class="form-horizontal ng-pristine ng-valid" id="nvo_debtarj_form" >
+				<form class="form-horizontal ng-pristine ng-valid" id="nvo_debtarj_form" method="post">
 
 		                <div class="form-group col-lg-6">
                     		<label for="" class="col-sm-3">Marca Tarjeta</label>
