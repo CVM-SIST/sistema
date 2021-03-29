@@ -843,7 +843,7 @@ class Cron extends CI_Controller {
                         $vmail->setStreamTimeoutWait(30);
                         $vmail->Debug= FALSE;
 	
-                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        $vmail->setEmailFrom('avisos_cvm@clubvillamitre.com');
                         if ($vmail->check($dirmail)) {
 				$arrsoc=array( 'Id' => $socio->sid,
 						'categoria' => $socio->categoria,

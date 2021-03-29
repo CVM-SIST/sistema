@@ -971,7 +971,7 @@ class Admin extends CI_Controller {
                         $vmail->setStreamTimeoutWait(10);
                         $vmail->Debug= FALSE;
 
-                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        $vmail->setEmailFrom('avisos_cvm@clubvillamitre.com');
                         if (!$vmail->check($dirmail)) {
                                 $data['username'] = $this->session->userdata('username');
                                 $data['rango'] = $this->session->userdata('rango');
@@ -1523,7 +1523,7 @@ class Admin extends CI_Controller {
                 	$vmail->setStreamTimeoutWait(5);
                 	$vmail->Debug= FALSE;
 
-                	$vmail->setEmailFrom('avisos@clubvillamitre.com');
+                	$vmail->setEmailFrom('avisos_cvm@clubvillamitre.com');
                 	if (!$vmail->check($dirmail)) {
                     		$data['username'] = $this->session->userdata('username');
                     		$data['rango'] = $this->session->userdata('rango');
@@ -1798,7 +1798,7 @@ class Admin extends CI_Controller {
                         $vmail->setStreamTimeoutWait(5);
                         $vmail->Debug= FALSE;
 
-                        $vmail->setEmailFrom('avisos@clubvillamitre.com');
+                        $vmail->setEmailFrom('avisos_cvm@clubvillamitre.com');
                         if (!$vmail->check($dirmail)) {
                                 $data['username'] = $this->session->userdata('username');
                                 $data['rango'] = $this->session->userdata('rango');
@@ -4305,7 +4305,7 @@ class Admin extends CI_Controller {
                 $envio = $this->general_model->get_envio_data($id);
                 if($envio){
                     $this->load->library('email');
-                    $this->email->from('avisos@clubvillamitre.com', 'Club Villa Mitre');
+                    $this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
                     $this->email->to($envio->email);
                     $this->email->subject($envio_info->titulo);
                     $this->email->message($envio_info->body);
