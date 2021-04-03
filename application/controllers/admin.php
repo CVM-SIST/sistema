@@ -1792,7 +1792,7 @@ class Admin extends CI_Controller {
 		$hoy=new DateTime(date('Y-m-d'));
 		$ult_cambio=new DateTime($datos['validmail_ts']);
 		$dias = $hoy->diff($ult_cambio)->days;
-                if ( $dirmail != $dirmail_orig || $dias > 300 ) {
+                if ( $dirmail != $dirmail_orig || ( $dias > 300 && $dirmail != '' ) ) {
                         $this->load->library('VerifyEmail');
                         $vmail = new verifyEmail();
                         $vmail->setStreamTimeoutWait(5);
