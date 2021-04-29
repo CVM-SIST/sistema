@@ -1297,10 +1297,14 @@ class Pagos_model extends CI_Model {
 	// Busco si tuvo recargo si no devuelvo false
 	if ( $dia <= 25 ) {
 		$qry = "SELECT p.id id_recargo, p.monto imp_recargo, p.monto-p.pagado neto FROM pagos p WHERE p.tutor_id = $sid AND DATE(p.generadoel) = '$fch_where"."15' AND p.tipo = 10; ";
-        $recargo = $this->db->query($qry);
+		$recargo = $this->db->query($qry);
         	if ( $recargo->num_rows() == 0 ) { return false; }
         	$neto_recargo = $recargo->row();
 		if ( $neto_recargo->neto == 0 ) { return false; }
+
+		$qry = "SELECT SUM(monto-pagado) saldo FROM pagosp WHERE p.tutor_id = $sid;" ;
+		$reg_saldo = $this->db->query($qry)->row();
+        	$saldo = $reg_saldo->saldo;
 
 		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."15' ; ";
 		
@@ -1319,8 +1323,12 @@ class Pagos_model extends CI_Model {
 				$fch_pago=$anop."-".$mesp."-".$diap;
 
 				if ( $diap < $dia ) {
-					$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
-				 	break;
+
+					// Si tiene saldo 0 o a favor entonces si anulo
+					if ( $saldo <= 0 ) {
+						$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
+				 		break;
+					}
 				}
 			
 			}
