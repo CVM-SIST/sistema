@@ -101,8 +101,8 @@
                                 background-size: 100% 100%;
                         }
                         .imagen{
-	                        margin-top:73px;
-                                margin-left: 25px;
+	                        margin-top:58px;
+                                margin-left: 10px;
                                 width: 80px;
                                 float: left;
                         }
@@ -123,9 +123,9 @@
                                 clear: both;
                         }
                         .barcode{
-                                width: 80px;
-                                margin-left: 30px;
-                                margin-bottom: 1px;
+                                width: 165px;
+                                margin-left:-55px;
+                                margin-top: 0px;
                         }
                         <?
                         break;
@@ -306,6 +306,20 @@
                         $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
 
                         ?>
+                        <div class="imagen">
+                        <?
+                                if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+                        ?>
+                                        <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+                        <?
+                        }else{
+                        ?>
+                                        <img src="<?=base_url()?>images/noPic.jpg" width="80">
+                        <?
+                        }
+                        ?>
+                        </div>
+
                         <div class="datos">
                         	<div style="font-weight:bold">
 					<div style="font-weight:bold"> <?=$apynom_2?> </div>
@@ -313,17 +327,16 @@
                         		<div style="font-weight:bold"> <?=$socio->domicilio?> </div>
 					<div style="font-weight:bold"> <?=$fecha?> </div>
                         	</div>
-                        </div>
-			<div class="barcode">
+				<div class="barcode">
                 		<?
                 			if( file_exists("images/cupones/".$cupon->Id.".png") ){
                 		?>
-                			<br>
                 			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
                 		<?
                 			}
                 		?>
-                	</div>
+                		</div>
+                        </div>
                 </div>
 
 
