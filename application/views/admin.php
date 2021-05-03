@@ -1035,6 +1035,21 @@ $("button#estad_act_excel").click(function(){
         return true;
 })
 
+$("button#btn_print_hoja").click(function(){
+        var hoja = $("input[name='hojas']:checked", "#carnets_hojas").val();
+        var com = $("#com_sel").val();
+        var foto = $("#foto_sel").val();
+        var cat = $("#cat_sel").val();
+        var carnet = $("#carnet_sel").val();
+        if ( !hoja ) {
+                alert("Debe Seleccionar una Hoja");
+                return false;
+        }
+        window.open('<?=base_url()?>imprimir/carnets/'+hoja+'/'+com+'/'+foto+'/'+cat+'/'+carnet,'','menubar=yes,toolbar=yes,width=800,height=600');
+
+        return true;
+})
+
 $("button#estad_comi_excel").click(function(){
         $("#arma_excel").val('1');
         var comision = $("#comision").val();
@@ -1106,6 +1121,11 @@ $("#comi-activ-form").submit(function(){
         $(document).on("click","#imprimir_carnet",function(){
             var id = $(this).data('id');
             window.open('<?=base_url()?>imprimir/carnet/'+id,'','menubar=yes,toolbar=yes,width=800,height=600');
+        })
+
+        $(document).on("click","#imprimir_carnets_lote",function(){
+            var id = $(this).data('id');
+            window.open('<?=base_url()?>imprimir/carnets/','','menubar=yes,toolbar=yes,width=800,height=600');
         })
 
         $(document).on("click","#imprimir_platea",function(){

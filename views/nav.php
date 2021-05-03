@@ -31,6 +31,7 @@ function is_active($uri,$actual){
             			<li><a href="<?=$_GET['baseurl']?>admin/socios/agregar"><i class="fa fa-caret-right"></i><span data-i18n="Nuevo"></span></a></li>                
             			<li><a href="<?=$_GET['baseurl']?>admin/socios/act-datos"><i class="fa fa-caret-right"></i><span data-i18n="Actualizacion Datos"></span></a></li>                
             			<li><a href="<?=$_GET['baseurl']?>admin/socios/plateas"><i class="fa fa-caret-right"></i><span data-i18n="Plateas"></span></a></li>                
+            			<li><a href="<?=$_GET['baseurl']?>admin/socios/carnets"><i class="fa fa-caret-right"></i><span data-i18n="Carnets"></span></a></li>                
         			</ul>
     			</li>         
 	<?		break;

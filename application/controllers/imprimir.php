@@ -286,6 +286,31 @@ class Imprimir extends CI_Controller {
         }
     }
 
+    public function carnets(){
+        $hoja = $this->uri->segment(3);
+        $actividad = $this->uri->segment(4);
+        $foto = $this->uri->segment(5);
+        $categoria = $this->uri->segment(6);
+        $carnet = $this->uri->segment(7);
+        $this->load->model('socios_model');
+	$socios = $this->socios_model->get_carnets($categoria, $foto, $actividad);
+        $this->load->model('pagos_model');
+        if(!$socios){die;}
+	$soc_carnets=array();
+	$cont=1;
+	foreach ( $socios as $socio ) {
+		if ( $cont >= ($hoja*5)-4 && $cont <= ($hoja*5) ) {
+                	$cupon = $this->pagos_model->get_cupon($socio->Id);
+			$monto = $this->pagos_model->get_monto_socio($socio->Id)['total'];
+			$soc_carnets[] = array('socio'=>$socio, 'cupon'=>$cupon, 'monto'=>$monto);
+		}
+		$cont++;
+	}
+	$data['socios'] = $soc_carnets;
+	$data['carnet'] = $carnet;
+        $this->load->view('imprimir-carnets-lote',$data);
+    }
+
     public function listado($listado,$id=false)
     {
         $data['listado'] = $listado;
