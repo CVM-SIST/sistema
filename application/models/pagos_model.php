@@ -1322,7 +1322,7 @@ class Pagos_model extends CI_Model {
 				$anop=substr($descr,$pos2+13,4);
 				$fch_pago=$anop."-".$mesp."-".$diap;
 
-				if ( $diap < $dia ) {
+				if ( $diap <= 15 ) {
 
 					// Si tiene saldo 0 o a favor entonces si anulo
 					if ( $saldo <= 0 ) {

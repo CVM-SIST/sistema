@@ -2050,6 +2050,7 @@ echo "suspender";
 						'descripcion' => "Recargo '.$descr_actividad.' por atraso en el pago",
 						'monto' => $recargo,
 						'tipo' => 10,
+						'ajuste' => 1
 						);
 					$this->pagos_model->insert_pago_nuevo($pago);
 					$recargos++;
