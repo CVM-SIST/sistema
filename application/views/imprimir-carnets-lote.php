@@ -323,9 +323,9 @@
                         <div class="datos">
                         	<div style="font-weight:bold">
 					<div style="font-weight:bold"> <?=$apynom_2?> </div>
-					<div style="font-weight:bold"> <?=$socio->Id?> </div>
-                        		<div style="font-weight:bold"> <?=$socio->domicilio?> </div>
-					<div style="font-weight:bold"> <?=$fecha?> </div>
+					<div style="font-weight:bold"> Socios No <?=$socio->Id?> </div>
+                        		<div style="font-weight:bold"> DNI <?=$socio->dni?> </div>
+					<div style="font-weight:bold"> Ingreso <?=$fecha?> </div>
                         	</div>
 				<div class="barcode">
                 		<?
