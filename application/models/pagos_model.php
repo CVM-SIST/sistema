@@ -698,9 +698,8 @@ class Pagos_model extends CI_Model {
     public function get_deuda_monto($sid){
       $this->db->select('p.tutor_id sid, SUM(p.monto-p.pagado) deuda');
       $this->db->where('p.estado',1);
-      $this->db->where('p.aid',0);
       $this->db->where('p.tutor_id',$sid);
-      $this->db->where('DATE_FORMAT(p.generadoel,"%Y%m") < DATE_FORMAT(CURDATE(),"%Y%m")');
+      $this->db->where('DATE_FORMAT(p.generadoel,"%Y%m") <= DATE_FORMAT(CURDATE(),"%Y%m")');
       $this->db->group_by('p.tutor_id');
       $this->db->having('SUM(p.monto-p.pagado) > 0');
       $query = $this->db->get('pagos as p');
