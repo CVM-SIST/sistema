@@ -2173,6 +2173,8 @@ echo "suspender";
                     $msg_error=$this->email->print_debugger();
                     error_log( " ----> Error de Envio:".$msg_error." \n", 3, $file_log);
 		}
+		// Agrego un sleep porque sino considera SPAM o BULK
+		sleep(5);
             }
             error_log( date('d/m/Y G:i:s').": Envio Finalizado \n", 3, $file_log);
 		// envio email de aviso a mi cuenta ahg

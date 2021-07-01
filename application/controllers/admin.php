@@ -4364,6 +4364,9 @@ class Admin extends CI_Controller {
                         $data['enviados'] = $this->general_model->get_enviados($id);
                         $data = json_encode($data);
                     }
+		
+		    // Agrego demora para que no considere al envio un SPAM / BULK
+		    sleep(5);
 
                     echo $data;
                 }else{
