@@ -806,28 +806,27 @@ class Pagos_model extends CI_Model {
     }
 
 
-    public function get_morosos($actividad=null){
+    public function get_morosos($id_act_com=null){
 
 	$solo_cta_social = 0;
 	// Cargo en la variables actividades el filtro en f() de lo que llego por parametros
-	     		if ( $actividad ) {
-				if ( $actividad == -1 ) {
-					$actividades = null;
-					$solo_cta_social = 1;
-				} else {
-					if ( $actividad > 0 ) {
-             					$this->db->where('estado','1');
-						$this->db->where('id',$actividad);
-             					$query = $this->db->get('actividades');
-	     				} else {
-             					$this->db->where('estado','1');
-             					$query = $this->db->get('actividades');
-					}
-				}
-			}
+	if ( $id_act_com == "cs" ) {
+		$actividades = null;
+		$solo_cta_social = 1;
+	} else {
+		if ( $id_act_com > 0 ) {
+			$this->db->where('estado','1');
+			$this->db->where('id',$id_act_com);
+			$query = $this->db->get('actividades');
+		} else {
+			$this->db->where('estado','1');
+			$this->db->where('comision',-$id_act_com);
+			$query = $this->db->get('actividades');
+		}
+	}
 
 	// Si vino algun parametro y el SQL no encontro nada salgo con false
-	if ( $actividad == -1 ) {
+	if ( $id_act_com == "cs" ) {
 		// Sino vino parametros  vino -1 pongo null la variable p luego tomar TODOS LOS SOCIOS de la cuota social
 		$actividades = null;
 	} else {
@@ -981,6 +980,7 @@ class Pagos_model extends CI_Model {
             $a->Id = $socio->Id;
             $a->socio = @$socio->nombre.' '.@$socio->apellido;
             $a->telefono = @$socio->telefono;
+            $a->fijocel = "F: ".@$socio->telefono." C: ".@$socio->celular;
             $a->nacimiento = @$socio->nacimiento;
 	    
                 $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
@@ -994,6 +994,49 @@ class Pagos_model extends CI_Model {
             $a->suspendido = @$socio->suspendido;
             $a->observaciones = @$socio->observaciones;
             $a->act_nombre = $this->actividades_model->get_actividad($a->aid)->nombre;
+            //@$a->deuda = $this->pagos_model->get_deuda($socio->Id);
+            //@$a->deuda = $this->pagos_model->get_ultimo_pago_actividad($a->aid,$socio->Id);
+            @$a->deuda = $this->pagos_model->get_deuda_actividad($a->aid,$socio->Id);
+            /* Modificado AHG para manejo de array en PHP 5.3 que tengo en mi maquina */
+	        $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
+            @$a->cuota = $array_ahg['total'];
+            /* Fin Modificacion AHG */
+            @$a->monto_adeudado = $this->pagos_model->get_socio_total($socio->Id);
+        }
+        return $asoc;
+    }
+
+    public function get_pagos_comision($com){
+
+	$qry = "SELECT DISTINCT aa.sid , aa.aid, a.nombre nombre_act
+		FROM actividades_asociadas aa 
+			JOIN actividades a ON aa.aid = a.id AND a.comision = $com
+		WHERE aa.estado = 1; ";
+	$asoc = $this->db->query($qry)->result();
+
+        $this->load->model("socios_model");
+        $this->load->model("debtarj_model");
+
+        foreach ($asoc as $a) {
+            $socio = $this->socios_model->get_socio($a->sid);
+            $a->Id = $socio->Id;
+            $a->socio = @$socio->nombre.' '.@$socio->apellido;
+            $a->telefono = @$socio->telefono;
+            $a->fijocel = "F: ".@$socio->telefono." C: ".@$socio->celular;
+            $a->nacimiento = @$socio->nacimiento;
+            $a->alta = @$socio->alta;
+	    
+                $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
+		if ( $debito ) {
+			$a->debito = true;
+		} else {
+			$a->debito = false;
+		}
+
+            $a->dni = @$socio->dni;
+            $a->suspendido = @$socio->suspendido;
+            $a->observaciones = @$socio->observaciones;
+            $a->act_nombre = @$socio->nombre_act;
             //@$a->deuda = $this->pagos_model->get_deuda($socio->Id);
             //@$a->deuda = $this->pagos_model->get_ultimo_pago_actividad($a->aid,$socio->Id);
             @$a->deuda = $this->pagos_model->get_deuda_actividad($a->aid,$socio->Id);
@@ -1042,6 +1085,7 @@ class Pagos_model extends CI_Model {
         $query = $this->db->get('socios');
         $socios = $query->result();
         foreach ($socios as $socio) {
+            $socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
             $socio->deuda_monto = $this->get_deuda($socio->Id);
         }
         $query->free_result();
@@ -1075,6 +1119,7 @@ class Pagos_model extends CI_Model {
         $socios = $query->result();
 
         foreach ($socios as $socio) {
+            $socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
             $socio->deuda_monto = $this->get_deuda($socio->Id);
             $socio->deuda = $this->pagos_model->get_ultimo_pago_socio($socio->Id);
             /* Modificado AHG para manejo de array en PHP 5.3 que tengo en mi maquina */
@@ -1474,6 +1519,9 @@ class Pagos_model extends CI_Model {
             $query = $this->db->get('socios');
             if($query->num_rows() == 0){ return false; }
             $socios = $query->result();
+	    foreach ($socios as $socio) {
+		$socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
+	    }
             $query->free_result();
             return $socios;
         }else{
@@ -1485,6 +1533,9 @@ class Pagos_model extends CI_Model {
             $query = $this->db->get('actividades_asociadas as aa');
             if($query->num_rows() == 0){ return false; }
             $socios = $query->result();
+	    foreach ($socios as $socio) {
+		$socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
+	    }
             $query->free_result();
             return $socios;
         }
@@ -1500,6 +1551,7 @@ class Pagos_model extends CI_Model {
             $this->db->where('estado',1);
             $query  = $this->db->get('actividades_asociadas');
             if( $query->num_rows() == 0 ){
+		$socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
                 $sin_actividades[] = $socio;
             }
         }

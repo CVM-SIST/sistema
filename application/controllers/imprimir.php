@@ -311,7 +311,7 @@ class Imprimir extends CI_Controller {
         $this->load->view('imprimir-carnets-lote',$data);
     }
 
-    public function listado($listado,$id=false)
+    public function listado($listado)
     {
         $data['listado'] = $listado;
         $this->load->view('imprimir/index',$data);
@@ -319,8 +319,10 @@ class Imprimir extends CI_Controller {
             case 'actividades':
                 $this->load->model('actividades_model');
                 $data['actividades'] = $this->actividades_model->get_actividades();
+                $data['comisiones'] = $this->actividades_model->get_comisiones();
+                $data['comision_sel'] = '';
+                $data['actividad_sel'] = '';
                 $data['render_cat'] = false;
-                if($id){ $data['render_cat'] = $id; }                
                 $this->load->view('imprimir/actividades',$data);
                 break;
 
@@ -355,14 +357,11 @@ class Imprimir extends CI_Controller {
             case 'morosos':                
                 $data['baseurl'] = base_url();                
                 $this->load->model('pagos_model');
-                $actividad = $this->input->post('morosos_activ'); 
-                if($actividad){                           
-                    	$data['morosos'] = $this->pagos_model->get_morosos($actividad);
-                }else{
-                    $data['morosos'] = false;
-                }
+                $data['morosos'] = false;
                 $this->load->model('actividades_model');
-                $data['actividad_sel'] = $actividad;
+                $data['comision_sel'] = '';
+                $data['actividad_sel'] = '';
+                $data['comisiones'] = $this->actividades_model->get_comisiones();
                 $data['actividades'] = $this->actividades_model->get_actividades();
                 $this->load->view('imprimir/morosos',$data);
                 break;
@@ -484,11 +483,50 @@ class Imprimir extends CI_Controller {
             case 'actividades':
                 $this->load->model('pagos_model');
                 $this->load->model('actividades_model');
-                $data['actividad'] = $this->actividades_model->get_actividad($id);
-                $data['profesor'] = $this->actividades_model->get_profesor($data['actividad']->profesor);
-                $data['socios'] = $this->pagos_model->get_pagos_actividad($id);
+		if ( $id > 0 ) {
+                	$data['actividad'] = $this->actividades_model->get_actividad($id);
+			$data['comision'] = '';
+			$data['comision_sel'] = '';
+			$data['actividad_sel'] = $id;
+                	$data['socios'] = $this->pagos_model->get_pagos_actividad($id);
+		} else {
+                	$data['actividad'] = '';
+			$data['comision'] = $this->actividades_model->get_comision(-$id);
+			$data['comision_sel'] = -$id;
+			$data['actividad_sel'] = '';
+                	$data['socios'] = $this->pagos_model->get_pagos_comision(-$id);
+		}
                 $this->load->view('imprimir/actividades_listado',$data);
                 break;
+
+            case 'morosos':
+                $this->load->model('pagos_model');
+                $this->load->model('actividades_model');
+		$data['filtro'] = $id;
+		if ( $id == "cs" ) {
+                        $data['actividad'] = array("id"=>"cs", "nombre"=>"Cuota Social");
+                        $data['comision'] = '';
+                        $data['comision_sel'] = '';
+                        $data['actividad_sel'] = $id;
+                        $data['morosos'] = $this->pagos_model->get_morosos($id);
+		} else {
+                	if ( $id > 0 ) {
+                        	$data['actividad'] = $this->actividades_model->get_actividad($id);
+                        	$data['comision'] = '';
+                        	$data['comision_sel'] = '';
+                        	$data['actividad_sel'] = $id;
+                        	$data['morosos'] = $this->pagos_model->get_morosos($id);
+                	} else {
+                        	$data['actividad'] = '';
+                        	$data['comision'] = $this->actividades_model->get_comision(-$id);
+                        	$data['comision_sel'] = -$id;
+                        	$data['actividad_sel'] = '';
+                        	$data['morosos'] = $this->pagos_model->get_morosos($id);
+                	}
+		}
+                $this->load->view('imprimir/morosos_listado',$data);
+                break;
+
 
             case 'profesores':
                 $this->load->model('pagos_model');
@@ -505,6 +543,7 @@ class Imprimir extends CI_Controller {
                     $data['titulo'] = "Socios Activos";
                     $data['socios'] = $socios = $this->pagos_model->get_socios_activos();
                     foreach ($socios as $socio) {
+			$socio->fijocel = "F: ".$socio->telefono." C:".$socio->celular;
                         $socio->deuda = $this->pagos_model->get_ultimo_pago_socio($socio->Id);
                         /* Modificado AHG para manejo de array en PHP 5.3 que tengo en mi maquina */
 			            $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
@@ -517,6 +556,7 @@ class Imprimir extends CI_Controller {
                     $data['titulo'] = "Socios Suspendidos";                    
                     $data['socios'] = $socios = $this->pagos_model->get_usuarios_suspendidos();
                     foreach ($socios as $socio) {
+			$socio->fijocel = "F: ".$socio->telefono." C:".$socio->celular;
                         $socio->deuda = $this->pagos_model->get_ultimo_pago_socio($socio->Id);
                         /* Modificado AHG para manejo de array en PHP 5.3 que tengo en mi maquina */
 			            $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
@@ -585,6 +625,7 @@ AHG Comentado 20170105 porque no se usa..... creo
         $data['socios'] = $this->pagos_model->get_pagos_actividad($id);
         $this->load->view('imprimir/actividades_listado',$data);    
     }
+
     public function carnet(){
         $this->load->model('socios_model');        
         $this->load->model('pagos_model');        
@@ -794,9 +835,15 @@ AHG Comentado 20170105 porque no se usa..... creo
         $this->load->model('actividades_model');
         $this->load->model('pagos_model');
 
-        $actividad = $this->actividades_model->get_actividad($id);        
-        $clientes = $this->pagos_model->get_pagos_actividad($id);        
-        $titulo = "CVM - ".$actividad->nombre." - ".date('d-m-Y');
+	if ( $id > 0 ) {
+        	$actividad = $this->actividades_model->get_actividad($id);        
+        	$clientes = $this->pagos_model->get_pagos_actividad($id);        
+        	$titulo = "CVM - ".$actividad->nombre." - ".date('d-m-Y');
+	} else {
+        	$comision = $this->actividades_model->get_comision(-$id);        
+        	$clientes = $this->pagos_model->get_pagos_comision(-$id);        
+        	$titulo = "CVM - ".$comision->descripcion." - ".date('d-m-Y');
+	}
         
         $this->load->library('PHPExcel');
         //$this->load->library('PHPExcel/IOFactory');
@@ -815,10 +862,10 @@ AHG Comentado 20170105 porque no se usa..... creo
          
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Teléfono')
-                    ->setCellValue('C1', 'DNI')
-                    ->setCellValue('D1', 'Fecha de Nacimiento')
+                    ->setCellValue('A1', 'Socio')
+                    ->setCellValue('B1', 'DNI')
+                    ->setCellValue('C1', 'Fecha de Nacimiento')
+                    ->setCellValue('D1', 'Teléfono')
                     ->setCellValue('E1', 'Fecha de Alta')                  
                     ->setCellValue('F1', 'Observaciones')                  
                     ->setCellValue('G1', 'Monto Adeudado')                  
@@ -857,11 +904,11 @@ AHG Comentado 20170105 porque no se usa..... creo
                 }
 
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->socio)
-                        ->setCellValue('B'.$cont, $cliente->telefono)
-                        ->setCellValue('C'.$cont, $cliente->dni)
-                        ->setCellValue('D'.$cont, $cliente->nacimiento)
-                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->date)))                     
+                        ->setCellValue('A'.$cont, '#'.$cliente->Id."-".$cliente->socio)
+                        ->setCellValue('B'.$cont, $cliente->dni)
+                        ->setCellValue('C'.$cont, $cliente->nacimiento)
+                        ->setCellValue('D'.$cont, $cliente->fijocel)
+                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->alta)))                     
                         ->setCellValue('F'.$cont, $cliente->observaciones)
                         ->setCellValue('G'.$cont, number_format($cliente->monto_adeudado*-1,2))
                         ->setCellValue('H'.$cont, $adeudados)                    

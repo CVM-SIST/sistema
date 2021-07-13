@@ -6,19 +6,27 @@
 }
 </style>
 <div class="pull-left">
-    <h3><?=$actividad->nombre?>: <?=count($socios)?></h3>
+	<? if( $actividad != '' ) { ?>
+		<h3><?=$actividad->nombre?>: <?=count($socios)?> socios</h3>
+	<? } else { ?>
+		<h3>Actividades de la Comisión <?=$comision->descripcion?>: <?=count($socios)?> socios</h3>
+	<? } ?>
 </div>
 <div class="pull-right hidden-print">
     <button class="btn btn-info" onclick="print()"><i class="fa fa-print"></i> Imprimir</button>
-    <a href="<?=base_url()?>imprimir/actividades_excel/<?=$actividad->Id?>" class="btn btn-success"><i class="fa fa-cloud-download"></i> Excel</a>
+	<? if( $actividad != '' ) { ?>
+    		<a href="<?=base_url()?>imprimir/actividades_excel/<?=$actividad->Id?>" class="btn btn-success"><i class="fa fa-cloud-download"></i> Excel</a>
+	<? } else { ?>
+    		<a href="<?=base_url()?>imprimir/actividades_excel/<?=-$comision->id?>" class="btn btn-success"><i class="fa fa-cloud-download"></i> Excel</a>
+	<? } ?>
 </div>
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="actividades_table">
     <thead>
         <tr>
-            <th>Nombre y Apellido</th>
             <th>Socio</th>
             <th>DNI</th>
             <th>Fecha de Nacimiento</th>            
+            <th>Telefono</th>
             <th>Observaciones</th>
             <th>Meses Adeudados</th>
             <th>Monto Adeudado</th>
@@ -32,10 +40,10 @@
     	foreach ($socios as $socio) {
     	?>
         <tr>
-            <td><?=@$socio->socio?></td>
-            <td># <?=@$socio->Id?></td>
+            <td>#<?=@$socio->Id?>-<?=@$socio->socio?></td>
             <td><?=@$socio->dni?></td>
             <td><?=@$socio->nacimiento?></td>
+            <td><?=@$socio->fijocel?></td>
             <td><?=$socio->observaciones?></td>
             <td>
                 <?

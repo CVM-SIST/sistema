@@ -50,9 +50,36 @@
             document.location.href = '<?=base_url()?>imprimir/listado/becas/'+id;
         })
 
+    	$("#act_mora_select").change(function(){
+    		var id = $(this).val();
+    		if(id == ''){return false;}
+		$("#com_mora_select").val('');
+    		$("#listado_morosos").removeClass('hidden');
+    		$("#listado_morosos").html('Generando Listado...')
+    		$.post('<?=base_url()?>imprimir/generar/morosos/'+id)
+    		.done(function(data){
+    			$("#listado_morosos").html(data);
+    			autoResize('iframe1');
+    		})
+    	})
+
+        $("#com_mora_select").change(function(){
+                var id = $(this).val();
+                if(id == ''){return false;}
+		$("#act_mora_select").val('');
+                $("#listado_morosos").removeClass('hidden');
+                $("#listado_morosos").html('Generando Listado...')
+                $.post('<?=base_url()?>imprimir/generar/morosos/'+-id)
+                .done(function(data){
+                        $("#listado_morosos").html(data);
+                        autoResize('iframe1');
+                })
+        })
+
     	$("#actividades_select").change(function(){
     		var id = $(this).val();
     		if(id == ''){return false;}
+		$("#comisiones_select").val('');
     		$("#listado_actividad").removeClass('hidden');
     		$("#listado_actividad").html('Generando Listado...')
     		$.post('<?=base_url()?>imprimir/generar/actividades/'+id)
@@ -61,6 +88,20 @@
     			autoResize('iframe1');
     		})
     	})
+
+        $("#comisiones_select").change(function(){
+                var id = $(this).val();
+                if(id == ''){return false;}
+		$("#actividades_select").val('');
+                $("#listado_actividad").removeClass('hidden');
+                $("#listado_actividad").html('Generando Listado...')
+                $.post('<?=base_url()?>imprimir/generar/actividades/'+-id)
+                .done(function(data){
+                        $("#listado_actividad").html(data);
+                        autoResize('iframe1');
+                })
+        })
+
 
         <?
         if( $this->uri->segment(2) == 'listado' && $this->uri->segment(3) == 'actividades' ){

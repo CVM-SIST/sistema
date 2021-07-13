@@ -52,7 +52,7 @@ if($socios){
         <tr>
             <td><?=$socio->nombre?> <?=$socio->apellido?></td>
             <td><?=$socio->Id?></td>
-            <td><?=$socio->telefono?></td>
+            <td><?=$socio->fijocel?></td>
             <td><?=$socio->dni?></td>
             <td><?=$socio->nacimiento?></td>
             <td><?=$socio->alta?></td>

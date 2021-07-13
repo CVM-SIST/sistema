@@ -33,7 +33,7 @@
         <tr>
             <td><?=@$socio->Id?> </td>
             <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
-            <td><?=@$socio->telefono?></td>
+            <td><?=@$socio->fijocel?></td>
             <td><?=@$socio->dni?></td>
             <td><?=@$socio->alta?></td>
             <td>
