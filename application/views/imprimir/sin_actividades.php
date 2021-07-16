@@ -17,8 +17,8 @@
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="socios_table">
     <thead>
         <tr>
-            <th>Nombre y Apellido</th>
             <th>Socio</th>
+            <th>Nombre y Apellido</th>
             <th>Teléfono</th>
             <th>DNI</th>
             <th>Fecha de Alta</th>            
@@ -32,11 +32,11 @@
     	foreach ($socios as $socio) {    	
     	?>
         <tr>
-            <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td><?=@$socio->Id?></td>
+            <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td><?=@$socio->fijocel?></td>
             <td><?=@$socio->dni?></td>
-            <td><?=@$socio->alta?></td>            
+            <td><?=date('d/m/Y',strtotime(@$socio->alta))?></td>            
             <td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$socio->Id?>" class="btn btn-warning btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>           
         </tr> 
         <?

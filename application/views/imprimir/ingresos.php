@@ -41,8 +41,8 @@
 	    		$total = $total + $ingreso->pagado;
 	    	?>
 	        <tr>
-	        	<td><?=date('Y-m-d',strtotime($ingreso->generadoel))?></td>
-	        	<td><?=date('Y-m-d H',strtotime($ingreso->pagadoel))?></td>
+	        	<td><?=date('d/m/Y',strtotime($ingreso->generadoel))?></td>
+	        	<td><?=date('d/m/Y',strtotime($ingreso->pagadoel))?></td>
 	        	<td><?=$ingreso->descripcion?></td>
 	        	<td>$ <?=$ingreso->monto?></td>
 	        	<td>$ <?=$ingreso->pagado?></td>

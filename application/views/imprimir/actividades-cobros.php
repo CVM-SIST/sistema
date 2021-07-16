@@ -82,12 +82,12 @@
 	    	$total = $total + $ingreso->pagado;
 	    	?>
 	        <tr>
-	        	<td><?=date('Y-m-d',strtotime($ingreso->generadoel))?></td>
-	        	<td><?=date('Y-m-d',strtotime($ingreso->pagadoel))?></td>
+	        	<td><?=date('d/m/Y',strtotime($ingreso->generadoel))?></td>
+	        	<td><?=date('d/m/Y',strtotime($ingreso->pagadoel))?></td>
 	        	<td>$ <?=$ingreso->pagado?></td>
 	        	<td><? if ($ingreso->tipo == 6) { echo "Seguro"; } else { echo "Actividad"; } ?> </td>	        		       
 	        	<td>#<?=$ingreso->sid?> - <?=$ingreso->socio->nombre?> <?=$ingreso->socio->apellido?></td>	        		       
-	        	<td><?=date('Y/m/d',strtotime($ingreso->socio->nacimiento))?></td>
+	        	<td><?=date('d/m/Y',strtotime($ingreso->socio->nacimiento))?></td>
 	        	<td><?=$ingreso->socio->observaciones?></td>
 	        	<td>
 					<?

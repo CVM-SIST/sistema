@@ -43,8 +43,8 @@
     <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="actividades_table">
         <thead>
             <tr>
-                <th>Nombre y Apellido</th>
                 <th>Socio</th>
+                <th>Nombre y Apellido</th>
                 <th>Teléfono</th>
                 <th>DNI</th>
                 <th>Fecha de Nacimiento</th>
@@ -59,12 +59,12 @@
         	foreach ($socios as $socio) {    	
         	?>
             <tr>
-                <td><?=@$socio->socio?></td>
                 <td># <?=@$socio->Id?></td>
+                <td><?=@$socio->socio?></td>
                 <td><?=@$socio->telefono?></td>
                 <td><?=@$socio->dni?></td>
-                <td><?=@$socio->nacimiento?></td>
-                <td><?=$socio->date?></td>
+                <td><?=date('d/m/Y',strtotime(@$socio->nacimiento))?></td>
+                <td><?=date('d/m/Y',strtotime($socio->date))?></td>
                 <td align="center">
                 	<?
                     if($socio->deuda == 0){

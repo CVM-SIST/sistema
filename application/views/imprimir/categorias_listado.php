@@ -15,8 +15,8 @@
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="categorias_table">
     <thead>
         <tr>
-            <th>Nombre y Apellido</th>
             <th>Socio</th>
+            <th>Nombre y Apellido</th>
             <th>Teléfono</th>
             <th>DNI</th>
             <th>Fecha de Alta</th>
@@ -30,11 +30,11 @@
     	foreach ($socios as $socio) {    	
     	?>
         <tr>
-            <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td># <?=@$socio->Id?></td>
+            <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td><?=@$socio->fijocel?></td>
             <td><?=@$socio->dni?></td>
-            <td><?=$socio->alta?></td>    
+            <td><?=date('d/m/Y',strtotime($socio->alta))?></td>    
             <td>
                 <? if($socio->deuda_monto < 0){ ?>
                     $ <?=$socio->deuda_monto*-1?>                

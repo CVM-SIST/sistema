@@ -796,7 +796,7 @@ AHG Comentado 20170105 porque no se usa..... creo
             }
             $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValue('A'.$cont, $cliente->Id)
-                        ->setCellValue('B'.$cont, $cliente->nombre.' '.$cliente->apellido)
+                        ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
                         ->setCellValue('C'.$cont, $cliente->telefono)
                         ->setCellValue('D'.$cont, $cliente->domicilio)
                         ->setCellValue('E'.$cont, $cliente->dni)
@@ -822,7 +822,7 @@ AHG Comentado 20170105 porque no se usa..... creo
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="'.$titulo.'.xlsx"');
         header('Cache-Control: max-age=0');
-         
+        
         $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
         $objWriter->save('php://output');
          
@@ -863,14 +863,15 @@ AHG Comentado 20170105 porque no se usa..... creo
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Socio')
-                    ->setCellValue('B1', 'DNI')
-                    ->setCellValue('C1', 'Fecha de Nacimiento')
-                    ->setCellValue('D1', 'Teléfono')
-                    ->setCellValue('E1', 'Fecha de Alta')                  
-                    ->setCellValue('F1', 'Observaciones')                  
-                    ->setCellValue('G1', 'Monto Adeudado')                  
-                    ->setCellValue('H1', 'Meses Adeudados')
-                    ->setCellValue('I1', 'Estado');                    
+                    ->setCellValue('B1', 'Apellido y Nombre')
+                    ->setCellValue('C1', 'DNI')
+                    ->setCellValue('D1', 'Fecha de Nacimiento')
+                    ->setCellValue('E1', 'Teléfono')
+                    ->setCellValue('F1', 'Fecha de Alta')                  
+                    ->setCellValue('G1', 'Observaciones')                  
+                    ->setCellValue('H1', 'Monto Adeudado')                  
+                    ->setCellValue('I1', 'Meses Adeudados')
+                    ->setCellValue('J1', 'Estado');                    
         
         $cont = 2;
         foreach ($clientes as $cliente) {
@@ -904,21 +905,22 @@ AHG Comentado 20170105 porque no se usa..... creo
                 }
 
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, '#'.$cliente->Id."-".$cliente->socio)
-                        ->setCellValue('B'.$cont, $cliente->dni)
-                        ->setCellValue('C'.$cont, $cliente->nacimiento)
-                        ->setCellValue('D'.$cont, $cliente->fijocel)
-                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->alta)))                     
-                        ->setCellValue('F'.$cont, $cliente->observaciones)
-                        ->setCellValue('G'.$cont, number_format($cliente->monto_adeudado*-1,2))
-                        ->setCellValue('H'.$cont, $adeudados)                    
-                        ->setCellValue('I'.$cont, $estado);                        
+                        ->setCellValue('A'.$cont, $cliente->Id)
+                        ->setCellValue('B'.$cont, $cliente->socio)
+                        ->setCellValue('C'.$cont, $cliente->dni)
+                        ->setCellValue('D'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
+                        ->setCellValue('E'.$cont, $cliente->fijocel)
+                        ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))                     
+                        ->setCellValue('G'.$cont, $cliente->observaciones)
+                        ->setCellValue('H'.$cont, $cliente->monto_adeudado*-1)
+                        ->setCellValue('I'.$cont, $adeudados)                    
+                        ->setCellValue('J'.$cont, $estado);                        
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','H') as $columnID) {
+        foreach(range('A','J') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
@@ -940,6 +942,76 @@ AHG Comentado 20170105 porque no se usa..... creo
     // end: setExcel
     }
 
+    public function cuentadigital_excel($fecha1='',$fecha2=''){
+        
+        $this->load->model('pagos_model');
+        if($fecha1 && $fecha2){
+		$clientes = $this->pagos_model->get_ingresos_cuentadigital($fecha1,$fecha2);
+        } else {
+		die;
+	}
+
+        $titulo = "CVM - Ingresos Cta Digital entre ".$fecha1." y ".$fecha2." - ".date('d-m-Y');
+        
+        $this->load->library('PHPExcel');
+        $this->phpexcel->getProperties()->setCreator("Club Villa Mitre")
+                                     ->setLastModifiedBy("Club Villa Mitre")
+                                     ->setTitle("Listado")
+                                     ->setSubject("Listado de Socios");
+        
+        $this->phpexcel->getActiveSheet()->getStyle('A1:F1')->getFill()->applyFromArray(
+            array(
+                'type'       => PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => 'E9E9E9'),
+            )
+        );
+         
+        // agregamos información a las celdas
+        $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'Fecha')
+                    ->setCellValue('B1', 'SID')
+                    ->setCellValue('C1', 'Nombre y Apellido')
+                    ->setCellValue('D1', 'Importe');
+        
+        $cont = 2;
+        foreach ($clientes as $cliente) {   
+
+	    if ( $cliente->socio ) {
+		$xsocio = trim($cliente->socio->nombre).", ".trim($cliente->socio->apellido);
+	    } else {
+		$xsocio = "Inexistente";
+            }
+            $this->phpexcel->setActiveSheetIndex(0)
+                        ->setCellValue('A'.$cont, date('d/m/Y', strtotime($cliente->fecha)))
+                        ->setCellValue('B'.$cont, $cliente->sid)
+                        ->setCellValue('C'.$cont, $xsocio)
+                        ->setCellValue('D'.$cont, $cliente->monto);
+                        $cont ++;
+        } 
+        // Renombramos la hoja de trabajo
+        $this->phpexcel->getActiveSheet()->setTitle('Clientes');
+         
+        foreach(range('A','D') as $columnID) {
+            $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
+                ->setAutoSize(true);
+        }
+        // configuramos el documento para que la hoja
+        // de trabajo número 0 sera la primera en mostrarse
+        // al abrir el documento
+        $this->phpexcel->setActiveSheetIndex(0);
+         
+         
+        // redireccionamos la salida al navegador del cliente (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$titulo.'.xlsx"');
+        header('Cache-Control: max-age=0');
+         
+        $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
+        $objWriter->save('php://output');
+         
+    
+    // end: setExcel
+    }
 
     public function categorias_excel($id=''){
         
@@ -967,8 +1039,8 @@ AHG Comentado 20170105 porque no se usa..... creo
          
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Socio')
+                    ->setCellValue('A1', 'Socio')
+                    ->setCellValue('B1', 'Nombre y Apellido')
                     ->setCellValue('C1', 'Teléfono')
                     ->setCellValue('D1', 'DNI')
                     ->setCellValue('E1', 'Fecha de Alta')                    
@@ -996,8 +1068,8 @@ AHG Comentado 20170105 porque no se usa..... creo
             }
 
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->nombre.' '.$cliente->apellido)
-                        ->setCellValue('B'.$cont, '# '.$cliente->Id)
+                        ->setCellValue('A'.$cont, $cliente->Id)
+                        ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
                         ->setCellValue('C'.$cont, $cliente->telefono)
                         ->setCellValue('D'.$cont, $cliente->dni)
                         ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->alta)))
@@ -1058,25 +1130,27 @@ AHG Comentado 20170105 porque no se usa..... creo
                     ->setCellValue('C1', 'Descripción')
                     ->setCellValue('D1', 'Monto')
                     ->setCellValue('E1', 'Pagado')
-                    ->setCellValue('F1', 'Socio/Tutor')                                
-                    ->setCellValue('G1', 'Observaciones');
+                    ->setCellValue('F1', 'Socio')                                
+                    ->setCellValue('G1', 'Nombre y Apellido')                                
+                    ->setCellValue('H1', 'Observaciones');
         
         $cont = 2;
         foreach ($clientes as $cliente) {        
             $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValue('A'.$cont, date('d/m/Y',strtotime($cliente->generadoel)))
                         ->setCellValue('B'.$cont, date('d/m/Y',strtotime($cliente->pagadoel)))
-                        ->setCellValue('C'.$cont, strip_tags($cliente->descripcion))
+                        ->setCellValue('C'.$cont, trim(strip_tags($cliente->descripcion)))
                         ->setCellValue('D'.$cont, $cliente->monto)
                         ->setCellValue('E'.$cont, $cliente->pagado)              
-                        ->setCellValue('F'.$cont, '#'.$cliente->sid.' - '.$cliente->socio->nombre.' '.$cliente->socio->apellido)             
-                        ->setCellValue('G'.$cont, $cliente->socio->observaciones);
+                        ->setCellValue('F'.$cont, $cliente->sid)             
+                        ->setCellValue('G'.$cont, trim($cliente->socio->nombre).' '.trim($cliente->socio->apellido))             
+                        ->setCellValue('H'.$cont, $cliente->socio->observaciones);
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','G') as $columnID) {
+        foreach(range('A','H') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
@@ -1106,14 +1180,17 @@ AHG Comentado 20170105 porque no se usa..... creo
         if($actividad != '-1'){
             $clientes = $data['ingresos'] = $this->pagos_model->get_cobros_actividad($fecha1,$fecha2,$actividad,$categoria);
             $data['actividad_s'] = $actividad;                        
+	    $actividad = $this->actividades_model->get_actividad($actividad);
+	    $xact = $actividad->nombre;
         }else{
             $clientes = $data['ingresos'] = $this->pagos_model->get_cobros_cuota($fecha1,$fecha2,$categoria);
             $data['actividad_s'] = '-1';
+	    $actividad=null;
+	    $xact = "Cuota Social";
         }
         //$clientes = $data['ingresos'] = $this->pagos_model->get_cobros_actividad($fecha1,$fecha2,$actividad,$categoria);
-        $actividad = $this->actividades_model->get_actividad($actividad);
         
-        $titulo = "CVM - Ingresos del ".date('d-m-Y',strtotime($fecha1))." al ".date('d-m-Y',strtotime($fecha2))." - ".$actividad->nombre." - ".date('d-m-Y');
+        $titulo = "CVM - Ingresos del ".date('d/m/Y',strtotime($fecha1))." al ".date('d/m/Y',strtotime($fecha2))." - ".$xact." - ".date('d/m/Y');
         
         $this->load->library('PHPExcel');
         //$this->load->library('PHPExcel/IOFactory');
@@ -1137,9 +1214,10 @@ AHG Comentado 20170105 porque no se usa..... creo
                     ->setCellValue('C1', 'Monto')
                     ->setCellValue('D1', 'Activ/Seguro')
                     ->setCellValue('E1', 'Socio')                    
-                    ->setCellValue('F1', 'Fecha de Nacimiento')
-                    ->setCellValue('G1', 'Observaciones')
-                    ->setCellValue('H1', 'Deuda');
+                    ->setCellValue('F1', 'Socio')                    
+                    ->setCellValue('G1', 'Fecha de Nacimiento')
+                    ->setCellValue('H1', 'Observaciones')
+                    ->setCellValue('I1', 'Deuda');
         
         $cont = 2;        
 
@@ -1172,7 +1250,11 @@ AHG Comentado 20170105 porque no se usa..... creo
             if($cliente->tipo == 6){                      
 		$concepto = "Seguro";
 	    } else {
-		$concepto = "Actividad";
+		if ( $xact == "Cuota Social" ) {
+			$concepto = "Cuota Social";
+		} else {
+			$concepto = "Actividad";
+		}
 	    }
 
             $this->phpexcel->setActiveSheetIndex(0)
@@ -1180,10 +1262,11 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('B'.$cont, date('d/m/Y',strtotime($cliente->pagadoel)))
                         ->setCellValue('C'.$cont, $cliente->pagado)
                         ->setCellValue('D'.$cont, $concepto)              
-                        ->setCellValue('E'.$cont, '#'.$cliente->sid.' '.$cliente->socio->nombre.' '.$cliente->socio->apellido)              
-                        ->setCellValue('F'.$cont, $cliente->socio->nacimiento)
-                        ->setCellValue('G'.$cont, $cliente->socio->observaciones)
-                        ->setCellValue('H'.$cont, $deuda);                     
+                        ->setCellValue('E'.$cont, $cliente->sid)
+                        ->setCellValue('F'.$cont, trim($cliente->socio->nombre).' '.trim($cliente->socio->apellido))
+                        ->setCellValue('G'.$cont, date('d/m/Y',strtotime($cliente->socio->nacimiento)))
+                        ->setCellValue('H'.$cont, $cliente->socio->observaciones)
+                        ->setCellValue('I'.$cont, $deuda);                     
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
@@ -1269,9 +1352,9 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('F'.$cont, $cliente['actividad'])
                         ->setCellValue('G'.$cont, $xestado)
                         ->setCellValue('H'.$cont, $cliente['deuda_cuota']*-1)
-                        ->setCellValue('I'.$cont, $cliente['gen_cuota'])
+                        ->setCellValue('I'.$cont, date('d/m/Y',strtotime($cliente['gen_cuota'])))
                         ->setCellValue('J'.$cont, $cliente['deuda_activ']*-1)
-                        ->setCellValue('K'.$cont, $cliente['gen_activ']);                       
+                        ->setCellValue('K'.$cont, date('d/m/Y',strtotime($cliente['gen_activ'])));                       
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
@@ -1330,8 +1413,8 @@ AHG Comentado 20170105 porque no se usa..... creo
 
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Socio')
+                    ->setCellValue('A1', 'Socio')
+                    ->setCellValue('B1', 'Nombre y Apellido')
                     ->setCellValue('C1', 'Teléfono')
                     ->setCellValue('D1', 'DNI')
                     ->setCellValue('E1', 'Fecha de Nacimiento')
@@ -1346,12 +1429,12 @@ AHG Comentado 20170105 porque no se usa..... creo
             $deuda = "No";
         }
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->socio)
-                        ->setCellValue('B'.$cont, $cliente->Id)  
+                        ->setCellValue('A'.$cont, $cliente->Id)  
+                        ->setCellValue('B'.$cont, $cliente->socio)
                         ->setCellValue('C'.$cont, $cliente->telefono)  
                         ->setCellValue('D'.$cont, $cliente->dni)  
-                        ->setCellValue('E'.$cont, $cliente->nacimiento)  
-                        ->setCellValue('F'.$cont, $cliente->date)  
+                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
+                        ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->date)))
                         ->setCellValue('G'.$cont, $deuda);
                         $cont ++;
         } 
@@ -1487,8 +1570,8 @@ AHG Comentado 20170105 porque no se usa..... creo
 
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Socio')
+                    ->setCellValue('A1', 'Socio')
+                    ->setCellValue('B1', 'Nombre y Apellido')
                     ->setCellValue('C1', 'Teléfono')
                     ->setCellValue('D1', 'DNI')
                     ->setCellValue('E1', 'Fecha de Nacimiento')
@@ -1498,12 +1581,12 @@ AHG Comentado 20170105 porque no se usa..... creo
         $cont = 2;
         foreach ($clientes as $cliente) {            
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->nombre.' '.$cliente->apellido)
-                        ->setCellValue('B'.$cont, $cliente->Id)  
+                        ->setCellValue('A'.$cont, $cliente->Id)  
+                        ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
                         ->setCellValue('C'.$cont, $cliente->telefono)  
                         ->setCellValue('D'.$cont, $cliente->dni)  
-                        ->setCellValue('E'.$cont, $cliente->nacimiento)  
-                        ->setCellValue('F'.$cont, $cliente->alta)  
+                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
+                        ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
                         ->setCellValue('G'.$cont, $cliente->descuento.'%');
                         $cont ++;
         } 
@@ -1617,8 +1700,8 @@ AHG Comentado 20170105 porque no se usa..... creo
 
         // agregamos información a las celdas
         $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'Nombre y Apellido')
-                    ->setCellValue('B1', 'Socio')
+                    ->setCellValue('A1', 'Socio')
+                    ->setCellValue('B1', 'Nombre y Apellido')
                     ->setCellValue('C1', 'Teléfono')
                     ->setCellValue('D1', 'DNI')
                     ->setCellValue('E1', 'Fecha de Nacimiento')
@@ -1627,12 +1710,12 @@ AHG Comentado 20170105 porque no se usa..... creo
         $cont = 2;
         foreach ($clientes as $cliente) {            
             $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValue('A'.$cont, $cliente->nombre.' '.$cliente->apellido)
-                        ->setCellValue('B'.$cont, $cliente->Id)  
+                        ->setCellValue('A'.$cont, $cliente->Id)  
+                        ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
                         ->setCellValue('C'.$cont, $cliente->telefono)  
                         ->setCellValue('D'.$cont, $cliente->dni)  
-                        ->setCellValue('E'.$cont, $cliente->nacimiento)  
-                        ->setCellValue('F'.$cont, $cliente->alta);                        
+                        ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
+                        ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)));                        
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo

@@ -35,7 +35,7 @@
             <td><?=@$socio->apellido?> <?=@$socio->nombre?> </td>
             <td><?=@$socio->fijocel?></td>
             <td><?=@$socio->dni?></td>
-            <td><?=@$socio->alta?></td>
+            <td><?=date('d/m/Y',strtotime(@$socio->alta))?></td>
             <td>
                 <? if($socio->deuda_monto < 0){ ?>
                     $ <?=$socio->deuda_monto*-1?>                

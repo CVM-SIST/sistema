@@ -65,7 +65,7 @@
 		        	<td><?=$ingreso['actividad']?></td>
 		        	<td><?=$xestado?></td>
 		        	<td>$ <?=$ingreso['deuda_cuota']*-1?></td>			        	
-		        	<td><?=$ingreso['gen_cuota']?></td>			        	
+		        	<td><?=date('d/m/Y',strtotime($ingreso['gen_cuota']))?></td>			        	
 		        	<td>$ <?=$ingreso['deuda_activ']*-1?></td>			        	
 		        	<td><?=$ingreso['gen_activ']?></td>			        	
 		        	<td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$ingreso['sid']?>" class="btn btn-warning btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>	        

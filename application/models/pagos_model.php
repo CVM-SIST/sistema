@@ -982,6 +982,7 @@ class Pagos_model extends CI_Model {
             $a->telefono = @$socio->telefono;
             $a->fijocel = "F: ".@$socio->telefono." C: ".@$socio->celular;
             $a->nacimiento = @$socio->nacimiento;
+            $a->alta = @$socio->alta;
 	    
                 $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
 		if ( $debito ) {

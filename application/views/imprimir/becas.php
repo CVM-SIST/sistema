@@ -34,8 +34,8 @@ if($socios){
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="socios_table">
     <thead>
         <tr>
-            <th>Nombre y Apellido</th>
             <th>Socio</th>
+            <th>Nombre y Apellido</th>
             <th>Teléfono</th>
             <th>DNI</th>
             <th>Fecha de Nacimiento</th>
@@ -50,12 +50,12 @@ if($socios){
     	foreach ($socios as $socio) {    	
     	?>
         <tr>
-            <td><?=$socio->nombre?> <?=$socio->apellido?></td>
             <td><?=$socio->Id?></td>
+            <td><?=$socio->nombre?> <?=$socio->apellido?></td>
             <td><?=$socio->fijocel?></td>
             <td><?=$socio->dni?></td>
-            <td><?=$socio->nacimiento?></td>
-            <td><?=$socio->alta?></td>
+            <td align="center"><?=date('d/m/Y',strtotime($socio->nacimiento))?></td>
+            <td align="center"><?=date('d/m/Y',strtotime($socio->alta))?></td>
             <td><?=$socio->descuento?><? if ( $socio->monto_porcentaje == 0 ) { echo '$'; } else { echo '%'; } ?></td>
             <td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$socio->Id?>" class="btn btn-info btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>
         </tr>

@@ -42,7 +42,7 @@
         <tr>
             <td>#<?=@$socio->Id?>-<?=@$socio->socio?></td>
             <td><?=@$socio->dni?></td>
-            <td><?=@$socio->nacimiento?></td>
+            <td><?=date('d/m/Y',strtotime(@$socio->date))?></td>
             <td><?=@$socio->fijocel?></td>
             <td><?=$socio->observaciones?></td>
             <td>
@@ -74,7 +74,7 @@
                 }                
                 ?>
             </td>
-            <td>$ <?=number_format($socio->monto_adeudado*-1,2)?></td>
+            <td align="right">$ <?=number_format($socio->monto_adeudado*-1,2)?></td>
             <td><? if($socio->suspendido == 1){ echo '<label class="label label-danger"><i class="fa fa-warning"></i> SUSPENDIDO</label>'; }else{ echo '<label class="label label-success"><i class="fa fa-check"></i> ACTIVO</label>'; } ?></td>
             <td> <?if ($socio->debito) {echo "Tiene Debito Tarj";} else {echo "Efectivo";} ?> </td>
             <td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$socio->Id?>" class="btn btn-warning btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>
