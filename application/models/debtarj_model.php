@@ -398,11 +398,11 @@ class Debtarj_model extends CI_Model {
         return $debitos;
     }
 
-    public function get_debitos_by_periodo($periodo)
+    public function get_debitos_by_periodo($periodo, $estado=1)
     {
         $qry="SELECT sdg.fecha_debito, sdg.fecha_acreditacion, sdt.id_marca, sdt.sid, sdt.nro_tarjeta, sdt.ult_periodo_generado, sdt.ult_fecha_generacion, sd.*
                 FROM socios_debitos_gen sdg	
-			JOIN socios_debitos sd ON sdg.id = sd.id_cabecera AND sd.estado = 1
+			JOIN socios_debitos sd ON sdg.id = sd.id_cabecera AND sd.estado = $estado
                         JOIN socios_debito_tarj sdt ON sd.id_debito = sdt.id 
                 WHERE sdg.periodo = $periodo AND sdg.estado = 1; ";
         $debitos = $this->db->query($qry)->result();

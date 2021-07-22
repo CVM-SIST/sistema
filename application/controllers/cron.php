@@ -1005,19 +1005,60 @@ class Cron extends CI_Controller {
         mail('cvm.agonzalez@gmail.com', "El proceso de Aviso de rechazos de debitos termino correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de aviso de rechazos finalizó correctamente ".date('Y-m-d G:i:s')."\n".$aviso_mail);
 
     }
-    public function debitos_tarjetas($xperiodo, $log) {
+    public function imputa_debitos_tarjetas() {
+        if ($this->uri->segment(3)) {
+                $xhoy = $this->uri->segment(3);
+        } else {
+                $xhoy=date('Y-m-d');
+        }
+
+        echo $xhoy;
+
+        // Periodo y fechas del proceso.....
+        $xanio=date('Y', strtotime($xhoy));
+        $xmes=date('m', strtotime($xhoy));
+        $xperiodo=date('Ym', strtotime($xhoy));
+        $xahora=date('Y-m-d G:i:s', strtotime($xhoy));
+        $xlim1=date('Y-m-',strtotime($xhoy)).'25';
+        $xlim2=date('Y-m-t', strtotime($xhoy));
+
+        //log
+        $file = './application/logs/facturacion-'.$xanio.'-'.$xmes.'.log';
+        $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';
+        if( !file_exists($file) ){
+            echo "creo";
+            $log = fopen($file,'w');
+            $col = fopen($file_col,'w');
+        }else{
+            echo "existe";
+            $log = fopen($file,'a');
+            $col = fopen($file_col,'a');
+        }
+
+    	$this->load->model("pagos_model");
+        $this->load->model("socios_model");
+        $this->load->model("debtarj_model");
+        $this->load->model("tarjeta_model");
+
+
+	// Paso estado a trabajar por excepcion (10) para reimputaciones puntuales
+	$debitos=$this->debitos_tarjetas($xperiodo, $log, 10); 
+    }
+
+    public function debitos_tarjetas($xperiodo, $log, $estado=1) {
 
 		$anio=substr($xperiodo,0,4);
         	$mes=substr($xperiodo,4,2);
         	$xhoy=date('Y-m-d', strtotime($anio.'-'.$mes.'-01'));
 		
 		$this->load->model("debtarj_model");
-		$debitos=$this->debtarj_model->get_debitos_by_periodo($xperiodo);
+		$debitos=$this->debtarj_model->get_debitos_by_periodo($xperiodo, $estado);
 
 		$cant=0;
 		$totdeb=0;
 
 		foreach ( $debitos as $debito ) {
+
 
 			$id_debito = $debito->id_debito;
 			$fecha_debito = $debito->fecha_debito;
