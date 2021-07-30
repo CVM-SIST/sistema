@@ -224,6 +224,23 @@ class Debtarj_model extends CI_Model {
         return $debtarj;
     }
 
+    public function get_debtarj_by_cambio($nro_renglon, $periodo, $id_marca)
+    {
+        $qry="SELECT sdt.*
+                FROM socios_debitos_gen sdg
+                        JOIN socios_debitos sd ON sdg.id = sd.id_cabecera AND sd.nro_renglon = $nro_renglon
+                        JOIN socios_debito_tarj sdt ON sd.id_debito = sdt.id 
+                        JOIN socios s ON sdt.sid = s.Id 
+                WHERE sdg.id_marca = $id_marca AND sdg.estado  = 1 AND sdg.periodo = $periodo; ";
+        $debtarj = $this->db->query($qry)->result();
+        if ($debtarj) {
+                return $debtarj;
+        } else {
+                return FALSE;
+        }
+
+    }
+
     public function get_debtarj_by_sid_tarjeta($sid, $id_marca, $nro_tarjeta)
     {
         $this->db->where('sid', $sid);

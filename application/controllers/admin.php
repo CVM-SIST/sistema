@@ -274,6 +274,7 @@ class Admin extends CI_Controller {
 // Recorrer nuestro array, mostrar el código fuente HTML como tal y mostrar tambíen los números de línea.
 		$cont=0;
 		$serial=0;
+		$reng=0;
 		$total=0;
 		foreach ($lineas as $num_linea => $linea) {
 			if ( $cont++ > 3 ) {
@@ -301,11 +302,23 @@ class Admin extends CI_Controller {
 				$importe=$campos[3];
 				$apynom=$campos[2];
 				$mensaje=$campos[4];
+					
+				$reng++;
 
 
 				if ( trim($mensaje) == "DEBITO EXITOSO" ||  trim(substr($mensaje,0,15)) == "DEBITO ACEPTADO" ) {
 					$by=array("id_marca"=>$id_marca, "nro_tarjeta"=>$nro_tarjeta);
 					$debtarj=$this->debtarj_model->get_debtarj_by($by);
+					
+					// Cambio el numero de tarjeta
+					if ( !$debtarj && trim(substr($mensaje,0,15)) == "DEBITO ACEPTADO" ) {
+						$debtarj=$this->debtarj_model->get_debtarj_by_cambio($reng, $periodo, $id_marca);
+						if ( !$debtarj ) {
+							echo "NO PUDE ENCONTRAR EL CAMBIO DE TARJETA";
+						}  else {
+							echo "cambio encontrado";
+						}
+					}
 
 					foreach ( $debtarj as $debtj) {
 						if ( $debtj ) {
