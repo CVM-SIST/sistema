@@ -823,27 +823,19 @@ class Admin extends CI_Controller {
 
             **/
 
-            case 'carnets-do':
+            case 'carnets-buscar':
+                $mail = $this->uri->segment(4);
+                $categoria = $this->uri->segment(4);
+                $foto = $this->uri->segment(5);
+                $actividad = $this->uri->segment(6);
+                $impresion = $this->uri->segment(7);
 		$data['baseurl'] = base_url();
 		$data['username'] = $this->session->userdata('username');
 		$data['rango'] = $this->session->userdata('rango');
-		$categoria = $this->input->post('categoria');
-		$foto = $this->input->post('foto');
-		$comision = $this->input->post('comision');
-		$carnet = $this->input->post('carnet');
-                $this->load->model('general_model');
-                $this->load->model('comisiones_model');
-		$data['categorias']=$this->general_model->get_cats();
-                $data['comisiones'] = $this->comisiones_model->get_comisiones();
                 $this->load->model('socios_model');
-		$data['carnets'] = $this->socios_model->get_carnets($categoria, $foto, $comision);
-		$data['cat_sel'] = $categoria;
-		$data['foto_sel'] = $foto;
-		$data['com_sel'] = $comision;
-		$data['carnet_sel'] = $carnet;
-                $data['section'] = 'imprimir-carnets';
-                $this->load->view('admin',$data);
-		break;
+                $carnets = $this->socios_model->get_carnets($categoria, $foto, $actividad, $impresion);
+                echo json_encode($carnets);
+                break;
             case 'carnets':
 		$data['baseurl'] = base_url();
 		$data['username'] = $this->session->userdata('username');

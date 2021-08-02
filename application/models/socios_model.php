@@ -62,42 +62,36 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		return $socios;
 	    }
 
-    public function get_carnets($categoria, $foto, $comision)
+    public function imprimo_carnet($sid)
     {
-	if ( $comision > 0 ) {
-		$query="DROP TEMPORARY TABLE IF EXISTS tmp_socios_activ;";
-        	$this->db->query($query);
-		$query="CREATE TEMPORARY TABLE tmp_socios_activ
-			SELECT DISTINCT aa.sid sid 
-			FROM actividades_asociadas aa
-				JOIN actividades a ON aa.aid = a.Id AND a.comision = $comision
-			WHERE aa.estado = 1; ";
-        	$this->db->query($query);
-        }
-	if ( $comision == -1 ) {
-		$query="DROP TEMPORARY TABLE IF EXISTS tmp_socios_activ; ";
-        	$this->db->query($query);
-		$query="CREATE TEMPORARY TABLE tmp_socios_activ
-			SELECT DISTINCT s.Id sid 
-			FROM socios s
-				LEFT JOIN actividades_asociadas aa ON s.Id = aa.sid AND aa.estado = 1
-			WHERE s.suspendido = 0 AND aa.sid IS NULL; ";
-        	$this->db->query($query);
-	}
-	$query="SELECT s.* FROM socios s  ";
-	if ( $comision == -1 || $comision > 0 ) {
-		$query .= "JOIN tmp_socios_activ sa ON ( s.Id = sa.sid ) ";
-	}
-	$query .= "WHERE s.suspendido = 0  "; 
+	$query="REPLACE INTO carnets VALUES( $sid, NOW() ); ";
+        $this->db->query($query); 
+    }
+
+    public function get_carnets($categoria, $foto, $actividad, $impresion)
+    {
+	$query="SELECT s.Id sid, s.socio_n, s.apellido, s.nombre, s.dni, s.alta, s.Id,
+			 IFNULL(c.ult_impresion,0 ) ult_impresion, DATEDIFF(NOW(), c.ult_impresion) dias_ultimp
+		FROM socios s 
+			LEFT JOIN actividades_asociadas aa ON ( s.id = aa.sid AND aa.estado = 1 ) 
+			LEFT JOIN carnets c ON ( s.Id = c.sid ) 
+		WHERE s.suspendido = 0 "; 
 	if ( $categoria > 0 ) {
 		$query .= " AND s.categoria = $categoria ";
+	}
+	if ( $actividad == -1 ) {
+		$query .= " AND aa.sid IS NULL ";
+	}
+	if ( $actividad > 0 ) {
+		$query .= " AND aa.aid = $actividad AND aa.sid = s.Id ";
 	}
 	$query .= "; ";
         $result = $this->db->query($query)->result(); 
 	if ( $foto == "SI" || $foto == "NO" ) {
+        	$this->load->model('general_model');
 		$result_new = array();
 		foreach ( $result as $reg ) {
-        		if (file_exists( BASEPATH."../images/socios/".$reg->Id.".jpg" )){
+        		if (file_exists( BASEPATH."../images/socios/".$reg->sid.".jpg" )){
 				if ( $foto == "SI" ) {
 					$result_new[] = $reg;
 				}
@@ -105,6 +99,18 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 				if ( $foto == "NO" ) {
 					$result_new[] = $reg;
 				}
+			}
+		}
+		$result = $result_new;
+	}
+	if ( $impresion == -1 || $impresion == 2 ) {
+		$result_new = array();
+		foreach ( $result as $reg ) {
+			if ( $impresion == -1 && $reg->ult_impresion == 0 ) {
+				$result_new[] = $reg;
+			}
+			if ( $impresion == 2 && $reg->dias_ultimp > 365 ) {
+				$result_new[] = $reg;
 			}
 		}
 		$result = $result_new;

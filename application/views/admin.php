@@ -1035,6 +1035,56 @@ $("button#estad_act_excel").click(function(){
         return true;
 })
 
+var carnets ;
+var carnet_visible = 0 ;
+var carnets_total = 0 ;
+
+$("#carnet_print").click(function(){
+        window.open('<?=base_url()?>imprimir/carnet_plastico/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+        return true;
+})
+
+$("#carnet_print_fte").click(function(){
+        var tipo_carnet = $("#carnet").val();
+        window.open('<?=base_url()?>imprimir/carnet_plastico_frente/'+tipo_carnet,'','menubar=yes,toolbar=yes,width=800,height=600');
+        return true;
+})
+
+$("#carnet_prox").click(function(){
+        var prox = carnet_visible + 1;
+	if ( carnet_visible < carnets_total ) {
+		$("#nxm").html('Carnet '+prox+' de '+carnets_total+' carnets a imprimir');
+		$("#carnet_data").html("<div class='nap' > "+carnets[prox].Id +"</div> <div class='nap' >"+ carnets[prox].apellido +"</div> <div class='nap' >"+ carnets[prox].nombre +" </div>" );
+		carnet_visible =  prox;
+	}
+})
+
+$("button#btn_carnet_buscar").click(function(){
+        var comision = $("#comision").val();
+        var foto = $("#foto").val();
+        var categoria = $("#categoria").val();
+        var impresion = $("#impresion").val();
+        var tipo_carnet = $("#carnet").val();
+	if ( tipo_carnet = 1 ) { fte='<?=$baseurl?>/images/carnet-frente-new.png';  dor='<?=$baseurl?>/images/carnet-dorso-new.png';  }
+	if ( tipo_carnet = 2 ) { fte='<?=$baseurl?>/images/Prensa_Frente_300.jpg';  dor='<?=$baseurl?>/images/Prensa_Dorso_300.jpg';  }
+	if ( tipo_carnet = 3 ) { fte='<?=$baseurl?>/images/Comercio_Frente.jpg';  dor='<?=$baseurl?>/images/Comercio_Dorso.jpg';  }
+	if ( tipo_carnet = 4 ) { fte='<?=$baseurl?>/images/VMRacing_Frente.jpg';  dor='<?=$baseurl?>/images/VMRacing_Dorso.jpg';  }
+	if ( tipo_carnet = 5 ) { fte='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';  dor='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';  }
+	carnet_visible = 0 ;
+      	$('#plas_frente').css('background-image', 'url('+fte+')');
+      	$('#plas_dorso').css('background-image', 'url('+dor+')');
+	$.get("<?=$baseurl?>admin/socios/carnets-buscar/"+categoria+"/"+foto+"/"+comision+"/"+impresion,function(data){
+		if ( data ) {
+			var js_carnets = $.parseJSON(data);
+                        carnets = Object.values(js_carnets);
+                        carnets_total = carnets.length;
+			$("#nxm").html('Carnet 1 de '+carnets_total+' carnets a imprimir');
+			$("#carnet_data").html("<div class='nap' > "+carnets[carnet_visible].Id +"</div> <div class='nap' >"+ carnets[carnet_visible].apellido +"</div> <div class='nap' "+ carnets[carnet_visible].nombre +" </div>" );
+			return true;
+		}
+	})
+
+});
 $("button#btn_print_hoja").click(function(){
         var hoja = $("input[name='hojas']:checked", "#carnets_hojas").val();
         var com = $("#com_sel").val();

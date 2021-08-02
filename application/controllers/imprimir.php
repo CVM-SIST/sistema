@@ -10,6 +10,7 @@ class Imprimir extends CI_Controller {
         parent::__construct();
         $this->load->library(array('session'));
         $this->load->helper(array('url'));        
+        include(BASEPATH."../application/libraries/phpqrcode/qrlib.php");
         if(!$this->session->userdata('is_logued_in')){          
             redirect(base_url().'admin');
         }              
@@ -676,6 +677,110 @@ AHG Comentado 20170105 porque no se usa..... creo
         $this->load->view('imprimir-platea',$data);
     }
 
+    public function carnet_plastico_frente($tipo_carnet){
+        $data['tipo_carnet'] = $tipo_carnet;
+        $this->load->view('imprimir-plastico-frente',$data);
+
+ 	$this -> load -> library("FPDF/fpdf_card");
+
+ 	$card = new FPDF_Card();
+
+ 	// IMAGEN
+	switch ( $tipo_carnet ) {
+
+                        case 1:
+                                $logo=BASEPATH."../images/carnet-frente-new.png";
+                                break;
+                        // Prensa
+                        case 2:
+                                $logo=BASEPATH."../images/Prensa_Dorso_300.jpg";
+                                break;
+                        // Comercio
+                        case 3:
+                                $logo=BASEPATH."../images/Comercio_Dorso.jpg";
+                                break;
+                        // VM Racing
+                        case 4:
+                                $logo=BASEPATH."../images/VMRacing_Dorso.jpg";
+                                break;
+                        // Credencial Plastico
+                        case 5:
+                                $logo=BASEPATH."../images/Plastico_2021_Dorso.jpg";
+                                break;
+                        // Clasico Papel
+                        default:
+                                $logo=BASEPATH."../images/carnet-frente-new.png";
+                                break;
+	}
+ 	$card->Image($logo, 0, 0, 86, 54);
+
+	// OUTPUT.
+	$card->Output("I", "card.pdf", true);
+	exit;
+    }
+
+    public function carnet_plastico($sid){
+
+        if(!$sid){die;}
+
+        $this->load->model('socios_model');
+        $this->load->model('pagos_model');
+	$socio = $this->socios_model->get_socio($sid);
+	$cupon = $this->pagos_model->get_cupon($sid);
+	$monto = $this->pagos_model->get_monto_socio($sid)['total'];
+
+
+ 	$this -> load -> library("FPDF/fpdf_card");
+
+ 	$card = new FPDF_Card();
+
+	// DATOS SOCIO
+ 	// FOTO
+	if(file_exists( BASEPATH."../images/socios/".$socio->Id.".jpg" )){
+		$imagen = BASEPATH."../images/socios/".$socio->Id.".jpg";
+ 		$card->Image($imagen, 2, 5, 22, 22);
+
+	}
+
+ 	// DATOS
+	$card->addText( 28, 10, $socio->nombre, 'B', 10);
+	$card->addText( 28, 15, $socio->apellido, 'B', 10);
+	$card->Line( 28, 18, 80, 18);
+	$card->addText( 28, 22, 'Nro Socio: ', '', 8);
+	$card->addText( 43, 22, number_format($socio->Id, 0, '', '.'),  'B', 8);
+	$card->Line( 28, 25, 80, 25);
+	$card->addText( 28, 30, 'DNI: ', '', 8);
+	$card->addText( 43, 30, number_format($socio->dni, 0, '', '.'), 'B', 8);
+
+	// PIE CARNET
+ 	// LOGO CLUB
+	$logo=BASEPATH."../images/g1.jpg";
+ 	$card->Image($logo, 2, 35, 15, 15);
+
+	if( file_exists(BASEPATH."../images/cupones/".$cupon->Id.".png") ){
+		$barra = BASEPATH."../images/cupones/".$cupon->Id.".png";
+ 		$card->Image($barra, 22, 35, 40, 15);
+	}
+
+	$socio->dni;
+        QRcode::png($socio->dni,BASEPATH."../images/temp/QR_".$socio->dni.".png",QR_ECLEVEL_L,10,2);
+        $qr=BASEPATH."../images/temp/QR_".$socio->dni.".png";
+
+	if( file_exists($qr) ){
+ 		$card->Image($qr, 68, 35, 15, 15);
+	}
+
+	// Meto registro en carnets
+	$this->socios_model->imprimo_carnet($sid);
+
+	// OUTPUT.
+	$card->Output("I", "card.pdf", true);
+	exit;
+
+/*
+        $this->load->view('imprimir-plastico-datos2',$data);
+*/
+    }
     function cuentadigital($sid, $nombre, $precio, $venc=null) 
     {
         $this->config->load("cuentadigital");
