@@ -1040,7 +1040,12 @@ var carnet_visible = 0 ;
 var carnets_total = 0 ;
 
 $("#carnet_print").click(function(){
-        window.open('<?=base_url()?>imprimir/carnet_plastico/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+        var tipo_carnet = $("#carnet").val();
+	if ( tipo_carnet == 5 ) { 
+        	window.open('<?=base_url()?>imprimir/carnet_plastico/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+	} else {
+        	window.open('<?=base_url()?>imprimir/carnet/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+	}
         return true;
 })
 
@@ -1065,14 +1070,19 @@ $("button#btn_carnet_buscar").click(function(){
         var categoria = $("#categoria").val();
         var impresion = $("#impresion").val();
         var tipo_carnet = $("#carnet").val();
-	if ( tipo_carnet = 1 ) { fte='<?=$baseurl?>/images/carnet-frente-new.png';  dor='<?=$baseurl?>/images/carnet-dorso-new.png';  }
-	if ( tipo_carnet = 2 ) { fte='<?=$baseurl?>/images/Prensa_Frente_300.jpg';  dor='<?=$baseurl?>/images/Prensa_Dorso_300.jpg';  }
-	if ( tipo_carnet = 3 ) { fte='<?=$baseurl?>/images/Comercio_Frente.jpg';  dor='<?=$baseurl?>/images/Comercio_Dorso.jpg';  }
-	if ( tipo_carnet = 4 ) { fte='<?=$baseurl?>/images/VMRacing_Frente.jpg';  dor='<?=$baseurl?>/images/VMRacing_Dorso.jpg';  }
-	if ( tipo_carnet = 5 ) { fte='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';  dor='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';  }
-	carnet_visible = 0 ;
+
+	if ( tipo_carnet == 1 ) { fte='<?=$baseurl?>/images/carnet-frente-new.png';  }
+	if ( tipo_carnet == 2 ) { fte='<?=$baseurl?>/images/Prensa_Dorso_300.jpg';  }
+	if ( tipo_carnet == 3 ) { fte='<?=$baseurl?>/images/Comercio_Dorso.jpg';  }
+	if ( tipo_carnet == 4 ) { fte='<?=$baseurl?>/images/VMRacing_Dorso.jpg';  }
+	if ( tipo_carnet == 5 ) { fte='<?=$baseurl?>/images/Plastico_2021_Dorso.jpg'; }
+	dor='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';
+
+      	$('#ver_plastico').css('display', 'block');
       	$('#plas_frente').css('background-image', 'url('+fte+')');
-      	$('#plas_dorso').css('background-image', 'url('+dor+')');
+	$('#plas_dorso').css('background-image', 'url('+dor+')');
+
+	carnet_visible = 0 ;
 	$.get("<?=$baseurl?>admin/socios/carnets-buscar/"+categoria+"/"+foto+"/"+comision+"/"+impresion,function(data){
 		if ( data ) {
 			var js_carnets = $.parseJSON(data);

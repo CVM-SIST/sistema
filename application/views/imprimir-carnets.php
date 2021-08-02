@@ -147,10 +147,10 @@
 
                 <button type="submit" id="btn_carnet_buscar" class="btn btn-success">Buscar Socios</button>
 
-		<div>
-                        <div class="cred_frente">
+		<div id="ver_plastico" style="display: none">
+                        <div class="cred_frente" id="plas_frente">
                         </div>
-                        <div class="cred_dorso">
+                        <div class="cred_dorso" id="plas_dorso">
                                 <div class="datos" id="carnet_data" >
                                 </div>
                                 <div class="imagen">
@@ -168,67 +168,7 @@
 		</div>
 
 
-            </form>
-	<? if ( $carnets ) { 
-		if ( $carnet_sel != 5 ) { ?>
-            		<form class="form-horizontal ng-pristine ng-valid" id="carnets_hojas" method="post">
-				<br> <br>
-                		<div class="form-group">
-                    		<label for="" class="col-sm-2" style="font-weight:bold" align="center"><b>Carnets para imprimir <?=count($carnets)?></b></label>
-					<input type="hidden" name="cat_sel" id="cat_sel" value="<?=$cat_sel?>">                                
-					<input type="hidden" name="foto_sel" id="foto_sel" value="<?=$foto_sel?>">                                
-					<input type="hidden" name="com_sel" id="com_sel" value="<?=$com_sel?>">                                
-					<input type="hidden" name="carnet_sel" id="carnet_sel" value="<?=$carnet_sel?>">                                
-				</div>
-		
-				<div>
-				<? $hoja = 1; $cant=0; $renglon=0; $total=count($carnets);
-					do {
-                			?> 
-						<input type="radio" id="hoja<?=$hoja?>" name="hojas" value="<?=$hoja?>" class="btn btn-success">
-						<label for="hoja<?=$hoja?>"> Hoja <?=$hoja?></label>
-					<? 
-						$cant = $cant + 5;
-						$hoja++;
-						$renglon++;
-						if ( $renglon == 10 ) {
-							?> </div> <div> <?
-							$renglon=0;
-						}
-					} while ( $cant < $total )
-				?>
-				</div>
-				<br>
-				<div>
-                			<button id="btn_print_hoja" class="btn btn-success">Imprimir Hoja Seleccionada</button>
-				</div>
-            		</form>
-		<? } else {?>
-			<div class="cred_frente" id="plas_frente">
-            		</div>
-            		<div class="cred_dorso" id="plas_dorso">
-                		<div class="datos" id="carnet_data" >
-                		</div>
-                		<div class="imagen">
-                		</div>
-            		</div>
-            		<div class="cred_menu">
-                		<div class="nap"> <div class="btn btn-success" id="carnet_print_fte" > Imprimir Frente </div> </div>
-                		<div class="nap"> <div class="btn btn-success" id="carnet_print" > Imprimir </div> </div>
-                		<div class="nap"> <div class="btn btn-success" id="carnet_prox" > Siguiente </div> </div>
-                			<input type="hidden" id="sid_visible" value='0' >
-                			<input type="hidden" id="sids" value='0' >
-                			<input type="hidden" id="datos" value='0' >
-                		<div class="nap" id="nxm" > </div>
-            		</div>
-		<? } ?>
-	<? } else {?>
-		<div>
-		    <br> <br>
-                    <label for="" class="col-sm-10" style="font-weight:bold" align="center"><b>NO HAY Carnets CON ESE FILTRO </b></label>
-		</div>
-
-	<? } ?>
+			</div>
         </div>
     </div>
 </section>                    
