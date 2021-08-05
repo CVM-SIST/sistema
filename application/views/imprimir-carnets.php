@@ -1,43 +1,8 @@
 <style type="text/css">
 	<?
 
-	if ( $carnet_sel ) {
-		switch ( $carnet_sel ) {
-			// Clasico Papel
-			case 1:
-				$frente=base_url()."images/carnet-frente-new.png";
-				$dorso=base_url()."images/carnet-dorso-new.png";
-				break;
-			// Prensa
-			case 2:
-				$frente=base_url()."images/Prensa_Frente_300.jpg";
-				$dorso=base_url()."images/Prensa_Dorso_300.jpg";
-				break;
-			// Comercio
-			case 3:
-				$frente=base_url()."images/Comercio_Frente.jpg";
-				$dorso=base_url()."images/Comercio_Dorso.jpg";
-				break;
-			// VM Racing
-			case 4:
-				$frente=base_url()."images/VMRacing_Frente.jpg";
-				$dorso=base_url()."images/VMRacing_Dorso.jpg";
-				break;
-			// Credencial Plastico
-			case 5:
-				$frente=base_url()."images/Plastico_2021_Frente.jpg";
-				$dorso=base_url()."images/Plastico_2021_Dorso.jpg";
-				break;
-			// Clasico Papel
-			default:
-				$frente=base_url()."images/carnet-frente-new.png";
-				$dorso=base_url()."images/carnet-dorso-new.png";
-				break;
-		}
-	} else {
 		$frente=base_url()."images/carnet-frente-new.png";
 		$dorso=base_url()."images/carnet-dorso-new.png";
-	}
 
         ?>
         .cred_frente{
@@ -102,7 +67,7 @@
                         <select name="categoria" id="categoria" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
                         <option value="0" > TODAS </option>
 			<? foreach ( $categorias as $categoria ) {  ?>
-                        	<option value="<?=$categoria->Id?>" <?if ($cat_sel) { if ( $cat_sel == $categoria->Id ) { echo 'selected';} } ?>> <?=$categoria->nomb?> </option>
+                        	<option value="<?=$categoria->Id?>" > <?=$categoria->nomb?> </option>
 			<? } ?>
                         </select>
                     </div>
@@ -111,9 +76,9 @@
                     <label for="" class="col-sm-2">Con Foto</label>
                     <div class="col-sm-10">
                         <select name="foto" id="foto" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
-                        <option value="-1" <? if ( $foto_sel ) { if ( $foto_sel== '-1' ) { echo 'selected'; } } ?>> TODOS </option>
-                        <option value="SI" <? if ( $foto_sel ) { if ( $foto_sel == 'SI' ) { echo 'selected'; } } ?>> CON FOTO </option>
-                        <option value="NO" <? if ( $foto_sel ) { if ( $foto_sel == 'NO' ) { echo 'selected'; } } ?>> SIN FOTO </option>
+                        <option value="-1" > TODOS </option>
+                        <option value="SI" > CON FOTO </option>
+                        <option value="NO" > SIN FOTO </option>
                         </select>
                     </div>
                 </div>                                 
@@ -121,10 +86,10 @@
                     <label for="" class="col-sm-2">Actividades x Comisión</label>
                     <div class="col-sm-10">
                         <select name="comision" id="comision" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
-                        <option value="0" <? if ( $com_sel ) { if ( $com_sel == 0 ) { echo 'selected'; } } ?>> TODAS </option>
-                        <option value="-1" <? if ( $com_sel ) { if ( $com_sel == -1 ) { echo 'selected'; } } ?>> SIN ACTIVIDAD </option>
+                        <option value="0" > TODAS </option>
+                        <option value="-1" > SIN ACTIVIDAD </option>
                         <? foreach ( $comisiones as $comision ) {  ?>
-                                <option value="<?=$comision->id?>" <? if ( $com_sel ) { if ( $com_sel == $comision->id ) { echo 'selected'; } } ?>> <?=$comision->descripcion?> </option>
+                                <option value="<?=$comision->id?>" > <?=$comision->descripcion?> </option>
                         <? } ?>
                         </select>
                     </div>
@@ -134,13 +99,24 @@
                     <label for="" class="col-sm-2">Diseño Carnet</label>
                     <div class="col-sm-10">
                         <select name="carnet" id="carnet" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
-                        <option value="1" <? if ( $carnet_sel ) { if ( $carnet_sel == 1 ) { echo 'selected'; } } ?>> CVM Clasico (Papel) </option>
-                        <option value="2" <? if ( $carnet_sel ) { if ( $carnet_sel == 2 ) { echo 'selected'; } } ?>> Prensa (Papel)      </option>
-                        <option value="3" <? if ( $carnet_sel ) { if ( $carnet_sel == 3 ) { echo 'selected'; } } ?>> Comercio (Papel)    </option>
-                        <option value="4" <? if ( $carnet_sel ) { if ( $carnet_sel == 4 ) { echo 'selected'; } } ?>> VM Racing (Papel)   </option>
-                        <option value="5" <? if ( $carnet_sel ) { if ( $carnet_sel == 5 ) { echo 'selected'; } } ?>> Credencial Plastica </option>
+                        <option value="1" > CVM Clasico (Papel) </option>
+                        <option value="2" > Prensa (Papel)      </option>
+                        <option value="3" > Comercio (Papel)    </option>
+                        <option value="4" > VM Racing (Papel)   </option>
+                        <option value="5" > Credencial Plastica </option>
                         </select>
-					<input type="hidden" name="impresion" id="impresion" value="0">                                
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Impresión Credencial Plastica</label>
+                    <div class="col-sm-10">
+                        <select name="impresion" id="impresion" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
+                        <option value="-1" > SIN IMPRIMIR  </option>
+                        <option value="1" > TODOS </option>
+                        <option value="2" > IMPRESOS HACE MAS DE 1 AÑO </option>
+                        </select>
                     </div>
                 </div>
 

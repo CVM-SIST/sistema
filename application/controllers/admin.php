@@ -845,10 +845,6 @@ class Admin extends CI_Controller {
 		$data['categorias']=$this->general_model->get_cats();
                 $data['comisiones'] = $this->comisiones_model->get_comisiones();
                 $data['carnets'] = null;
-		$data['cat_sel'] = null;
-		$data['foto_sel'] = null;
-		$data['com_sel'] = null;
-		$data['carnet_sel'] = null;
                 $data['section'] = 'imprimir-carnets';
                 $this->load->view('admin',$data);
 		break;

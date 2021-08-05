@@ -1059,7 +1059,7 @@ $("#carnet_prox").click(function(){
         var prox = carnet_visible + 1;
 	if ( carnet_visible < carnets_total ) {
 		$("#nxm").html('Carnet '+prox+' de '+carnets_total+' carnets a imprimir');
-		$("#carnet_data").html("<div class='nap' > "+carnets[prox].Id +"</div> <div class='nap' >"+ carnets[prox].apellido +"</div> <div class='nap' >"+ carnets[prox].nombre +" </div>" );
+		$("#carnet_data").html("<div class='nap' > "+carnets[prox].Id +"</div> <div class='nap' >"+ carnets[prox].nombre +"</div> <div class='nap' >"+ carnets[prox].apellido +" </div> <div class='nap' >"+carnets[prox].dni+"</div>");
 		carnet_visible =  prox;
 	}
 })
@@ -1089,7 +1089,7 @@ $("button#btn_carnet_buscar").click(function(){
                         carnets = Object.values(js_carnets);
                         carnets_total = carnets.length;
 			$("#nxm").html('Carnet 1 de '+carnets_total+' carnets a imprimir');
-			$("#carnet_data").html("<div class='nap' > "+carnets[carnet_visible].Id +"</div> <div class='nap' >"+ carnets[carnet_visible].apellido +"</div> <div class='nap' "+ carnets[carnet_visible].nombre +" </div>" );
+			$("#carnet_data").html("<div class='nap' > "+carnets[carnet_visible].Id +"</div> <div class='nap' >"+ carnets[carnet_visible].nombre +"</div> <div class='nap' >"+ carnets[carnet_visible].apellido +" </div> <div class='nap' >"+carnets[carnet_visible].dni+"</div>" );
 			return true;
 		}
 	})

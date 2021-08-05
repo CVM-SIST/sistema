@@ -735,27 +735,32 @@ AHG Comentado 20170105 porque no se usa..... creo
  	$card = new FPDF_Card();
 
 	// DATOS SOCIO
+
+ 	// DATOS
+	$apynom = trim($socio->nombre).' '.trim($socio->apellido);
+	$linea0 = 15;
+	if ( strlen($apynom) <= 25 ) {
+		$card->addText( 28, $linea0, $apynom, 'B', 10);
+		$card->addText( 28, $linea0+5, 'Nro Socio: ', '', 8);
+		$card->addText( 43, $linea0+5, number_format($socio->Id, 0, '', '.'),  'B', 8);
+		$card->addText( 28, $linea0+10, 'DNI: ', '', 8);
+		$card->addText( 43, $linea0+10, number_format($socio->dni, 0, '', '.'), 'B', 8);
+	} else {
+		$card->addText( 28, $linea0, $socio->nombre, 'B', 10);
+		$card->addText( 28, $linea0+5, $socio->apellido, 'B', 10);
+		$card->addText( 28, $linea0+10, 'Nro Socio: ', '', 9);
+		$card->addText( 50, $linea0+10, number_format($socio->Id, 0, '', '.'),  'B', 9);
+		$card->addText( 28, $linea0+15, 'DNI: ', '', 9);
+		$card->addText( 50, $linea0+15, number_format($socio->dni, 0, '', '.'), 'B', 9);
+	}
+
  	// FOTO
 	if(file_exists( BASEPATH."../images/socios/".$socio->Id.".jpg" )){
 		$imagen = BASEPATH."../images/socios/".$socio->Id.".jpg";
- 		$card->Image($imagen, 2, 5, 22, 22);
-
+ 		$card->Image($imagen, 2, $linea0-2, 22, 22);
 	}
 
- 	// DATOS
-	$card->addText( 28, 10, $socio->nombre, 'B', 10);
-	$card->addText( 28, 15, $socio->apellido, 'B', 10);
-	$card->Line( 28, 18, 80, 18);
-	$card->addText( 28, 22, 'Nro Socio: ', '', 8);
-	$card->addText( 43, 22, number_format($socio->Id, 0, '', '.'),  'B', 8);
-	$card->Line( 28, 25, 80, 25);
-	$card->addText( 28, 30, 'DNI: ', '', 8);
-	$card->addText( 43, 30, number_format($socio->dni, 0, '', '.'), 'B', 8);
-
 	// PIE CARNET
- 	// LOGO CLUB
-	$logo=BASEPATH."../images/g1.jpg";
- 	$card->Image($logo, 2, 35, 15, 15);
 
 	if( file_exists(BASEPATH."../images/cupones/".$cupon->Id.".png") ){
 		$barra = BASEPATH."../images/cupones/".$cupon->Id.".png";
