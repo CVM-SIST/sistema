@@ -133,9 +133,10 @@
                                 </div>
                         </div>
                         <div class="cred_menu">
-                                <div class="nap"> <div class="btn btn-success" id="carnet_print_fte" > Imprimir Frente </div> </div>
-                                <div class="nap"> <div class="btn btn-success" id="carnet_print" > Imprimir </div> </div>
-                                <div class="nap"> <div class="btn btn-success" id="carnet_prox" > Siguiente </div> </div>
+                                <div class="nap"> <div class="btn btn-success" id="carnet_print_fte" > Imprimir Frente   </div> </div>
+                                <div class="nap"> <div class="btn btn-success" id="carnet_print"     > Imprimir    + sig </div> </div>
+                                <div class="nap"> <div class="btn btn-success" id="carnet_print_n"   > Imprimir 10 + sig </div> </div>
+                                <div class="nap"> <div class="btn btn-success" id="carnet_prox"      > Siguiente         </div> </div>
                                         <input type="hidden" id="sid_visible" value='0' >
                                         <input type="hidden" id="sids" value='0' >
                                         <input type="hidden" id="datos" value='0' >

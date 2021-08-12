@@ -287,30 +287,36 @@ class Imprimir extends CI_Controller {
         }
     }
 
-    public function carnets(){
-        $hoja = $this->uri->segment(3);
-        $actividad = $this->uri->segment(4);
-        $foto = $this->uri->segment(5);
-        $categoria = $this->uri->segment(6);
-        $carnet = $this->uri->segment(7);
-        $this->load->model('socios_model');
-	$socios = $this->socios_model->get_carnets($categoria, $foto, $actividad);
-        $this->load->model('pagos_model');
-        if(!$socios){die;}
-	$soc_carnets=array();
-	$cont=1;
-	foreach ( $socios as $socio ) {
-		if ( $cont >= ($hoja*5)-4 && $cont <= ($hoja*5) ) {
-                	$cupon = $this->pagos_model->get_cupon($socio->Id);
-			$monto = $this->pagos_model->get_monto_socio($socio->Id)['total'];
-			$soc_carnets[] = array('socio'=>$socio, 'cupon'=>$cupon, 'monto'=>$monto);
-		}
-		$cont++;
+    public function carnets($sid=0, $carnet=0){
+	// TODO Sacar los parametros de entrada y dejar solo por POST
+        if ( $_POST ) {
+		$sid = $_POST['sid'];
+       		$carnet = $_POST['tipo_carnet'];
 	}
-	$data['socios'] = $soc_carnets;
-	$data['carnet'] = $carnet;
-        $this->load->view('imprimir-carnets-lote',$data);
+
+        if(!$sid){die;}
+
+        $this->_imprime_papel( $sid, $carnet );
+	exit;
     }
+    
+    function _imprime_papel( $sid, $carnet ) {
+
+        $this->load->model('socios_model');
+        $this->load->model('pagos_model');
+
+        $socio = $this->socios_model->get_socio($sid);
+        $cupon = $this->pagos_model->get_cupon($sid);
+        $monto = $this->pagos_model->get_monto_socio($sid)['total'];
+
+        $soc_carnets[] = array('socio'=>$socio, 'cupon'=>$cupon, 'monto'=>$monto);
+        $data['socios'] = $soc_carnets;
+        $data['carnet'] = $carnet;
+        $this->load->view('imprimir-carnets-lote',$data);
+	exit;
+
+    }
+
 
     public function listado($listado)
     {
@@ -631,6 +637,7 @@ AHG Comentado 20170105 porque no se usa..... creo
         $this->load->model('socios_model');        
         $this->load->model('pagos_model');        
         $id = $this->uri->segment(3) ?: null;        
+        $id = $this->uri->segment(3) ?: null;        
         if(!$id){die;}
         $socio = $data['socio'] = $this->socios_model->get_socio($id);
         $data['cupon'] = $this->pagos_model->get_cupon($id);
@@ -677,7 +684,8 @@ AHG Comentado 20170105 porque no se usa..... creo
         $this->load->view('imprimir-platea',$data);
     }
 
-    public function carnet_plastico_frente($tipo_carnet){
+    public function carnet_plastico_frente(){
+        $tipo_carnet = $_POST['tipo_carnet'];
         $data['tipo_carnet'] = $tipo_carnet;
         $this->load->view('imprimir-plastico-frente',$data);
 
@@ -719,9 +727,53 @@ AHG Comentado 20170105 porque no se usa..... creo
 	exit;
     }
 
-    public function carnet_plastico($sid){
+    public function carnets_n(){
+        $sids = $_POST['sid'];
+        $carnet = $_POST['tipo_carnet'];
+        $socios = explode(',', $sids);
+        foreach ( $socios as $socio ) {
+		$this->_imprime_papel($sid, $carnet);
+        }
+	exit;
+    }
+
+    public function carnet_plastico_n(){
+        $sids = $_POST['sid'];
+        $carnet = $_POST['tipo_carnet'];
+
+        $this -> load -> library("FPDF/fpdf_card");
+        $card = new FPDF_Card();
+
+	$socios = explode(',', $sids);
+	$salto=0;
+	foreach ( $socios as $socio ) {
+        	$this->_imprime_plastico($card, $socio, $carnet, $salto);
+		$salto=1;
+	}
+
+        // OUTPUT.
+        $card->Output("I", "card.pdf", true);
+
+	exit;
+    }
+
+    public function carnet_plastico(){
+        $sid = $_POST['sid'];
+        $carnet = $_POST['tipo_carnet'];
 
         if(!$sid){die;}
+
+        $this -> load -> library("FPDF/fpdf_card");
+        $card = new FPDF_Card();
+
+	$this->_imprime_plastico($card, $sid, $carnet, 0);
+
+	// OUTPUT.
+	$card->Output("I", "card.pdf", true);
+	exit;
+    }
+
+     function _imprime_plastico($card, $sid, $carnet, $salto=0) {
 
         $this->load->model('socios_model');
         $this->load->model('pagos_model');
@@ -730,16 +782,13 @@ AHG Comentado 20170105 porque no se usa..... creo
 	$monto = $this->pagos_model->get_monto_socio($sid)['total'];
 
 
- 	$this -> load -> library("FPDF/fpdf_card");
-
- 	$card = new FPDF_Card();
-
-	// DATOS SOCIO
+	// SALTO si viene el parametro seteado para impresion de "N" paginas
+        if ( $salto > 0 ) { $card->addPage(); };
 
  	// DATOS
 	$apynom = trim($socio->nombre).' '.trim($socio->apellido);
-	$linea0 = 15;
-	if ( strlen($apynom) <= 25 ) {
+	$linea0 = 16;
+	if ( strlen($apynom) <= 24 ) {
 		$card->addText( 28, $linea0, $apynom, 'B', 10);
 		$card->addText( 28, $linea0+5, 'Nro Socio: ', '', 8);
 		$card->addText( 43, $linea0+5, number_format($socio->Id, 0, '', '.'),  'B', 8);
@@ -757,14 +806,14 @@ AHG Comentado 20170105 porque no se usa..... creo
  	// FOTO
 	if(file_exists( BASEPATH."../images/socios/".$socio->Id.".jpg" )){
 		$imagen = BASEPATH."../images/socios/".$socio->Id.".jpg";
- 		$card->Image($imagen, 2, $linea0-2, 22, 22);
+ 		$card->Image($imagen, 2, $linea0, 20, 20);
 	}
 
 	// PIE CARNET
 
 	if( file_exists(BASEPATH."../images/cupones/".$cupon->Id.".png") ){
 		$barra = BASEPATH."../images/cupones/".$cupon->Id.".png";
- 		$card->Image($barra, 22, 35, 40, 15);
+ 		$card->Image($barra, 24, 35, 40, 15);
 	}
 
 	$socio->dni;
@@ -777,15 +826,8 @@ AHG Comentado 20170105 porque no se usa..... creo
 
 	// Meto registro en carnets
 	$this->socios_model->imprimo_carnet($sid);
-
-	// OUTPUT.
-	$card->Output("I", "card.pdf", true);
-	exit;
-
-/*
-        $this->load->view('imprimir-plastico-datos2',$data);
-*/
     }
+
     function cuentadigital($sid, $nombre, $precio, $venc=null) 
     {
         $this->config->load("cuentadigital");

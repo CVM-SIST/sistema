@@ -28,7 +28,6 @@
 
 		    <?
 		    switch ($carnet){
-	
 		case '2':
 			$frente=base_url()."images/Prensa_Frente_300.jpg";
 			$dorso=base_url()."images/Prensa_Dorso_300.jpg";
@@ -169,7 +168,6 @@
 	</head>
 
 	<div class="hoja">
-
         <? 
 	
 	foreach ( $socios as $soc_carnet ) {
@@ -178,8 +176,7 @@
                 $cupon = $soc_carnet['cupon'];
                 $monto = $soc_carnet['monto'];
 
-	    $apynom = substr($socio->nombre.", ".$socio->apellido, 0, 30);
-	    $apynom_2 = substr($socio->nombre." ".$socio->apellido, 0, 30);
+	    $apynom = substr(trim($socio->nombre)." ".trim($socio->apellido), 0, 30);
 	    if ( $socio->categoria == 14 ) {
         ?>
                 <div class="carnet frente"></div>
@@ -210,7 +207,7 @@
 
                         <div class="datos">
 
-                        <div class="nap" style="font-weight:bold"><?=$apynom_2?></div>
+                        <div class="nap" style="font-weight:bold"><?=$apynom?></div>
                         <div class="nap" style="font-weight:bold"> SOCIO MASCOTA </div>
                         <div class="nap" style="font-weight:bold">Socio No. <?=$num?></div>
                         <div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
@@ -271,7 +268,7 @@
                         <div class="datos">
 
                         	<div style="font-weight:bold">
-					<div style="width: 80%; float:left"> <?=$apynom_2?></div>
+					<div style="width: 80%; float:left"> <?=$apynom?></div>
 					<div style="width: 20%; float:right"> <?=$socio->Id?></div>
                         	</div>
                         	<div style="font-weight:bold">
@@ -322,7 +319,7 @@
 
                         <div class="datos">
                         	<div style="font-weight:bold">
-					<div style="font-weight:bold"> <?=$apynom_2?> </div>
+					<div style="font-weight:bold"> <?=$apynom?> </div>
 					<div style="font-weight:bold"> Socios No <?=$socio->Id?> </div>
                         		<div style="font-weight:bold"> DNI <?=$socio->dni?> </div>
 					<div style="font-weight:bold"> Ingreso <?=$fecha?> </div>

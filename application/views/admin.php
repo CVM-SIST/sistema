@@ -189,6 +189,24 @@
         });
         </script>
 
+        <script type="text/javascript">
+	function openWindowWithPost(url,name,keys,values)
+	{
+    		var newWindow = window.open(url, name,'menubar=yes,toolbar=yes,width=800,height=600');
+    		if (!newWindow) return false;
+	
+    		var html = "";
+    		html += "<html><head></head><body><form id='formid' method='post' action='" + url +"'>";
+
+    		if (keys && values && (keys.length == values.length))
+        	for (var i=0; i < keys.length; i++)
+            		html += "<input type='hidden' name='" + keys[i] + "' value='" + values[i] + "'/>";
+    			html += "</form><script type='text/javascript'>document.getElementById(\"formid\").submit()</sc"+"ript></body></html>";
+
+    		newWindow.document.write(html);
+    		return newWindow;
+	}
+	</script>
 
         <script type="text/javascript">
 
@@ -1040,18 +1058,54 @@ var carnet_visible = 0 ;
 var carnets_total = 0 ;
 
 $("#carnet_print").click(function(){
+
         var tipo_carnet = $("#carnet").val();
+	var keys = new Array("tipo_carnet", "sid") 
+	var values = new Array(tipo_carnet,carnets[carnet_visible].sid) 
 	if ( tipo_carnet == 5 ) { 
-        	window.open('<?=base_url()?>imprimir/carnet_plastico/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+                openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
 	} else {
-        	window.open('<?=base_url()?>imprimir/carnet/'+carnets[carnet_visible].sid,'','menubar=yes,toolbar=yes,width=800,height=600');
+                openWindowWithPost('<?=base_url()?>imprimir/carnets','',keys,values);
 	}
+	prox = carnet_visible + 1;
+        if ( carnet_visible < carnets_total ) {
+                $("#nxm").html('Carnet '+prox+' de '+carnets_total+' carnets a imprimir');
+                $("#carnet_data").html("<div class='nap' > "+carnets[prox].Id +"</div> <div class='nap' >"+ carnets[prox].nombre +"</div> <div class='nap' >"+ carnets[prox].apellido +" </div> <div class='nap' >"+carnets[prox].dni+"</div>");
+                carnet_visible =  prox;
+        }
+
         return true;
 })
 
+$("#carnet_print_n").click(function(){
+
+        var tipo_carnet = $("#carnet").val();
+	var keys = new Array("tipo_carnet", "sid") 
+	var sids = new Array();
+	for ( i=0; i<10; i++ ) {
+		sids[i] = carnets[carnet_visible].sid ;
+		carnet_visible = carnet_visible + 1;
+	}
+	var values = new Array(tipo_carnet,sids) 
+        if ( tipo_carnet == 5 ) {
+                openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico_n','',keys,values);
+        } else {
+                openWindowWithPost('<?=base_url()?>imprimir/carnets_n','',keys,values);
+        }
+        if ( carnet_visible < carnets_total ) {
+                $("#nxm").html('Carnet '+carnet_visible+' de '+carnets_total+' carnets a imprimir');
+                $("#carnet_data").html("<div class='nap' > "+carnets[carnet_visible].Id +"</div> <div class='nap' >"+ carnets[carnet_visible].nombre +"</div> <div class='nap' >"+ carnets[carnet_visible].apellido +" </div> <div class='nap' >"+carnets[carnet_visible].dni+"</div>");
+        }
+
+        return true;
+})
+
+
 $("#carnet_print_fte").click(function(){
         var tipo_carnet = $("#carnet").val();
-        window.open('<?=base_url()?>imprimir/carnet_plastico_frente/'+tipo_carnet,'','menubar=yes,toolbar=yes,width=800,height=600');
+	var keys = new Array("tipo_carnet") 
+	var values = new Array(tipo_carnet) 
+        openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico_frente','',keys,values);
         return true;
 })
 
@@ -1179,8 +1233,21 @@ $("#comi-activ-form").submit(function(){
         })
 
         $(document).on("click","#imprimir_carnet",function(){
-            var id = $(this).data('id');
-            window.open('<?=base_url()?>imprimir/carnet/'+id,'','menubar=yes,toolbar=yes,width=800,height=600');
+        	var sid = $(this).data('id');
+        	var tipo_carnet = 1;
+        	var keys = new Array("tipo_carnet", "sid");
+        	var values = new Array(tipo_carnet,sid);
+alert('papel'+'--'+keys+'--'+values);
+        	openWindowWithPost('<?=base_url()?>imprimir/carnets','',keys,values);
+        })
+
+        $(document).on("click","#imprimir_tarjeta",function(){
+        	var sid = $(this).data('id');
+        	var tipo_carnet = 5;
+        	var keys = new Array("tipo_carnet", "sid");
+        	var values = new Array(tipo_carnet,sid);
+alert('plastico'+'--'+keys+'--'+values);
+        	openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
         })
 
         $(document).on("click","#imprimir_carnets_lote",function(){

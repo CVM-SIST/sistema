@@ -43,7 +43,7 @@
         		}
         		.datos{
             			float:right;
-            			width: 165px;
+            			width: 265px;
             			color: #000;
 				margin-top:85px;
             			line-height: 28px;
@@ -127,8 +127,8 @@
 	<!-- <body onload="window.print(); window.close();"> -->
 
         <? 
-	    $apynom = substr($socio->nombre.", ".$socio->apellido, 0, 30);
-	    $apynom_2 = substr($socio->nombre." ".$socio->apellido, 0, 30);
+	    $apynom = substr(trim($socio->nombre).", ".trim($socio->apellido), 0, 30);
+	    $apynom_2 = substr(trim($socio->nombre)." ".trim($socio->apellido), 0, 30);
             switch ($socio->categoria){
 
 		case '11':
