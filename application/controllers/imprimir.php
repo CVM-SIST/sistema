@@ -775,6 +775,7 @@ AHG Comentado 20170105 porque no se usa..... creo
 
      function _imprime_plastico($card, $sid, $carnet, $salto=0) {
 
+        $this->load->model('general_model');
         $this->load->model('socios_model');
         $this->load->model('pagos_model');
 	$socio = $this->socios_model->get_socio($sid);
@@ -826,6 +827,23 @@ AHG Comentado 20170105 porque no se usa..... creo
 
 	// Meto registro en carnets
 	$this->socios_model->imprimo_carnet($sid);
+
+	// Facturo costo de la credencial
+	// BUsco valor de la credencial en el ID=3 del config
+        $config = $this->general_model->get_config(3);
+        $valor_cred = $config->interes_mora;
+
+        $saldo_ant = $this->pagos_model->get_deuda($sid);
+
+	$facturacion = array(
+		'sid' => $sid,
+		'descripcion'=>'Costo por impresión de credencial plástica',
+		'debe' => $valor_cred,
+		'haber' => 0,
+		'total' => $saldo_ant-$valor_cred
+	);
+	$this->pagos_model->insert_facturacion($facturacion);
+
     }
 
     function cuentadigital($sid, $nombre, $precio, $venc=null) 
