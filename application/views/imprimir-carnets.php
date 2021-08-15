@@ -103,6 +103,7 @@
                         <option value="2" > Prensa (Papel)      </option>
                         <option value="3" > Comercio (Papel)    </option>
                         <option value="4" > VM Racing (Papel)   </option>
+                        <option value="6" > Mutual 14ago (Papel) </option>
                         <option value="5" > Credencial Plastica </option>
                         </select>
                     </div>

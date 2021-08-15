@@ -129,6 +129,43 @@
                         <?
                         break;
 
+                case '6':
+                        $frente=base_url()."images/Mutual_14ago_Frente.jpg";
+                        $dorso=base_url()."images/Mutual_14ago_Dorso.jpg";
+                        ?>
+                        .frente{
+                                background-image:url(<?=$frente?>);
+                                background-size: 100% 100%;
+                        }
+                        .imagen{
+	                        margin-top:68px;
+                                margin-left: 10px;
+                                width: 80px;
+                                float: left;
+                        }
+
+                        .dorso{
+                                background-image:url(<?=$dorso?>);
+                                background-size: 100% 100%;
+                        }
+                        .datos{
+                                float:right;
+                                width: 165px;
+                                color: #000;
+                                margin-top:57px;
+                                margin-left:10px;
+                                line-height: 15px;
+                        }
+                        .clear{
+                                clear: both;
+                        }
+                        .barcode{
+                                width: 145px;
+                                margin-left:-55px;
+                                margin-top: 0px;
+                        }
+                        <?
+                        break;
 		default:
 			$frente=base_url()."images/carnet-frente-new.png";
 			$dorso=base_url()."images/carnet-dorso-new.png";
@@ -293,6 +330,53 @@
         <? break;
 
                 case '4':
+        ?>
+                <div class="carnet dorso"> </div>
+                <div class="carnet frente">
+
+                        <?
+                        $fecha = explode(' ', $socio->alta);
+                        $fecha = explode('-', $fecha[0]);
+                        $fecha = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
+
+                        ?>
+                        <div class="imagen">
+                        <?
+                                if(file_exists('images/socios/'.$socio->Id.'.jpg')){
+                        ?>
+                                        <img src="<?=base_url()?>images/image_carnet.php?img=socios/<?=$socio->Id?>.jpg" width="80">
+                        <?
+                        }else{
+                        ?>
+                                        <img src="<?=base_url()?>images/noPic.jpg" width="80">
+                        <?
+                        }
+                        ?>
+                        </div>
+
+                        <div class="datos">
+                        	<div style="font-weight:bold">
+					<div style="font-weight:bold"> <?=$apynom?> </div>
+					<div style="font-weight:bold"> Socios No <?=$socio->Id?> </div>
+                        		<div style="font-weight:bold"> DNI <?=$socio->dni?> </div>
+					<div style="font-weight:bold"> Ingreso <?=$fecha?> </div>
+                        	</div>
+				<div class="barcode">
+                		<?
+                			if( file_exists("images/cupones/".$cupon->Id.".png") ){
+                		?>
+                			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                		<?
+                			}
+                		?>
+                		</div>
+                        </div>
+                </div>
+
+
+        <? break;
+
+                case '6':
         ?>
                 <div class="carnet dorso"> </div>
                 <div class="carnet frente">

@@ -62,6 +62,18 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		return $socios;
 	    }
 
+    public function busco_carnet($sid)
+    {
+	$query="SELECT sid, ult_impresion, DATEDIFF(CURDATE(), ult_impresion) dias FROM carnets WHERE sid = $sid; ";
+        $carnet=$this->db->query($query)->row();
+
+	if(!$carnet){
+		return false;
+	} else {
+		return $carnet;
+	}
+    }
+
     public function imprimo_carnet($sid)
     {
 	$query="REPLACE INTO carnets VALUES( $sid, NOW() ); ";

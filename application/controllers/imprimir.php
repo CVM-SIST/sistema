@@ -297,7 +297,6 @@ class Imprimir extends CI_Controller {
         if(!$sid){die;}
 
         $this->_imprime_papel( $sid, $carnet );
-	exit;
     }
     
     function _imprime_papel( $sid, $carnet ) {
@@ -312,8 +311,8 @@ class Imprimir extends CI_Controller {
         $soc_carnets[] = array('socio'=>$socio, 'cupon'=>$cupon, 'monto'=>$monto);
         $data['socios'] = $soc_carnets;
         $data['carnet'] = $carnet;
-        $this->load->view('imprimir-carnets-lote',$data);
-	exit;
+
+	$this->load->view("imprimir-carnets-lote",$data);
 
     }
 
@@ -715,6 +714,10 @@ AHG Comentado 20170105 porque no se usa..... creo
                         case 5:
                                 $logo=BASEPATH."../images/Plastico_2021_Dorso.jpg";
                                 break;
+                        // Mutual 14 Agosto
+                        case 6:
+                                $logo=BASEPATH."../images/Mutual_14ago_Dorso.jpg";
+                                break;
                         // Clasico Papel
                         default:
                                 $logo=BASEPATH."../images/carnet-frente-new.png";
@@ -788,34 +791,40 @@ AHG Comentado 20170105 porque no se usa..... creo
 
  	// DATOS
 	$apynom = trim($socio->nombre).' '.trim($socio->apellido);
-	$linea0 = 16;
+	$linea0 = 20;
 	if ( strlen($apynom) <= 24 ) {
 		$card->addText( 28, $linea0, $apynom, 'B', 10);
-		$card->addText( 28, $linea0+5, 'Nro Socio: ', '', 8);
-		$card->addText( 43, $linea0+5, number_format($socio->Id, 0, '', '.'),  'B', 8);
-		$card->addText( 28, $linea0+10, 'DNI: ', '', 8);
-		$card->addText( 43, $linea0+10, number_format($socio->dni, 0, '', '.'), 'B', 8);
+		$card->addText( 28, $linea0+5, 'Nro Socio: '.number_format($socio->Id, 0, '', '.'), 'B', 8);
+		//$card->addText( 43, $linea0+5, number_format($socio->Id, 0, '', '.'),  'B', 8);
+		$card->addText( 28, $linea0+10, 'DNI: '.number_format($socio->dni, 0, '', '.'), 'B', 8);
+		//$card->addText( 43, $linea0+10, number_format($socio->dni, 0, '', '.'), 'B', 8);
 	} else {
 		$card->addText( 28, $linea0, $socio->nombre, 'B', 10);
 		$card->addText( 28, $linea0+5, $socio->apellido, 'B', 10);
-		$card->addText( 28, $linea0+10, 'Nro Socio: ', '', 9);
-		$card->addText( 50, $linea0+10, number_format($socio->Id, 0, '', '.'),  'B', 9);
-		$card->addText( 28, $linea0+15, 'DNI: ', '', 9);
-		$card->addText( 50, $linea0+15, number_format($socio->dni, 0, '', '.'), 'B', 9);
+		$card->addText( 28, $linea0+10, 'Nro Socio: '.number_format($socio->Id, 0, '', '.'), 'B', 9);
+		//$card->addText( 50, $linea0+10, number_format($socio->Id, 0, '', '.'),  'B', 9);
+		$card->addText( 28, $linea0+15, 'DNI: '.number_format($socio->dni, 0, '', '.'), 'B', 9);
+		//$card->addText( 50, $linea0+15, number_format($socio->dni, 0, '', '.'), 'B', 9);
 	}
 
  	// FOTO
 	if(file_exists( BASEPATH."../images/socios/".$socio->Id.".jpg" )){
 		$imagen = BASEPATH."../images/socios/".$socio->Id.".jpg";
- 		$card->Image($imagen, 2, $linea0, 20, 20);
+ 		$card->Image($imagen, 2, $linea0-4, 24, 18);
 	}
 
 	// PIE CARNET
+	$cupon = $this->pagos_model->get_cupon($sid);
+	if ( $cupon ) {
+		$card->addBarcode($cupon->barcode, array("x" => 29, "y" => 37, "w" => 35, "h" => 13));
+	}
 
+/*
 	if( file_exists(BASEPATH."../images/cupones/".$cupon->Id.".png") ){
 		$barra = BASEPATH."../images/cupones/".$cupon->Id.".png";
  		$card->Image($barra, 24, 35, 40, 15);
 	}
+*/
 
 	$socio->dni;
         QRcode::png($socio->dni,BASEPATH."../images/temp/QR_".$socio->dni.".png",QR_ECLEVEL_L,10,2);
@@ -826,23 +835,26 @@ AHG Comentado 20170105 porque no se usa..... creo
 	}
 
 	// Meto registro en carnets
-	$this->socios_model->imprimo_carnet($sid);
+	$carnet = $this->socios_model->busco_carnet($sid);
+	if ( !$carnet || $carnet->dias > 30 ) {
+		$this->socios_model->imprimo_carnet($sid);
 
-	// Facturo costo de la credencial
-	// BUsco valor de la credencial en el ID=3 del config
-        $config = $this->general_model->get_config(3);
-        $valor_cred = $config->interes_mora;
+		// Facturo costo de la credencial
+		// BUsco valor de la credencial en el ID=3 del config
+        	$config = $this->general_model->get_config(3);
+        	$valor_cred = $config->interes_mora;
 
-        $saldo_ant = $this->pagos_model->get_deuda($sid);
+        	$saldo_ant = $this->pagos_model->get_deuda($sid);
 
-	$facturacion = array(
-		'sid' => $sid,
-		'descripcion'=>'Costo por impresión de credencial plástica',
-		'debe' => $valor_cred,
-		'haber' => 0,
-		'total' => $saldo_ant-$valor_cred
-	);
-	$this->pagos_model->insert_facturacion($facturacion);
+		$facturacion = array(
+			'sid' => $sid,
+			'descripcion'=>'Costo por impresión de credencial plástica',
+			'debe' => $valor_cred,
+			'haber' => 0,
+			'total' => $saldo_ant-$valor_cred
+		);
+		$this->pagos_model->insert_facturacion($facturacion);
+	}
 
     }
 

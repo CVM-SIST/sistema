@@ -23,10 +23,10 @@ class FPDF_Card extends FPDF_Barcode128 {
 	 * @author Alejo E. Rojas
 	 */
 	public function addBarcode($cod, $pos = array("x" => 30, "y" => 42, "w" => 35, "h" => 9)){
-		$cod = sprintf("%06u", $cod);
+		//$cod = sprintf("%06u", $cod);
 		$this -> Code128($pos['x'], $pos['y'], $cod, $pos['w'], $pos['h']-3);
-		$this -> SetFont('Arial','B',10);
-		$this -> SetFontSpacing(3);
+		$this -> SetFont('Arial','',7);
+		$this -> SetFontSpacing(1);
 		$this -> Text($pos['x'], $pos['y']+$pos['h'], " ".$cod);
 	}
 

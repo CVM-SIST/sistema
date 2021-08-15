@@ -1130,6 +1130,7 @@ $("button#btn_carnet_buscar").click(function(){
 	if ( tipo_carnet == 3 ) { fte='<?=$baseurl?>/images/Comercio_Dorso.jpg';  }
 	if ( tipo_carnet == 4 ) { fte='<?=$baseurl?>/images/VMRacing_Dorso.jpg';  }
 	if ( tipo_carnet == 5 ) { fte='<?=$baseurl?>/images/Plastico_2021_Dorso.jpg'; }
+	if ( tipo_carnet == 6 ) { fte='<?=$baseurl?>/images/Mutual_14ago_Dorso.jpg'; }
 	dor='<?=$baseurl?>/images/Plastico_2021_Frente.jpg';
 
       	$('#ver_plastico').css('display', 'block');
@@ -1237,7 +1238,6 @@ $("#comi-activ-form").submit(function(){
         	var tipo_carnet = 1;
         	var keys = new Array("tipo_carnet", "sid");
         	var values = new Array(tipo_carnet,sid);
-alert('papel'+'--'+keys+'--'+values);
         	openWindowWithPost('<?=base_url()?>imprimir/carnets','',keys,values);
         })
 
@@ -1246,7 +1246,6 @@ alert('papel'+'--'+keys+'--'+values);
         	var tipo_carnet = 5;
         	var keys = new Array("tipo_carnet", "sid");
         	var values = new Array(tipo_carnet,sid);
-alert('plastico'+'--'+keys+'--'+values);
         	openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
         })
 
