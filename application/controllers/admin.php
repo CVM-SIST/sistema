@@ -1968,6 +1968,12 @@ class Admin extends CI_Controller {
 		$data['rango'] = $this->session->userdata('rango');
 		$data['baseurl'] = base_url();
 		$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
+		$carnet = $this->socios_model->busco_carnet($this->uri->segment(4));
+		if ( $carnet ) { 
+			$data['carnet_ultimp'] = $carnet->ult_impresion;
+		} else {
+			$data['carnet_ultimp'] = 0;
+		}
 		$data['facturacion'] = $this->pagos_model->get_facturacion($this->uri->segment(4));
 		$data['cuota'] = $this->pagos_model->get_monto_socio($this->uri->segment(4));
 		if ( $this->uri->segment(5) ) {

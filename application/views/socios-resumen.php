@@ -50,6 +50,11 @@
                         </div>
 		        <div>
                 		<a href="<?=base_url()?>admin/socios/resumen/<?=$this->uri->segment(4)?>/excel" class="btn btn-primary">Bajar a Excel</a>
+				<? if ( $carnet_ultimp == 0 ) { ?>
+                                	<a class="btn btn-primary" id="imprimir_tarjeta" data-id="<?=$socio->Id?>" href="#">Imprimir Credencial Plastico</a>
+				<? } else { ?>
+                			<a class="btn btn-primary">Credencial Impresa <?=$carnet_ultimp?></a>
+				<? } ?>
 			</div>
                         	<!--<a id="acceso_cupon" class="btn btn-warning" href="<?=$baseurl?>admin/actividades/asociar/<?=$socio->Id?>"><i class="fa fa-dollar"></i> Asociar Actividad</a>-->
                         	<br><br>
