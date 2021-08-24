@@ -437,6 +437,7 @@ class Admin extends CI_Controller {
             'dni'=>$socio['datos']->dni,
             'price' => $socio['cuota']['total'],
 	    'estado' => $xestado,
+	    'carnet_ultimp' => $socio['datos']->ult_impresion,
 	    'deuda' => $socio['datos']->deuda,
             'actividades' => $socio['datos']->actividades
             );
@@ -1787,6 +1788,12 @@ class Admin extends CI_Controller {
 		// $data['localidad'] = $this->general_model->get_ciudades();
 		$this->load->model("socios_model");
 		$data['socio'] = $this->socios_model->get_socio($this->uri->segment(4));
+		$carnet = $this->socios_model->busco_carnet($this->uri->segment(4));
+		if ( $carnet ) {
+			$data['carnet_ultimp'] = $carnet->ult_impresion;
+		} else {
+			$data['carnet_ultimp'] = "Aun sin imprimir";
+		}
 		if($data['socio']){
 			$data['tutor'] = $this->socios_model->get_socio($data['socio']->tutor);
 			if(!$data['socio']->socio_n){

@@ -134,6 +134,10 @@
                 </div>  
                 
                                   
+                <div class="form-group col-lg-12">
+                    <label for="" class="col-sm-6">Credencial Impresa</label>
+                    <div class="alert alert-info"><?=if($carnet_ultimp?></div>
+                </div>
                 <div class="form-group col-lg-6">
                     <label for="" class="col-sm-3">Foto</label>
                     <div class="col-sm-9" align="center">

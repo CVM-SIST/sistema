@@ -38,6 +38,15 @@
                               data-ng-class="{active: row == '-name'}"></span>
                     </div></th>
                     <th><div class="th">
+                        Credencial
+                        <span class="glyphicon glyphicon-chevron-up"
+                              data-ng-click=" order('carnet_ultimp') "
+                              data-ng-class="{active: row == 'carnet_ultimp'}"></span>
+                        <span class="glyphicon glyphicon-chevron-down"
+                              data-ng-click=" order('-carnet_ultimp') "
+                              data-ng-class="{active: row == '-carnet_ultimp'}"></span>
+                    </div></th>
+                    <th><div class="th">
                         Cuota
                         <span class="glyphicon glyphicon-chevron-up"
                               data-ng-click=" order('price') "
@@ -83,7 +92,8 @@
                 <div>
                 <tr data-ng-repeat="store in currentPageStores">
                     <td class="fa"><a href="#" id="td_socio_{{store.id}}" ng-click="showInfo(this, store.id,'<?=$baseurl?>')" class="fa-plus-square-o"></a></td>
-                    <td><a href="<?=base_url()?>admin/socios/resumen/{{store.id}}">{{store.name}} ({{store.dni}})</a></td>
+                    <td><a href="<?=base_url()?>admin/socios/resumen/{{store.id}}">{{store.name}} ({{store.dni}}) </a></td>
+                    <td align="right">{{store.carnet_ultimp}}</td>
                     <td align="right">$ {{store.price}}</td>
                     <td align="center">{{store.estado}}</td>
                     <td align="right">$ {{store.deuda}}</td>

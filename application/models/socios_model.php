@@ -43,11 +43,12 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 	    public function listar(){
 	/*	Cambiado por el SQL con JOIN para optimizar lecturas Ago2017 */
 		$this->load->model('pagos_model');
-		$qry="SELECT s.*, GROUP_CONCAT(DISTINCT a.nombre) actividades, SUM(p.monto-p.pagado) deuda
+		$qry="SELECT s.*, IFNULL(DATE(c.ult_impresion),0) ult_impresion, GROUP_CONCAT(DISTINCT a.nombre) actividades, SUM(p.monto-p.pagado) deuda
 			FROM socios s
 				LEFT JOIN actividades_asociadas aa ON ( s.Id = aa.sid AND aa.estado = 1 )
 				LEFT JOIN actividades a ON ( aa.aid = a.Id )
 				LEFT JOIN pagos p ON ( s.Id = p.tutor_id AND p.aid = 0 AND p.estado = 1 AND DATE_FORMAT(p.generadoel,'%Y%m') < DATE_FORMAT(CURDATE(),'%Y%m') )
+				LEFT JOIN carnets c ON ( s.Id = c.sid )
 			WHERE s.estado = 1 
 			GROUP BY s.Id; ";
 		$resultado = $this->db->query($qry)->result();
