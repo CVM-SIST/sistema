@@ -855,9 +855,14 @@ AHG Comentado 20170105 porque no se usa..... creo
 		);
 		$this->pagos_model->insert_facturacion($facturacion);
 
+		if ( $socio->tutor = 0 ) {
+			$tutor = $sid;
+		} else {
+			$tutor = $socio->tutor;
+		}
 		$pago = array(
 			'sid' => $sid,
-			'tutor_id' => $socio->tutor,
+			'tutor_id' => $tutor,
 			'aid' => 0,
 			'descripcion'=>'Costo por impresión de credencial plástica',
 			'monto' => $valor_cred,
