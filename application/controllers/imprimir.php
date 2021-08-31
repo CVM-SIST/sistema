@@ -791,17 +791,22 @@ AHG Comentado 20170105 porque no se usa..... creo
 
  	// DATOS
 	$apynom = utf8_decode(trim($socio->nombre).' '.trim($socio->apellido));
+	if ( $socio->socio_n > 0 ) {
+		$num_socio = $socio->socio_n;
+	} else {
+		$num_socio = $socio->Id;
+	}
 	$linea0 = 20;
 	if ( strlen($apynom) <= 24 ) {
 		$card->addText( 28, $linea0, $apynom, 'B', 10);
-		$card->addText( 28, $linea0+5, 'Nro Socio: '.number_format($socio->Id, 0, '', '.'), 'B', 8);
+		$card->addText( 28, $linea0+5, 'Nro Socio: '.number_format($num_socio, 0, '', '.'), 'B', 8);
 		//$card->addText( 43, $linea0+5, number_format($socio->Id, 0, '', '.'),  'B', 8);
 		$card->addText( 28, $linea0+10, 'DNI: '.number_format($socio->dni, 0, '', '.'), 'B', 8);
 		//$card->addText( 43, $linea0+10, number_format($socio->dni, 0, '', '.'), 'B', 8);
 	} else {
 		$card->addText( 28, $linea0, utf8_decode($socio->nombre), 'B', 10);
 		$card->addText( 28, $linea0+5, utf8_decode($socio->apellido), 'B', 10);
-		$card->addText( 28, $linea0+10, 'Nro Socio: '.number_format($socio->Id, 0, '', '.'), 'B', 9);
+		$card->addText( 28, $linea0+10, 'Nro Socio: '.number_format($num_socio, 0, '', '.'), 'B', 9);
 		//$card->addText( 50, $linea0+10, number_format($socio->Id, 0, '', '.'),  'B', 9);
 		$card->addText( 28, $linea0+15, 'DNI: '.number_format($socio->dni, 0, '', '.'), 'B', 9);
 		//$card->addText( 50, $linea0+15, number_format($socio->dni, 0, '', '.'), 'B', 9);
