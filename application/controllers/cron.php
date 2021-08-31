@@ -1121,6 +1121,7 @@ class Cron extends CI_Controller {
     public function regulariza_vitalicios() {
 
         $this->load->model('socios_model');
+        $this->load->model('pagos_model');
 	$query="DROP TEMPORARY TABLE IF EXISTS tmp_vitalicios; ";
 	$this->db->query($query);
 
@@ -1132,9 +1133,18 @@ class Cron extends CI_Controller {
 		GROUP BY 1; ";
 	$this->db->query($query);
 
+	$query="CREATE TEMPORARY TABLE tmp_ultfac
+		SELECT v.sid, MAX(f.Id) max_id
+		FROM tmp_vitalicios v
+			JOIN facturacion f ON v.sid = f.sid  
+		GROUP BY 1;";
+	$this->db->query($query);
+
 	$query="INSERT INTO facturacion
-		SELECT 0, sid, NOW(), 'Regularizacion Saldos Vitalicios', 0, -saldo, 0, 0
-		FROM tmp_vitalicios
+		SELECT 0, v.sid, NOW(), 'Regularizacion Saldos Vitalicios', 0, -v.saldo, f.total-v-saldo, 0
+		FROM tmp_vitalicios v
+			LEFT JOIN tmp_ultfac u USING ( sid )
+			LEFT JOIN facturacion f ON u.max_id = f.Id
 		WHERE saldo < 0; ";
 	$this->db->query($query);
 
@@ -2211,11 +2221,17 @@ echo "suspender";
                     $this->db->update('facturacion_mails',array('estado'=>1));
 		    $enviados++;
                 } else {
+                    $this->db->where('Id',$email->Id);
+                    $this->db->update('facturacion_mails',array('estado'=>9));
                     $msg_error=$this->email->print_debugger();
                     error_log( " ----> Error de Envio:".$msg_error." \n", 3, $file_log);
 		}
 		// Agrego un sleep porque sino considera SPAM o BULK
-		sleep(5);
+		if ( $enviados % 100 == 99 ) {
+			sleep(75);
+		} else {
+			sleep(5);
+		}
             }
             error_log( date('d/m/Y G:i:s').": Envio Finalizado \n", 3, $file_log);
 		// envio email de aviso a mi cuenta ahg
