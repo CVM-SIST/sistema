@@ -844,33 +844,13 @@ AHG Comentado 20170105 porque no se usa..... creo
         	$config = $this->general_model->get_config(3);
         	$valor_cred = $config->interes_mora;
 
-        	$saldo_ant = $this->pagos_model->get_deuda($sid);
-
-		$facturacion = array(
-			'sid' => $sid,
-			'descripcion'=>'Costo por impresión de credencial plástica',
-			'debe' => $valor_cred,
-			'haber' => 0,
-			'total' => $saldo_ant-$valor_cred
-		);
-		$this->pagos_model->insert_facturacion($facturacion);
-
 		if ( $socio->tutor == 0 ) {
 			$tutor = $sid;
 		} else {
 			$tutor = $socio->tutor;
 		}
-		$pago = array(
-			'sid' => $sid,
-			'tutor_id' => $tutor,
-			'aid' => 0,
-			'descripcion'=>'Costo por impresión de credencial plástica',
-			'monto' => $valor_cred,
-			'generadoel' => date('Y-m-d H:i:s'),
-			'ajuste' => 0,
-			'tipo' => 1
-		);
-		$this->pagos_model->insert_pago_nuevo($pago);
+
+		$this->pagos_model->registrar_pago('debe',$tutor,$valor_cred,'Costo por impresión de credencial plástica','cs',0,0);
 
 	}
 

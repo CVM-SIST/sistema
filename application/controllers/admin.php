@@ -824,6 +824,15 @@ class Admin extends CI_Controller {
 
             **/
 
+            case 'tiene-foto':
+                $sid = $this->uri->segment(4);
+		if (file_exists( BASEPATH."../images/socios/".$sid.".jpg" )){
+			$respuesta = true;
+		} else {
+			$respuesta = false;
+		}
+                echo json_encode($respuesta);
+                break;
             case 'carnets-buscar':
                 $mail = $this->uri->segment(4);
                 $categoria = $this->uri->segment(4);

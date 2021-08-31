@@ -1246,7 +1246,19 @@ $("#comi-activ-form").submit(function(){
         	var tipo_carnet = 5;
         	var keys = new Array("tipo_carnet", "sid");
         	var values = new Array(tipo_carnet,sid);
-        	openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
+
+		$.get("<?=$baseurl?>admin/socios/tiene-foto/"+sid,function(data){
+                	if ( data == 'true' ) {
+				openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
+                        	return true;
+                	} else {
+				var agree = confirm("No tiene foto imprime igual?");
+				if(!agree){return false;}
+				openWindowWithPost('<?=base_url()?>imprimir/carnet_plastico','',keys,values);
+                        	return true;
+			}
+		})
+
         })
 
         $(document).on("click","#imprimir_carnets_lote",function(){
