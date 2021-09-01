@@ -947,7 +947,7 @@ class Cron extends CI_Controller {
 					$aviso_mail = $aviso_mail . $txt;
         				fwrite($log, $txt);            
 	
-                			$this->email->from('pagos@clubvillamitre.com','Club Villa Mitre');
+                			$this->email->from('avisos_cvm@clubvillamitre.com','Club Villa Mitre');
                 			$this->email->to($rechazado->mail);
                 			$this->email->bcc('cvm.agonzalez@gmail.com');
 	
@@ -2206,23 +2206,24 @@ echo "suspender";
             $this->load->library('email');
 	    $enviados=0;
             foreach ($query->result() as $email) {
-                $this->email->from('pagos@clubvillamitre.com','Club Villa Mitre');
+		$this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
                 $this->email->to($email->email);                 
 
                 $asunto='Resumen de Cuenta al '.date('d/m/Y');
                 $this->email->subject($asunto);                
                 $this->email->message($email->body); 
-                error_log( date('d/m/Y G:i:s').": Enviando: ".$email->email, 3, $file_log);
+		$ahora = date('d/m/Y G:i:s');
+                error_log( $ahora.": Enviando: ".$email->email, 3, $file_log);
 
                 if($this->email->send()){
                     error_log( " ----> Enviado OK "." \n", 3, $file_log);
 
                     $this->db->where('Id',$email->Id);
-                    $this->db->update('facturacion_mails',array('estado'=>1));
+                    $this->db->update('facturacion_mails',array('estado'=>1,'date'=>$ahora));
 		    $enviados++;
                 } else {
                     $this->db->where('Id',$email->Id);
-                    $this->db->update('facturacion_mails',array('estado'=>9));
+                    $this->db->update('facturacion_mails',array('estado'=>9),'date'=>$ahora);
                     $msg_error=$this->email->print_debugger();
                     error_log( " ----> Error de Envio:".$msg_error." \n", 3, $file_log);
 		}
