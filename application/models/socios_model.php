@@ -49,7 +49,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 				LEFT JOIN actividades a ON ( aa.aid = a.Id )
 				LEFT JOIN pagos p ON ( s.Id = p.tutor_id AND p.aid = 0 AND p.estado = 1 AND DATE_FORMAT(p.generadoel,'%Y%m') < DATE_FORMAT(CURDATE(),'%Y%m') )
 				LEFT JOIN carnets c ON ( s.Id = c.sid )
-			WHERE s.estado = 1 
+			WHERE s.estado = 1 AND s.suspendido = 0
 			GROUP BY s.Id; ";
 		$resultado = $this->db->query($qry)->result();
 		$socios = array();
