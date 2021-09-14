@@ -81,22 +81,23 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
         $this->db->query($query); 
     }
 
-    public function get_carnets($categoria, $foto, $actividad, $impresion)
+    public function get_carnets($categoria, $foto, $comision, $impresion)
     {
 	$query="SELECT s.Id sid, s.socio_n, s.apellido, s.nombre, s.dni, s.alta, s.Id,
 			 IFNULL(c.ult_impresion,0 ) ult_impresion, DATEDIFF(NOW(), c.ult_impresion) dias_ultimp
 		FROM socios s 
 			LEFT JOIN actividades_asociadas aa ON ( s.id = aa.sid AND aa.estado = 1 ) 
+			LEFT JOIN actividades           a  ON ( aa.aid = a.Id ) 
 			LEFT JOIN carnets c ON ( s.Id = c.sid ) 
 		WHERE s.suspendido = 0 "; 
 	if ( $categoria > 0 ) {
 		$query .= " AND s.categoria = $categoria ";
 	}
-	if ( $actividad == -1 ) {
+	if ( $comision == -1 ) {
 		$query .= " AND aa.sid IS NULL ";
 	}
-	if ( $actividad > 0 ) {
-		$query .= " AND aa.aid = $actividad AND aa.sid = s.Id ";
+	if ( $comision > 0 ) {
+		$query .= " AND a.comision = $comision AND aa.sid = s.Id ";
 	}
 	$query .= "; ";
         $result = $this->db->query($query)->result(); 
