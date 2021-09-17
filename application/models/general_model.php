@@ -171,20 +171,34 @@ ENVIOS
 
     public function get_envios()
     {
+	$limite = 20;
         $this->db->where('estado',1);
         $this->db->order_by('Id','desc');
         $query = $this->db->get('envios');
         if($query->num_rows() == 0){ return false; }
-        $envios = $query->result();
-        foreach ($envios as $envio) {
+        $envios_orig = $query->result();
+	$envios=array();
+	$i = 0;
+        foreach ($envios_orig as $envio) {
             $this->db->where('eid',$envio->Id);
             $query = $this->db->get('envios_data');
             $envio->total = $query->num_rows();
 
             $this->db->where('eid',$envio->Id);
-            $this->db->where('estado',1);
+            $this->db->where('estado', 1);
             $query = $this->db->get('envios_data');
             $envio->enviados = $query->num_rows();
+
+            $this->db->where('eid',$envio->Id);
+            $this->db->where('estado', 9);
+            $query = $this->db->get('envios_data');
+            $envio->errores = $query->num_rows();
+	
+	    $envios[]=$envio;
+	    $i++;
+	    if ( $i > $limite ) {
+		break;
+	    }
         }
         $query->free_result();
         return $envios;
@@ -258,6 +272,43 @@ ENVIOS
         $query->free_result();
         return $enviados;
     }
+
+    public function get_pend_envfact() {
+	$query="SELECT COUNT(*) pendientes FROM facturacion_mails WHERE estado = 0; ";
+	$envios = $this->db->query($query)->result()[0];
+	return $envios;
+    }
+
+    public function get_resumen_fact() {
+	$query="SELECT SUM(IF(estado=0,1,0)) estado0, SUM(IF(estado=1,1,0)) estado1, SUM(IF(estado=9,1,0)) estado9 FROM facturacion_mails ; ";
+	$envios = $this->db->query($query)->result()[0];
+	return $envios;
+    }
+
+    public function get_prox_envfact() {
+	$query="SELECT * FROM facturacion_mails WHERE estado = 0 LIMIT 3; ";
+	$envios = $this->db->query($query)->result();
+	return $envios;
+    }
+
+    public function get_pend_envios() {
+	$query="SELECT COUNT(*) pendientes FROM envios e JOIN envios_data d ON e.Id = d.eid AND d.estado = 0 WHERE e.estado = 1; ";
+	$envios = $this->db->query($query)->result()[0];
+	return $envios;
+    }
+
+    public function get_prox_envios() {
+	$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 1 WHERE d.estado = 0 LIMIT 3; ";
+	$envios = $this->db->query($query)->result();
+	return $envios;
+    }
+
+    public function get_resumen_envios($eid) {
+        $query="SELECT SUM(IF(estado=0,1,0)) estado0, SUM(IF(estado=1,1,0)) estado1, SUM(IF(estado=9,1,0)) estado9 FROM envios_data WHERE eid = $eid ; ";
+        $envios = $this->db->query($query)->result()[0];
+        return $envios;
+    }
+
 /**
 COMISIONES
 **/
@@ -312,5 +363,57 @@ COMISIONES
         $reporte->socios = $socios;        
         return $reporte;
     }
+
+/* FUnciones para la nueva tabla de registro de ejecucion de crones */
+// Tipos -> 1-Facturacion Mensual 2-Aviso Deuda 3-Envio Masivo
+	function get_ult_cron($tipo) {
+		$fecha=date('Y-m-d');
+		$query = "SELECT * FROM crones WHERE tipo = $tipo AND fecha = '$fecha'; ";
+                $cron = $this->db->query($query)->row();
+		if ( $cron ) {
+			$query = "SELECT c.*, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ts_inicio) anticuacion 
+					FROM crones c 
+					WHERE c.tipo = $tipo AND c.fecha = '$fecha'; ";
+                	$cron = $this->db->query($query)->row();
+			return $cron;
+		} else {
+			return false;
+		}
+	}
+		
+	function insert_ult_cron($tipo) {
+		$fecha=date('Y-m-d');
+		$query = "SELECT * FROM crones WHERE tipo = $tipo AND fecha = '$fecha' AND estado = 1 ;";
+                $cron = $this->db->query($query)->row();
+		if ( $cron ) {
+			return false;
+		} else {
+			$query = "INSERT INTO crones VALUES ( $tipo, 1, '$fecha', 1, NOW(), null, null, null ); ";
+                	$this->db->query($query);
+			return true;
+		}
+	}
+
+	function upd_ult_cron($tipo,$status=null,$datos1=null,$datos2=null) {
+		$fecha=date('Y-m-d');
+                $query = "SELECT * FROM crones WHERE tipo = $tipo AND fecha = '$fecha'; ";
+                $cron = $this->db->query($query)->row();
+                if ( $cron ) {
+			if ( $status ) {
+				$estado = $status;
+			} else {
+				$estado = 0;
+			}
+                        $query="UPDATE crones c 
+					SET c.ts_fin = NOW(), veces = veces + 1, estado = $estado, datos1 = '$datos1', datos2 = '$datos2'
+				WHERE c.tipo = $tipo AND c.fecha = '$fecha'; ";
+                        $this->db->query($query);
+                        return true;
+                } else {
+                        return false;
+                }
+	}
+
+/* Fin de funciones CRONES */
 }
 ?>

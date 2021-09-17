@@ -2146,6 +2146,7 @@ echo "suspender";
 	$xahora=date('Y-m-d G:i:s');
 
         // Me mando email de aviso que el proceso termino OK
+        mail('jardinlaciudad@villamitre.com.ar', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n");
         mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n");
     }
 
@@ -2190,57 +2191,195 @@ echo "suspender";
         }
     }
 
+    public function envios_cron() 
+	{
+		echo "Comienzo Cron Envios ".date('Y-m-d H:i:s');
+		$this->load->model('general_model');
+		$pend_factu = $this->general_model->get_pend_envfact();
+		$pend_masivo = $this->general_model->get_pend_envios();
+		// tipo 1 facturacion mensual
+		// Si existen emails para enviar
+		echo "Facturacion ".$pend_factu->pendientes."\n";
+		if ( $pend_factu->pendientes > 0 ) {
+			// Busco el ultimo cron de envio de facturacion
+			$ult_envio = $this->general_model->get_ult_cron(1);
+			// Si existe verifico el estado
+			if ( $ult_envio ) {
+				// Si esta corriendo verifico la anticuacion y si es mas de 30 minutos considero un envio nuevo
+				if ( $ult_envio->estado == 1 ) {
+					if ( $ult_envio->anticuacion > 30 ) {
+						// Si tiene mas de 30m de antiguedad lo marco con error y creo uno nuevo y largo un envio de lote
+                                                $this->general_model->upd_ult_cron(1,1);
+						$this->facturacion_mails();
+					} else {
+						// Sino saldo para esperar que se cumpla el tiempo
+						break;
+					}
+				} else {
+				// Sino esta corriendo creo un nuevo cron y largo lote
+                                        $this->general_model->upd_ult_cron(1,1);
+					$this->facturacion_mails();
+				}
+			// Sino existe lo creo y largo el envio de un lote
+			} else {
+				$this->general_model->insert_ult_cron(1);
+				$this->facturacion_mails();
+			}
+			
+		}
+		echo "Masivos ".$pend_masivo->pendientes."\n";
+		// tipo 2 envios masivos
+                if ( $pend_masivo->pendientes > 0 ) {
+                        // Busco el ultimo cron de envio de facturacion
+                        $ult_envio = $this->general_model->get_ult_cron(2);
+                        // Si existe verifico el estado
+                        if ( $ult_envio ) {
+                                // Si esta corriendo verifico la anticuacion y si es mas de 30 minutos considero un envio nuevo
+                                if ( $ult_envio->estado == 1 ) {
+                                        if ( $ult_envio->anticuacion > 30 ) {
+                                                // Si tiene mas de 30m de antiguedad lo marco con error y creo uno nuevo y largo un envio de lote
+                                                $this->general_model->upd_ult_cron(2,1);
+                                                $this->masivo_mails();
+                                        } else {
+                                                // Sino saldo para esperar que se cumpla el tiempo
+                                                break;
+                                        }
+                                } else {
+                                // Sino esta corriendo creo un nuevo cron y largo lote
+                                        $this->general_model->upd_ult_cron(2,1);
+                                        $this->masivo_mails();
+                                }
+                        // Sino existe lo creo y largo el envio de un lote
+                        } else {
+                                $this->general_model->insert_ult_cron(2);
+                                $this->masivo_mails();
+                        }
+
+                }
+		echo "Termine Cron Envios ".date('Y-m-d H:i:s');
+	}
+
+    public function masivo_mails()
+    {
+                $this->load->model('general_model');
+                $envio_info = $this->general_model->get_prox_envios();
+
+
+        	$path_log = './application/logs/envios-masivos-'.date('Ymd').'.log';
+		if( !file_exists($path_log) ){
+			$log = fopen($path_log,'w');
+		} else {
+			$log = fopen($path_log,'a');
+		}
+		$eid = 0;
+		if ( count($envio_info) < 10 ) {
+			$ultima_tanda = 1;
+		    	fwrite($log,date('d-m-Y H:i:s')."Envio del ultimo lote\n");
+		} else {
+			$ultima_tanda = 0;
+		    	fwrite($log,date('d-m-Y H:i:s')."Enviando lote\n");
+		}
+
+		$enviados=0;
+		foreach ( $envio_info as $envio ) {
+                    $this->load->library('email');
+                    $this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
+                    $this->email->to($envio->email);
+                    $this->email->subject($envio->titulo);
+                    $this->email->message($envio->body);
+                    //$st = $this->email->send();
+		    $eid = $envio->eid;
+
+                    //echo $this->email->print_debugger();
+		    //if ( $st ) {
+		    if ( ($enviados++ % 5 ) > 0 ) {
+		    	fwrite($log,date('d-m-Y H:i:s')."Envie email a $envio->email \n");
+                    	$this->general_model->enviado($envio->Id);
+		    } else {
+		    	fwrite($log,date('d-m-Y H:i:s')."Fallo envio email a $envio->email \n");
+                    	$this->general_model->enviado_error($envio->Id);
+                    }
+		
+		    // Agrego demora para que no considere al envio un SPAM / BULK
+		    sleep(2);
+
+                }
+	        $this->general_model->upd_ult_cron(2);
+		if ( $ultima_tanda == 1 ) {
+                	fwrite($log, date('d/m/Y G:i:s').": Envio Finalizado \n");
+                	$resumen = $this->general_model->get_resumen_envios($eid);
+                	$env_ok = $resumen->estado1;
+                	$env_err = $resumen->estado9;
+			$xahora = date('Y-m-d H:i:s');
+                	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
+        	}
+    }
+
     public function facturacion_mails()
     {
-        $file_log = './application/logs/envios-'.date('Ymd').'.log';
+	$this->load->model('general_model');
+        $path_log = './application/logs/envios-fact-'.date('Ymd').'.log';
 
-        $this->load->database();
-        error_log( date('d/m/Y G:i:s').": Buscando correos para enviar... \n", 3, $file_log);
-        $this->db->where('estado',0);
-        $query = $this->db->get('facturacion_mails');
-        if($query->num_rows() == 0){ 
-            error_log( date('d/m/Y G:i:s').": No se encontraron correos \n", 3, $file_log);
-            return false;
+	if( !file_exists($path_log) ){
+		$log = fopen($path_log,'w');
+	} else {
+		$log = fopen($path_log,'a');
+	}
+
+	fwrite($log,date('d-m-Y H:i:s')."Buscando correos para enviar ...\n");
+
+        $envios = $this->general_model->get_prox_envfact();
+        if (count($envios) == 0){ 
+            	return false;
         }else{
-            error_log( date('d/m/Y G:i:s').": Se encontraron ".$query->num_rows()." correos. Enviando... \n", 3, $file_log);
-            $this->load->library('email');
-	    $enviados=0;
-            foreach ($query->result() as $email) {
-		$this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
-                $this->email->to($email->email);                 
-
-                $asunto='Resumen de Cuenta al '.date('d/m/Y');
-                $this->email->subject($asunto);                
-                $this->email->message($email->body); 
-		$ahora = date('d/m/Y G:i:s');
-                error_log( $ahora.": Enviando: ".$email->email, 3, $file_log);
-
-                if($this->email->send()){
-                    error_log( " ----> Enviado OK "." \n", 3, $file_log);
-
-                    $this->db->where('Id',$email->Id);
-                    $this->db->update('facturacion_mails',array('estado'=>1,'date'=>$ahora));
-		    $enviados++;
-                } else {
-                    $this->db->where('Id',$email->Id);
-                    $this->db->update('facturacion_mails',array('estado'=>9),'date'=>$ahora);
-                    $msg_error=$this->email->print_debugger();
-                    error_log( " ----> Error de Envio:".$msg_error." \n", 3, $file_log);
-		}
-		// Agrego un sleep porque sino considera SPAM o BULK
-		if ( $enviados % 100 == 99 ) {
-			sleep(75);
+		if ( count($envios) < 10 ) { 
+			$ultima_tanda = 1;
+			fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envios)." correos. Enviando Ultima tanda...n");
 		} else {
-			sleep(5);
+			$ultima_tanda = 0;
+			fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envios)." correos. Enviando Lote ...\n");
 		}
+            	$this->load->library('email');
+	    	$enviados=0;
+            	foreach ($envios as $email) {
+			$this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
+                	$this->email->to($email->email);                 
+	
+                	$asunto='Resumen de Cuenta al '.date('d/m/Y');
+                	$this->email->subject($asunto);                
+                	$this->email->message($email->body); 
+			$ahora = date('d/m/Y G:i:s');
+			fwrite($log,date('d-m-Y H:i:s').": Enviando: ".$email->email);
+			
+			// comento el envio para hacer la prueba sin envio
+                	// $st = $this->email->send();
+
+			//if ($st) {
+			if ( ($enviados%5) > 0 ) {
+				fwrite($log,"----> Enviado OK \n ");
+				$this->db->where('Id',$email->Id);
+				$this->db->update('facturacion_mails',array('estado'=>1));
+			} else {
+				$this->db->where('Id',$email->Id);
+				$this->db->update('facturacion_mails',array('estado'=>9));
+				$msg_error=substr($this->email->print_debugger(),0,20);
+				fwrite($log,"----> Error de Envio: ".$msg_error." \n ");
+			}
+			$enviados++;
+			sleep(2);
             }
-            error_log( date('d/m/Y G:i:s').": Envio Finalizado \n", 3, $file_log);
-		// envio email de aviso a mi cuenta ahg
-            // Me mando email de aviso que el proceso termino OK
-            mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails.....".$xahora."\n");
+	    $this->general_model->upd_ult_cron(1);
+	    if ( $ultima_tanda == 1 ) {
+            	fwrite($log, date('d/m/Y G:i:s').": Envio Finalizado \n");
+		$resumen = $this->general_model->get_resumen_fact();
+		$env_ok = $resumen->estado1;
+		$env_err = $resumen->estado9;
+		$xahora = date('Y-m-d H:i:s');
+            	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
+	    }
 
             
-        }
+	}
     }
 
     public function pagos_nuevos($value='')

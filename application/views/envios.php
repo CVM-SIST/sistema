@@ -13,8 +13,9 @@
                   <thead>
                      <tr>
                         <th>Nombre</th>
+                        <th>Env / Err / Total</th>
+                        <th>% Envio</th>
                         <th>Fecha</th>
-                        <th>Enviados</th>
                         <th>Opciones</th>
                      </tr>
                   </thead>
@@ -25,13 +26,14 @@
                      ?>
                      <tr>
                         <td><span class="color-success"><?=$envio->titulo?></span></td>
-                        <td><?=$envio->enviados?>/<?=$envio->total?></td>
+                        <td align="center"><?=$envio->enviados?>/<?=$envio->errores?>/<?=$envio->total?></td>
+                        <td align="right"><?=number_format((($envio->enviados+$envio->errores)/$envio->total)*100,2)?>%</td>
                         <td><?=date('d/m/Y H:i:s',strtotime($envio->creado_el))?></td>
                         <td>
                            <?
-                           if($envio->enviados < $envio->total){
+                           if( ( $envio->enviados + $envio->errores ) < $envio->total){
                            ?>
-                           <a href="<?=base_url()?>admin/envios/enviar/<?=$envio->Id?>"><i class="fa fa-play"></i> Continuar Envio </a>  | 
+                           <a <i class="fa fa-play"></i> Enviando... </a>  | 
                            <?
                            }
                            ?>

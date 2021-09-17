@@ -1366,45 +1366,6 @@ $("#comi-activ-form").submit(function(){
         ?>
 
 
-        <?
-        if($this->uri->segment(3) == 'enviar' && $this->uri->segment(3) == 'enviar' && $envio){
-        ?>
-            var pausa = false;
-            $("#estado").html('Iniciando Envio...');
-            enviar();
-
-            function enviar(){
-                if(pausa){ $("#estado").html('Envio Pausado'); return false; }
-                $.post('<?=base_url()?>admin/envios/send/<?=$envio->Id?>')
-                .done(function(data){
-                    if(data == 'end'){
-                        $("#estado").html('Envio Finalizado.');
-                    }else{
-                        data = $.parseJSON(data);
-                        $("#enviados").html(data.enviados);
-                        $("#estado").html(data.estado);
-                        enviar();
-                    }
-               })
-            }
-
-            $("#pausar_envio").click(function(){
-                $("#pausar_envio").prop('disabled',true);
-                $("#reanudar_envio").prop('disabled',false);
-                pausa = true;
-            })
-            $("#reanudar_envio").click(function(){
-                $("#estado").html('Reanudando Envio');
-                $("#reanudar_envio").prop('disabled',true);
-                $("#pausar_envio").prop('disabled',false);
-                pausa = false;
-                enviar();
-
-            })
-        <?
-        }
-        ?>
-
         $(document).on('click','#del_confirm',function(){
             var msj = $(this).data('msj');
             var agree = confirm(msj);

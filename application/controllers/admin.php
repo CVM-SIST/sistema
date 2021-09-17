@@ -4375,13 +4375,13 @@ class Admin extends CI_Controller {
 
                     //echo $this->email->print_debugger();
 		    if ( $st ) {
-		    	fwrite($log,"Envie email a $envio->email\n");
+		    	fwrite($log,date('d-m-Y H:i:s')."Envie email a $envio->email\n");
                     	$this->general_model->enviado($envio->Id);
                     	$data['estado'] = date('H:i:s').' - '.$envio->email.' <i class="fa fa-check" style="color:#1e9603"></i>';
                     	$data['enviados'] = $this->general_model->get_enviados($id);
                     	$data = json_encode($data);
 		    } else {
-		    	fwrite($log,"Fallo envio email a $envio->email\n");
+		    	fwrite($log,date('d-m-Y H:i:s')."Fallo envio email a $envio->email\n");
                     	$this->general_model->enviado_error($envio->Id);
                         $data['estado'] = date('H:i:s').' - '.$envio->email.' <i class="fa fa-times" style="color:#c80428"></i>';
                         $data['enviados'] = $this->general_model->get_enviados($id);
