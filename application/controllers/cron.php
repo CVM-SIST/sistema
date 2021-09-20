@@ -2287,12 +2287,11 @@ echo "suspender";
                     $this->email->to($envio->email);
                     $this->email->subject($envio->titulo);
                     $this->email->message($envio->body);
-                    //$st = $this->email->send();
+                    $st = $this->email->send();
 		    $eid = $envio->eid;
 
                     //echo $this->email->print_debugger();
-		    //if ( $st ) {
-		    if ( ($enviados++ % 5 ) > 0 ) {
+		    if ( $st ) {
 		    	fwrite($log,date('d-m-Y H:i:s')."Envie email a $envio->email \n");
                     	$this->general_model->enviado($envio->Id);
 		    } else {
@@ -2352,10 +2351,9 @@ echo "suspender";
 			fwrite($log,date('d-m-Y H:i:s').": Enviando: ".$email->email);
 			
 			// comento el envio para hacer la prueba sin envio
-                	// $st = $this->email->send();
+                	$st = $this->email->send();
 
-			//if ($st) {
-			if ( ($enviados%5) > 0 ) {
+			if ($st) {
 				fwrite($log,"----> Enviado OK \n ");
 				$this->db->where('Id',$email->Id);
 				$this->db->update('facturacion_mails',array('estado'=>1));
