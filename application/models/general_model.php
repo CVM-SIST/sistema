@@ -286,7 +286,7 @@ ENVIOS
     }
 
     public function get_prox_envfact() {
-	$query="SELECT * FROM facturacion_mails WHERE estado = 0 LIMIT 3; ";
+	$query="SELECT * FROM facturacion_mails WHERE estado = 0 LIMIT 30; ";
 	$envios = $this->db->query($query)->result();
 	return $envios;
     }
@@ -298,7 +298,7 @@ ENVIOS
     }
 
     public function get_prox_envios() {
-	$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 1 WHERE d.estado = 0 LIMIT 3; ";
+	$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 1 WHERE d.estado = 0 LIMIT 30; ";
 	$envios = $this->db->query($query)->result();
 	return $envios;
     }
