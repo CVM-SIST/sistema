@@ -142,6 +142,15 @@
                 dataType: 'json',
                 done: function (e, data) {
                     $.each(data.result.files, function (index, file) {
+			var fileExt = file.name.split('.').pop();
+			if ( fileExt !== 'jpg' && fileExt !== 'JPG' ) {
+				alert("Extensión invalida. El archivo debe ser JPG");
+				return false;
+			}
+			if ( file.size > 100000 ) {
+				alert("Tamaño demasiado grande("+file.size+"). Máximo 100k");
+				return false;
+			}
                         $("#my_result").html('<img src="<?=$baseurl?>images/temp/'+file.name+'" width="100%">');
                         $('#progress .progress-bar').hide();
                     });

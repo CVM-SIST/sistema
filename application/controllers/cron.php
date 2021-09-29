@@ -2011,7 +2011,13 @@ echo "suspender";
 
 	}
 
-    function cuentadigital($sid, $nombre, $precio, $venc=null) 
+    function prueba_ahg() {
+
+    	$cupon =  $this->cuentadigital(29219, "GONZALEZADRIAN", 123, null, 'agonzalez.lacoope@gmail.com') ;
+	var_dump($cupon);
+    }
+ 
+    function cuentadigital($sid, $nombre, $precio, $venc=null, $mail=null) 
     {
         $this->config->load("cuentadigital");
         $cuenta_id = $this->config->item('cd_id');
@@ -2021,7 +2027,12 @@ echo "suspender";
         $count = 0;
         $result = false;
         if(!$venc){
-            $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+	    if ( !$mail ) {
+            	$url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';
+	    } else {
+            	$url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&hacia='.urlencode($mail).'&m2=1&concepto='.urlencode($concepto).'&xml=1';
+		echo $url;
+	    }
         }else{
             $url = 'https://www.cuentadigital.com/api.php?id='.$cuenta_id.'&venc='.$venc.'&codigo='.urlencode($sid).'&precio='.urlencode($precio).'&concepto='.urlencode($concepto).'&xml=1';    
         }

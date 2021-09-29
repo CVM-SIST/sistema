@@ -4303,7 +4303,7 @@ class Admin extends CI_Controller {
         $this->config->load("cuentadigital");
         $cuenta_id = $this->config->item('cd_id');
         $nombre = substr($nombre,0,40);
-        $concepto  = $nombre.' ('.$sid.')';
+        $concepto  = $nombre.$sid;
         $repetir = true;
         $count = 0;
         $result = false;
@@ -4318,10 +4318,11 @@ class Admin extends CI_Controller {
             $a = file_get_contents($url);
             $a = trim($a);
             $xml = simplexml_load_string($a);
+
             // $xml = simplexml_import_dom($xml->REQUEST);
             if (($xml->ACTION) != 'INVOICE_GENERATED') {
                 $repetir = true;
-                echo('Error al generarlo: ');
+                echo('Error al generarlo: '.$xml->ACTION."---");
                 sleep(1);
                 //echo '<a href="'.$url.'" target="_blank"><strong>Reenviar</strong></a>';
             } else {

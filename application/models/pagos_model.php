@@ -363,17 +363,9 @@ class Pagos_model extends CI_Model {
     }
     public function get_socio_total($sid)
     {
-        $this->db->where('sid',$sid);
-        $this->db->order_by('Id','desc');
-        $fact = $this->db->get('facturacion');
-        if($fact->num_rows() == 0){return false;}
-        /*$total = 0;
-        foreach ($fact->result() as $f) {
-            $total = $total + $f->haber;
-            $total = $total - $f->debe;
-        }*/
-        $total = $fact->row()->total;
-        return $total;
+	$qry = "SELECT SUM(p.pagado-p.monto) saldo FROM pagos p WHERE sid = $sid AND estado = 1; ";
+	$total = $this->db->query($qry)->result();
+        return $total[0]->saldo;
     }
 
     public function get_socio_total2($sid)
@@ -907,6 +899,7 @@ class Pagos_model extends CI_Model {
 				'nro_socio' => $socio->socio_n,
 				'apynom' => $socio->nombre.", ".$socio->apellido,
 				'telefono' => "F: ".$socio->telefono." C: ".$socio->celular,
+				'tutor' => $socio->tutor,
 				'domicilio' => $socio->domicilio,
 				'actividad' => "Solo Cuota Social",
 				'estado' => $socio->suspendido,
@@ -948,6 +941,7 @@ class Pagos_model extends CI_Model {
 					'sid' => $sid,
 					'apynom' => $socio->nombre.", ".$socio->apellido,
 					'telefono' => "F: ".$socio->telefono." C: ".$socio->celular,
+					'tutor' => $socio->tutor,
 					'domicilio' => $socio->domicilio,
 					'actividad' => $descr_activ,
 					'estado' => $socio->suspendido,
@@ -978,6 +972,7 @@ class Pagos_model extends CI_Model {
         foreach ($asoc as $a) {
             $socio = $this->socios_model->get_socio($a->sid);
             $a->Id = $socio->Id;
+            $a->tutor = $socio->tutor;
             $a->socio = @$socio->nombre.' '.@$socio->apellido;
             $a->telefono = @$socio->telefono;
             $a->fijocel = "F: ".@$socio->telefono." C: ".@$socio->celular;
@@ -1021,6 +1016,7 @@ class Pagos_model extends CI_Model {
         foreach ($asoc as $a) {
             $socio = $this->socios_model->get_socio($a->sid);
             $a->Id = $socio->Id;
+            $a->tutor = $socio->tutor;
             $a->socio = @$socio->nombre.' '.@$socio->apellido;
             $a->telefono = @$socio->telefono;
             $a->fijocel = "F: ".@$socio->telefono." C: ".@$socio->celular;

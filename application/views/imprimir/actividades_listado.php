@@ -24,6 +24,7 @@
     <thead>
         <tr>
             <th>Socio</th>
+            <th>Tutor</th>
             <th>DNI</th>
             <th>Fecha de Nacimiento</th>            
             <th>Telefono</th>
@@ -41,8 +42,9 @@
     	?>
         <tr>
             <td>#<?=@$socio->Id?>-<?=@$socio->socio?></td>
+            <td><?if(@$socio->tutor==0) { echo "0"; } else { echo @$socio->tutor; } ?></td>
             <td><?=@$socio->dni?></td>
-            <td><?=date('d/m/Y',strtotime(@$socio->date))?></td>
+            <td><?=date('d/m/Y',strtotime(@$socio->nacimiento))?></td>
             <td><?=@$socio->fijocel?></td>
             <td><?=$socio->observaciones?></td>
             <td>
