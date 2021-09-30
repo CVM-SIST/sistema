@@ -1038,7 +1038,7 @@ AHG Comentado 20170105 porque no se usa..... creo
                                      ->setTitle("Listado")
                                      ->setSubject("Listado de Socios");
         
-        $this->phpexcel->getActiveSheet()->getStyle('A1:K1')->getFill()->applyFromArray(
+        $this->phpexcel->getActiveSheet()->getStyle('A1:N1')->getFill()->applyFromArray(
             array(
                 'type'       => PHPExcel_Style_Fill::FILL_SOLID,
                 'startcolor' => array('rgb' => 'E9E9E9'),
@@ -1056,8 +1056,11 @@ AHG Comentado 20170105 porque no se usa..... creo
                     ->setCellValue('G1', 'Fecha de Alta')                  
                     ->setCellValue('H1', 'Observaciones')                  
                     ->setCellValue('I1', 'Monto Adeudado')                  
-                    ->setCellValue('J1', 'Meses Adeudados')
-                    ->setCellValue('K1', 'Estado');                    
+                    ->setCellValue('J1', 'Deuda CS')                  
+                    ->setCellValue('K1', 'Deuda Seguro')                  
+                    ->setCellValue('L1', 'Deuda Actividad')                  
+                    ->setCellValue('M1', 'Meses Adeudados')
+                    ->setCellValue('N1', 'Estado');                    
         
         $cont = 2;
         foreach ($clientes as $cliente) {
@@ -1100,14 +1103,17 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('G'.$cont, date('d/m/Y',strtotime($cliente->alta)))                     
                         ->setCellValue('H'.$cont, $cliente->observaciones)
                         ->setCellValue('I'.$cont, $cliente->monto_adeudado*-1)
-                        ->setCellValue('J'.$cont, $adeudados)                    
-                        ->setCellValue('K'.$cont, $estado);                        
+                        ->setCellValue('J'.$cont, $cliente->deuda_cs*-1)
+                        ->setCellValue('K'.$cont, $cliente->deuda_seg*-1)
+                        ->setCellValue('L'.$cont, $cliente->deuda_act*-1)
+                        ->setCellValue('M'.$cont, $adeudados)                    
+                        ->setCellValue('N'.$cont, $estado);                        
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','K') as $columnID) {
+        foreach(range('A','N') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }

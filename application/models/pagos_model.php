@@ -998,6 +998,15 @@ class Pagos_model extends CI_Model {
             @$a->cuota = $array_ahg['total'];
             /* Fin Modificacion AHG */
             @$a->monto_adeudado = $this->pagos_model->get_socio_total($socio->Id);
+	    /* Segrego deuda por tipo */
+	    $qry = "SELECT SUM(IF(aid=0,pagado-monto,0)) deuda_cs, SUM(IF(tipo=6 and aid>0,pagado-monto,0)) deuda_seguro,
+	            SUM(IF(tipo!=6 and aid>0,pagado-monto,0)) deuda_actividad
+			FROM pagos
+			WHERE sid = $socio->Id AND estado = 1 ; ";
+	    $deuda = $this->db->query($qry)->result();
+            @$a->deuda_cs = $deuda[0]->deuda_cs;
+            @$a->deuda_seg = $deuda[0]->deuda_seguro;
+            @$a->deuda_act = $deuda[0]->deuda_actividad;
         }
         return $asoc;
     }
@@ -1042,6 +1051,16 @@ class Pagos_model extends CI_Model {
             @$a->cuota = $array_ahg['total'];
             /* Fin Modificacion AHG */
             @$a->monto_adeudado = $this->pagos_model->get_socio_total($socio->Id);
+            /* Segrego deuda por tipo */
+            $qry = "SELECT SUM(IF(aid=0,pagado-monto,0)) deuda_cs, SUM(IF(tipo=6 and aid>0,pagado-monto,0)) deuda_seguro,
+                    SUM(IF(tipo!=6 and aid>0,pagado-monto,0)) deuda_actividad
+                        FROM pagos
+                        WHERE sid = $socio->Id AND estado = 1 ; ";
+            $deuda = $this->db->query($qry)->result();
+            @$a->deuda_cs = $deuda[0]->deuda_cs;
+            @$a->deuda_seg = $deuda[0]->deuda_seguro;
+            @$a->deuda_act = $deuda[0]->deuda_actividad;
+
         }
         return $asoc;
     }

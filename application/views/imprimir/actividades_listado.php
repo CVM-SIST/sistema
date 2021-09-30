@@ -31,6 +31,9 @@
             <th>Observaciones</th>
             <th>Meses Adeudados</th>
             <th>Monto Adeudado</th>
+            <th>Deuda CS</th>
+            <th>Deuda Seguro</th>
+            <th>Deuda Actividad</th>
             <th>Estado</th>
             <th>Debito</th>
             <th class="hidden-print">Resumen</th>
@@ -77,6 +80,9 @@
                 ?>
             </td>
             <td align="right">$ <?=number_format($socio->monto_adeudado*-1,2)?></td>
+            <td align="right">$ <?=number_format($socio->deuda_cs*-1,2)?></td>
+            <td align="right">$ <?=number_format($socio->deuda_seg*-1,2)?></td>
+            <td align="right">$ <?=number_format($socio->deuda_act*-1,2)?></td>
             <td><? if($socio->suspendido == 1){ echo '<label class="label label-danger"><i class="fa fa-warning"></i> SUSPENDIDO</label>'; }else{ echo '<label class="label label-success"><i class="fa fa-check"></i> ACTIVO</label>'; } ?></td>
             <td> <?if ($socio->debito) {echo "Tiene Debito Tarj";} else {echo "Efectivo";} ?> </td>
             <td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$socio->Id?>" class="btn btn-warning btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>
