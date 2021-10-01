@@ -59,6 +59,7 @@ class Cron extends CI_Controller {
 	$this->load->model("socios_model");
 	$this->load->model("debtarj_model");
 	$this->load->model("tarjeta_model");
+	$this->load->model("general_model");
 
         if ($this->uri->segment(3)) {
 		$xhoy = $this->uri->segment(3);
@@ -108,6 +109,15 @@ class Cron extends CI_Controller {
 	    $this->pagos_model->update_facturacion_cron($xperiodo,1,$soc_susp,0);
             $this->db->truncate('facturacion_mails'); //limpiamos la db de mails
             fwrite($log, date('H:i:s').' - Truncate mails\n');                        
+
+	    // Meto una cabecera para identificar los envios de mails de facturacion del mes
+            $envio = array(
+                    'titulo' => "Facturacion Mes $xperiodo",
+                    'grupo' => "FactMes",
+                    'data' => json_encode(array("total"=>0, "enviados"=>0, "errores"=>0))
+                    );
+	    $this->general_model->insert_envio($envio);
+
             //$this->email_a_suspendidos();
             //fwrite($log, date('H:i:s').' - Emails suspendidos');                        
             $this->db->update('socios',array('facturado'=>0)); //establecemos todos los socios como no facturados
@@ -1238,6 +1248,15 @@ echo "suspender";
 		$this->db->truncate('facturacion_mails'); 
                 $txt = "Truncate de mails \n";
                 fwrite($log, $txt);
+
+            // Meto una cabecera para identificar los envios de mails de facturacion del mes
+            $envio = array(
+                    'titulo' => "Aviso Deuda Mes $fecha",
+                    'grupo' => "AvisoDeuda",
+                    'data' => json_encode(array("total"=>0, "enviados"=>0, "errores"=>0))
+                    );
+            $this->general_model->insert_envio($envio);
+
 
 		// ciclo cada deudor y armo/grabo los emails en envios
 		foreach ( $deudores as $deudor ) {
@@ -2378,6 +2397,7 @@ echo "suspender";
 			sleep(2);
             }
 	    $this->general_model->upd_ult_cron(1);
+	    $this->general_model->upd_env_fact();
 	    if ( $ultima_tanda == 1 ) {
             	fwrite($log, date('d/m/Y G:i:s').": Envio Finalizado \n");
 		$resumen = $this->general_model->get_resumen_fact();

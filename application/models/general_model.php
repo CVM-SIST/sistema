@@ -180,19 +180,26 @@ ENVIOS
 	$envios=array();
 	$i = 0;
         foreach ($envios_orig as $envio) {
-            $this->db->where('eid',$envio->Id);
-            $query = $this->db->get('envios_data');
-            $envio->total = $query->num_rows();
+		if ( $envio->grupo == "FactMes" || $envio->grupo == "AvisoDeuda" ) {
+			$datos=json_decode($envio->data);
+            		$envio->total = $datos->total;
+            		$envio->enviados = $datos->enviados;
+            		$envio->errores = $datos->errores;
+		} else {
+            		$this->db->where('eid',$envio->Id);
+            		$query = $this->db->get('envios_data');
+            		$envio->total = $query->num_rows();
 
-            $this->db->where('eid',$envio->Id);
-            $this->db->where('estado', 1);
-            $query = $this->db->get('envios_data');
-            $envio->enviados = $query->num_rows();
+            		$this->db->where('eid',$envio->Id);
+            		$this->db->where('estado', 1);
+            		$query = $this->db->get('envios_data');
+            		$envio->enviados = $query->num_rows();
 
-            $this->db->where('eid',$envio->Id);
-            $this->db->where('estado', 9);
-            $query = $this->db->get('envios_data');
-            $envio->errores = $query->num_rows();
+            		$this->db->where('eid',$envio->Id);
+            		$this->db->where('estado', 9);
+            		$query = $this->db->get('envios_data');
+            		$envio->errores = $query->num_rows();
+		}
 	
 	    $envios[]=$envio;
 	    $i++;
@@ -392,6 +399,22 @@ COMISIONES
                 	$this->db->query($query);
 			return true;
 		}
+	}
+
+	function upd_env_fact() {
+		$qry="SELECT SUM(IF(estado=1,1,0)) enviados, SUM(IF(estado=9,1,0)) errores, COUNT(*) totales FROM facturacion_mails; ";
+                $estados = $this->db->query($qry)->row();
+		$dia=date('d');
+		$mes=date('Ym');
+                $data = json_encode(array("total"=>$estados->totales, "enviados"=>$estados->enviados, "errores"=>$estados->errores))
+		// Si es menos de 20 es facturacion mensual
+		if ( $dia < 20 ) {
+			$qry="UPDATE envios SET data = $data WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'FactMes'; ";
+		// Sino es Aviso de Deuda
+		} else {
+			$qry="UPDATE envios SET data = $data WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'AvisoDeuda'; ";
+		}
+                $this->db->query($qry);
 	}
 
 	function upd_ult_cron($tipo,$status=null,$datos1=null,$datos2=null) {

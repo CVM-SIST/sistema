@@ -363,6 +363,15 @@ class Pagos_model extends CI_Model {
     }
     public function get_socio_total($sid)
     {
+        $this->db->where('sid',$sid);
+        $this->db->order_by('Id','desc');
+        $fact = $this->db->get('facturacion');
+        if($fact->num_rows() == 0){return false;}
+        $total = $fact->row()->total;
+        return $total;
+    }
+    public function get_saldo_socio($sid) 
+    {
 	$qry = "SELECT SUM(p.pagado-p.monto) saldo FROM pagos p WHERE sid = $sid AND estado = 1; ";
 	$total = $this->db->query($qry)->result();
         return $total[0]->saldo;
@@ -997,7 +1006,7 @@ class Pagos_model extends CI_Model {
 	        $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
             @$a->cuota = $array_ahg['total'];
             /* Fin Modificacion AHG */
-            @$a->monto_adeudado = $this->pagos_model->get_socio_total($socio->Id);
+            @$a->monto_adeudado = $this->pagos_model->get_saldo_socio($socio->Id);
 	    /* Segrego deuda por tipo */
 	    $qry = "SELECT SUM(IF(aid=0,pagado-monto,0)) deuda_cs, SUM(IF(tipo=6 and aid>0,pagado-monto,0)) deuda_seguro,
 	            SUM(IF(tipo!=6 and aid>0,pagado-monto,0)) deuda_actividad
@@ -1050,7 +1059,7 @@ class Pagos_model extends CI_Model {
 	        $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
             @$a->cuota = $array_ahg['total'];
             /* Fin Modificacion AHG */
-            @$a->monto_adeudado = $this->pagos_model->get_socio_total($socio->Id);
+            @$a->monto_adeudado = $this->pagos_model->get_saldo_socio($socio->Id);
             /* Segrego deuda por tipo */
             $qry = "SELECT SUM(IF(aid=0,pagado-monto,0)) deuda_cs, SUM(IF(tipo=6 and aid>0,pagado-monto,0)) deuda_seguro,
                     SUM(IF(tipo!=6 and aid>0,pagado-monto,0)) deuda_actividad
