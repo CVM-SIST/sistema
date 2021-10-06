@@ -81,6 +81,35 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
         $this->db->query($query); 
     }
 
+    public function get_busqueda($apellido, $nombre, $domicilio, $email, $categoria, $suspendido)
+    {
+	$query="SELECT s.* FROM socios s WHERE s.estado = 1 ";
+	if ( $apellido != '' ) {
+		$query .= " AND s.apellido LIKE '%$apellido%' ";
+	}
+	if ( $nombre != '' ) {
+		$query .= " AND s.nombre LIKE '%$nombre%' ";
+	}
+	if ( $domicilio != '' ) {
+		$query .= " AND s.domicilio LIKE '%$domicilio%' ";
+	}
+	if ( $email != '' ) {
+		$query .= " AND s.mail LIKE '%$email%' ";
+	}
+	if ( $categoria != '' ) {
+		$query .= " AND s.categoria = $categoria ";
+	}
+	if ( $suspendido != '' ) {
+		$query .= " AND s.suspendido > 0 ";
+		$primero++;
+	}
+
+        $socios = $this->db->query($query)->result(); 
+
+	return $socios;
+
+    }
+
     public function get_carnets($categoria, $foto, $comision, $impresion)
     {
 	$query="SELECT s.Id sid, s.socio_n, s.apellido, s.nombre, s.dni, s.alta, s.Id,

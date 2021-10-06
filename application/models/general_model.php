@@ -406,7 +406,7 @@ COMISIONES
                 $estados = $this->db->query($qry)->row();
 		$dia=date('d');
 		$mes=date('Ym');
-                $data = json_encode(array("total"=>$estados->totales, "enviados"=>$estados->enviados, "errores"=>$estados->errores))
+                $data = json_encode(array("total"=>$estados->totales, "enviados"=>$estados->enviados, "errores"=>$estados->errores));
 		// Si es menos de 20 es facturacion mensual
 		if ( $dia < 20 ) {
 			$qry="UPDATE envios SET data = $data WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'FactMes'; ";

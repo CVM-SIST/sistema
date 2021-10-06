@@ -824,6 +824,33 @@ class Admin extends CI_Controller {
 
             **/
 
+            case 'busqueda_do':
+		if ( $_POST ) {
+                	$apellido = $_POST['apellido'];
+                	$nombre = $_POST['nombre'];
+                	$domicilio = $_POST['domicilio'];
+                	$email = $_POST['email'];
+                	$categoria = $_POST['categoria'];
+                	$suspendido = $_POST['suspendido'];
+		}
+                $this->load->model('socios_model');
+
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$data['baseurl'] = base_url();
+		$data['socios'] = $this->socios_model->get_busqueda($apellido, $nombre, $domicilio, $email, $categoria, $suspendido);
+		$data['section'] = "socios-busqueda-do";
+		$this->load->view('admin',$data);
+		break;
+
+            case 'busqueda':
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$data['baseurl'] = base_url();
+		$data['section'] = "socios-busqueda";
+		$this->load->view('admin',$data);
+		break;
+
             case 'tiene-foto':
                 $sid = $this->uri->segment(4);
 		if (file_exists( BASEPATH."../images/socios/".$sid.".jpg" )){

@@ -217,8 +217,8 @@
 	}
 	</script>
 
-        <script type="text/javascript">
 
+        <script type="text/javascript">
 
             <? if($section=='estadisticas-facturacion'){ ?>
 
@@ -968,6 +968,20 @@ $("#load-asoc-activ-form select").on('change',function(){
                 case 'bd':
                         $("#archivo-form").addClass('hidden');
                         break;
+        }
+})
+
+$("#busqueda_socio").submit(function(){
+	var apellido = $("#apellido").val();
+	var nombre = $("#nombre").val();
+	var domicilio = $("#domicilio").val();
+	var email = $("#email").val();
+	var categoria = $("#categoria").val();
+	var tutor = $("#tutor").val();
+
+	if ( apellido == "" && nombre == "" && domicilio == "" && email == "" && categoria == "" && tutor == "" ) {
+                alert("Debe cargar algun filtro");
+                return false;
         }
 })
 
