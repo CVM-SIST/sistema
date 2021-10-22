@@ -10,7 +10,7 @@
 			<label>Mensaje</label>			
 			<textarea>
 				<?
-				$img_path="http://clubvillamitre.com/images/";
+				$img_path=base_url()."images/";
 				if($body){
 					echo $body;
 				}else{
