@@ -611,6 +611,13 @@ class Pagos_model extends CI_Model {
     public function registrar_pago($tipo,$sid,$monto,$des,$actividad,$ajuste, $origen='0')
     {
         $total = $this->get_socio_total($sid);
+        $this->load->model("socios_model");
+        $reg_socio = $this->socios_model->get_socio($sid);
+	if ( $reg_socio->tutor > 0 ) {
+		$tutor = $reg_socio->tutor;
+	} else {
+		$tutor = $sid;
+	}
 
         if($tipo == 'debe'){
             $debe = $monto;
@@ -631,7 +638,7 @@ class Pagos_model extends CI_Model {
             }
             $pago = array(
                 'sid' => $sid,
-                'tutor_id' => $sid,
+                'tutor_id' => $tutor,
                 'aid' => $aid,
                 'generadoel' => date('Y-m-d'),
                 'descripcion' => $des,
@@ -639,12 +646,12 @@ class Pagos_model extends CI_Model {
                 'tipo' => $tipo,
                 );
             $this->pagos_model->insert_pago_nuevo($pago);
-            $this->registrar_pago2($sid,0);
+            $this->registrar_pago2($tutor,0);
         }else{
             $haber = $monto;
             $debe = '0.00';
             $total = $total + $haber;
-            $this->registrar_pago2($sid,$monto,$ajuste);
+            $this->registrar_pago2($tutor,$monto,$ajuste);
         }
         if ( $ajuste == 1 ) {
                 $orig=4;
@@ -652,7 +659,7 @@ class Pagos_model extends CI_Model {
                 $orig=3;
         }
         $data = array(
-                "sid" => $sid,
+                "sid" => $tutor,
                 "descripcion" => $des,
                 "debe" => $debe,
                 "haber" => $haber,
@@ -1291,7 +1298,7 @@ class Pagos_model extends CI_Model {
         if($query->num_rows() == 0){
             $pago = array(
                 'sid' => $sid,
-                'tutor_id' => $sid,
+                'tutor_id' => $tutor,
                 'aid' => 0,
                 'generadoel' => date('Y-m-d'),
                 'descripcion' => "A favor",
