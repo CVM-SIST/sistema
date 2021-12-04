@@ -49,6 +49,30 @@ class Pagos_model extends CI_Model {
         return $cupon;
     }
 
+    public function pasa_fact_tutor($id, $tutor)
+    {
+        $this->load->model("pagos_model");
+
+        $qry = "SELECT SUM(monto-pagado) saldo FROM pagos WHERE tutor_id = $id; ";
+        $saldo = $this->db->query($qry)->result();
+        $monto_saldo = $saldo[0]->saldo;
+        
+        $this->load->model("socios_model");
+        $soc_tutor = $this->socios_model->get_socio($tutor);
+	$apynom_tutor = $soc_tutor->apellido.", ".$soc_tutor->nombre;
+        $soc_socio = $this->socios_model->get_socio($id);
+	$apynom_socio = $soc_socio->apellido.", ".$soc_socio->nombre;
+        
+        if ( $monto_saldo > 0 ) {
+            $this->pagos_model->registrar_pago('haber', $id, $monto_saldo,'Transfiere saldo a su tutor: '.$tutor."-".$apynom_tutor);
+            $this->pagos_model->registrar_pago('debe', $tutor, $monto_saldo,'Recibe saldo de: '.$id."-".$apynom_socio);
+        } else {
+            $this->pagos_model->registrar_pago('debe', $id, $monto_saldo,'Transfiere saldo a su tutor: '.$tutor."-".$apynom_tutor);
+            $this->pagos_model->registrar_pago('haber', $tutor, $monto_saldo,'Recibe saldo de: '.$id."-".$apynom_socio);
+        }
+    }
+
+
     public function get_monto_socio($sid){ // devuelve el importe que deberá pagar un socio o su tutor, en caso de pertenecer a un grupo familiar
         $grupo_familiar = $tutor = false;
         $monto = 0;

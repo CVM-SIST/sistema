@@ -1946,6 +1946,21 @@ class Admin extends CI_Controller {
                                 unset($datos['mail_orig']);
                                 if ( $datos['tutor'] == '' ) { $datos['tutor'] = 0; }
 
+		                // Verifico cambio de estado de tutor
+                		if ( $tutor != $tutor_orig ) {
+                        		$this->load->model("pagos_model");
+                        		// tenia tutor y se lo saco
+                        		if ( $tutor == 0 ) {
+                        			$soc_tutor = $this->socios_model->get_socio($tutor_orig);
+
+                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Dejo de estar tutoreado por : '.$tutor_orig."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
+
+                        		} else {
+						$this->pagos_model->pasa_fact_tutor($id, $tutor);
+                        		}
+                		}
+
+				// Updateo el registro del socio
 				$this->socios_model->update_socio($id,$datos);
 
 				// Grabo log de cambios
@@ -1957,20 +1972,6 @@ class Admin extends CI_Controller {
 				$observ = substr(json_encode($datos),0,255);
 				$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
-		                // Verifico cambio de estado de tutor
-                		if ( $tutor != $tutor_orig ) {
-                        		$this->load->model("pagos_model");
-                        		// tenia tutor y se lo saco
-                        		if ( $tutor == 0 ) {
-                        			$soc_tutor = $this->socios_model->get_socio($tutor_orig);
-
-                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Dejo de estar tutoreado por : '.$tutor_orig."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
-
-                        		} else {
-                        			$soc_tutor = $this->socios_model->get_socio($tutor);
-                                		$this->pagos_model->registrar_pago('debe',$id,0.00,'Pasa a estar tutoreado por : '.$tutor."-".$soc_tutor->apellido.", ".$soc_tutor->nombre);
-                        		}
-                		}
 
 				if(!isset($error)){
 					$error = '';
