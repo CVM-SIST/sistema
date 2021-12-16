@@ -1402,11 +1402,11 @@ class Pagos_model extends CI_Model {
         	$neto_recargo = $recargo->row();
 		if ( $neto_recargo->neto == 0 ) { return false; }
 
-		$qry = "SELECT SUM(monto-pagado) saldo FROM pagosp WHERE p.tutor_id = $sid;" ;
+		$qry = "SELECT SUM(p.monto-p.pagado) saldo FROM pagos p WHERE p.tutor_id = $sid;" ;
 		$reg_saldo = $this->db->query($qry)->row();
         	$saldo = $reg_saldo->saldo;
 
-		$qry = "SELECT * FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."15' ; ";
+		$qry = "SELECT f.* FROM facturacion f WHERE f.sid = $sid AND DATE(f.date) > '$fch_where"."15' ; ";
 		
         	$movimientos = $this->db->query($qry)->result();
 		$ret_valor = false;
@@ -1424,8 +1424,8 @@ class Pagos_model extends CI_Model {
 
 				if ( $diap <= 15 ) {
 
-					// Si tiene saldo 0 o a favor entonces si anulo
-					if ( $saldo <= 0 ) {
+					// Si tiene saldo 0 , a favor o menor que el recargo facturacdo entonces si anulo
+					if ( $saldo <= $neto_recargo->imp_recargo ) {
 						$ret_valor = array ( 'fecha_pago' => $fch_pago, 'id_recargo' => $neto_recargo->id_recargo, 'imp_recargo' => $neto_recargo->imp_recargo);
 				 		break;
 					}

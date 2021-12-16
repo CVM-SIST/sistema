@@ -2097,13 +2097,13 @@ echo "suspender";
 	// que tienen actividades de esa comision
         $socact = $this->actividades_model->get_actsoc_comision(15);
 	$aviso = "";
+	$recargos=0;
+	$revierte=0;
 	foreach ( $socact as $socio ) {
 		$sid = $socio->sid;
 		$apynom = $socio->apynom;
 		$descr_actividad = $socio->descr_actividad;
 		$aid = $socio->aid;
-		$recargos=0;
-		$revierte=0;
         	switch ( $dia ) {
 			case 15:
 				$deuda = $this->pagos_model->get_deuda_jardin($sid);
