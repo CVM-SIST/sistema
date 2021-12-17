@@ -2100,6 +2100,7 @@ echo "suspender";
 	$recargos=0;
 	$revierte=0;
 	foreach ( $socact as $socio ) {
+		echo "Procesando $socio->sid ---";
 		$sid = $socio->sid;
 		$apynom = $socio->apynom;
 		$descr_actividad = $socio->descr_actividad;
