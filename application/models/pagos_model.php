@@ -364,8 +364,7 @@ class Pagos_model extends CI_Model {
         $actividades = $this->actividades_model->get_act_asoc($sid);
         $act = array();
         foreach ($actividades as $actividad) {
-
-                    if($actividad->estado != '0'){
+                    if($actividad->estado == '1'){
                         $act[] = $actividad;
                     }
                 }
