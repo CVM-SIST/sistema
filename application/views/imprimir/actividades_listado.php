@@ -28,6 +28,7 @@
             <th>DNI</th>
             <th>Fecha de Nacimiento</th>            
             <th>Telefono</th>
+            <th>Debito</th>
             <th>Observaciones</th>
             <th>Meses Adeudados</th>
             <th>Monto Adeudado</th>
@@ -42,6 +43,11 @@
     <tbody>
     	<?
     	foreach ($socios as $socio) {
+		if ( $socio->debito ) {
+			$debito = "SI";
+		} else {
+			$debito = "NO";
+		}
     	?>
         <tr>
             <td>#<?=@$socio->Id?>-<?=@$socio->socio?></td>
@@ -49,6 +55,7 @@
             <td><?=@$socio->dni?></td>
             <td><?=date('d/m/Y',strtotime(@$socio->nacimiento))?></td>
             <td><?=@$socio->fijocel?></td>
+            <td align="center"><?=$debito?></td>
             <td><?=$socio->observaciones?></td>
             <td>
                 <?
