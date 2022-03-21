@@ -1321,7 +1321,7 @@ class Pagos_model extends CI_Model {
         if($query->num_rows() == 0){
             $pago = array(
                 'sid' => $sid,
-                'tutor_id' => $tutor,
+                'tutor_id' => $sid,
                 'aid' => 0,
                 'generadoel' => date('Y-m-d'),
                 'descripcion' => "A favor",
