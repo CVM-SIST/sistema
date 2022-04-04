@@ -1151,11 +1151,11 @@ class Cron extends CI_Controller {
 	$this->db->query($query);
 
 	$query="INSERT INTO facturacion
-		SELECT 0, v.sid, NOW(), 'Regularizacion Saldos Vitalicios', 0, -v.saldo, f.total-v-saldo, 0
+		SELECT 0, v.sid, NOW(), 'Regularizacion Saldos Vitalicios', 0, -v.saldo, f.total-v.saldo, 0
 		FROM tmp_vitalicios v
 			LEFT JOIN tmp_ultfac u USING ( sid )
 			LEFT JOIN facturacion f ON u.max_id = f.Id
-		WHERE saldo < 0; ";
+		WHERE v.saldo < 0; ";
 	$this->db->query($query);
 
 	$query="UPDATE pagos p JOIN tmp_vitalicios t ON p.tutor_id = t.sid AND t.saldo < 0 SET estado = 0, pagado = monto, pagadoel=NOW() WHERE p.tipo = 1 AND p.estado = 1; ";
