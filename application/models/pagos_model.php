@@ -1020,7 +1020,11 @@ class Pagos_model extends CI_Model {
 	    
                 $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
 		if ( $debito ) {
-			$a->debito = true;
+			if ( $debito->estado == 1 ) {
+				$a->debito = true;
+			} else {
+				$a->debito = false;
+			}
 		} else {
 			$a->debito = false;
 		}
@@ -1073,7 +1077,11 @@ class Pagos_model extends CI_Model {
 	    
                 $debito = $this->debtarj_model->get_debtarj_by_sid($socio->Id);
 		if ( $debito ) {
-			$a->debito = true;
+                        if ( $debito->estado == 1 ) {
+                                $a->debito = true;
+                        } else {
+                                $a->debito = false;
+                        }
 		} else {
 			$a->debito = false;
 		}
