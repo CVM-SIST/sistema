@@ -26,16 +26,40 @@
                      ?>
                      <tr>
                         <td><span class="color-success"><?=$envio->titulo?></span></td>
-                        <td align="center"><?=$envio->enviados?>/<?=$envio->errores?>/<?=$envio->total?></td>
+			<?
+			if ( $envio->estado == 98 || $envio->estado == 99 ) {
+			?>
+                        	<td align="center">Testing</td>
+			<?
+			} else {
+			?>
+                        	<td align="center"><?=$envio->enviados?>/<?=$envio->errores?>/<?=$envio->total?></td>
+			<?
+ 			}
+			?>
                         <td align="right"><?=number_format((($envio->enviados+$envio->errores)/$envio->total)*100,2)?>%</td>
                         <td><?=date('d/m/Y H:i:s',strtotime($envio->creado_el))?></td>
                         <td>
                            <?
-                           if( ( $envio->enviados + $envio->errores ) < $envio->total){
+                           if( $envio->estado == 99 ){
                            ?>
-                           <a <i class="fa fa-play"></i> Enviando... </a>  | 
+                           	<a <i class="fa fa-play"></i> Test en despacho  </a>  | 
                            <?
-                           }
+			   } else {
+                           	if( $envio->estado == 98 ){
+                           		?>
+                           			<a <i class="fa fa-play"></i> Test enviado  </a>  | 
+                           			<a href="<?=base_url()?>admin/envios/ok/<?=$envio->Id?>"><i class="fa fa-pencil"></i> Enviar Todo </a>  | 
+                           			<a href="<?=base_url()?>admin/envios/reenviar/<?=$envio->Id?>"><i class="fa fa-pencil"></i> Reenviar Test </a>  | 
+                           		<?
+				} else {
+                           		if( ( $envio->enviados + $envio->errores ) < $envio->total  ){
+                           		?>
+                           			<a <i class="fa fa-play"></i> Enviando... </a>  | 
+                           		<?
+                           		}
+				}
+			   }
                            ?>
                            <a href="<?=base_url()?>admin/envios/editar/<?=$envio->Id?>"><i class="fa fa-pencil"></i> Editar </a>  | 
                            <a id="del_confirm" data-msj="Seguro que desea eliminar este envio?" href="<?=base_url()?>admin/envios/eliminar/<?=$envio->Id?>"><i class="fa fa-trash-o"></i> Eliminar</a>

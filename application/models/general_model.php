@@ -172,7 +172,7 @@ ENVIOS
     public function get_envios()
     {
 	$limite = 20;
-        $this->db->where('estado',1);
+        $this->db->where('estado IN ( 1, 98, 99 ) ');
         $this->db->order_by('Id','desc');
         $query = $this->db->get('envios');
         if($query->num_rows() == 0){ return false; }
@@ -187,6 +187,7 @@ ENVIOS
             		$envio->errores = $datos->errores;
 		} else {
             		$this->db->where('eid',$envio->Id);
+            		$this->db->where('estado != 99');
             		$query = $this->db->get('envios_data');
             		$envio->total = $query->num_rows();
 
@@ -264,10 +265,14 @@ ENVIOS
         $this->db->update('envios_data',array('estado'=>1));
     }
 
-    public function enviado_error($id='')
+    public function enviado_error($id='', $test=0)
     {
         $this->db->where('Id',$id);
-        $this->db->update('envios_data',array('estado'=>9));
+	if ( $test == 1 ) {
+        	$this->db->update('envios_data',array('estado'=>98));
+	} else {
+        	$this->db->update('envios_data',array('estado'=>9));
+	}
     }
 
     public function get_enviados($id='')
@@ -299,15 +304,50 @@ ENVIOS
     }
 
     public function get_pend_envios() {
-	$query="SELECT COUNT(*) pendientes FROM envios e JOIN envios_data d ON e.Id = d.eid AND d.estado = 0 WHERE e.estado = 1; ";
+	$query="SELECT COUNT(*) pendientes FROM envios e JOIN envios_data d ON e.Id = d.eid AND d.estado = 0 WHERE e.estado IN ( 1, 98, 99 ); ";
 	$envios = $this->db->query($query)->result()[0];
 	return $envios;
     }
 
+    public function marca_envio_test($id_envio) {
+	$query="UPDATE envios SET estado = 98 WHERE Id = $id_envio AND estado = 99; ";
+	$this->db->query($query);
+    }
+
+    public function libera_envio_test($id_envio) {
+	$query="UPDATE envios SET estado = 1 WHERE Id = $id_envio AND estado = 98; ";
+	$this->db->query($query);
+    }
+
+    public function reenvio_test($id_envio) {
+	$query="UPDATE envios SET estado = 99 WHERE Id = $id_envio AND estado = 98; ";
+	$this->db->query($query);
+	$query="UPDATE envios_data SET estado = 99 WHERE eid = $id_envio AND estado = 98; ";
+	$this->db->query($query);
+    }
+
     public function get_prox_envios() {
-	$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 1 WHERE d.estado = 0 LIMIT 30; ";
-	$envios = $this->db->query($query)->result();
-	return $envios;
+	$query="SELECT e.Id, e.titulo, e.body FROM envios e WHERE e.estado = 99 LIMIT 1; ";
+	$envio_prueba = $this->db->query($query)->result()[0];
+	if ( !$envio_prueba ) {
+		$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 1 WHERE d.estado = 0 LIMIT 30; ";
+		$envios = $this->db->query($query)->result();
+		return $envios;
+	} else {
+		$query="SELECT COUNT(*) cant_mails FROM envios_data WHERE eid = $envio_prueba->Id AND estado = 99;";
+		$destinos = $this->db->query($query)->row();
+		if ( !$destinos->cant_mails == 3 ) {
+			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'agonzalez.lacoope@gmail.com', 0, 99 );";
+			$this->db->query($query);
+			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'nmorbiducci@villamitre.com.ar', 0, 99 );";
+			$this->db->query($query);
+			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'sromero@villamitre.com.ar', 0, 99 );";
+			$this->db->query($query);
+		}
+		$query="SELECT e.titulo, e.body, d.* FROM envios_data d JOIN envios e ON e.Id = d.eid AND e.estado = 99 WHERE d.estado = 99; ";
+		$envios = $this->db->query($query)->result();
+		return $envios;
+	}
     }
 
     public function get_resumen_envios($eid) {

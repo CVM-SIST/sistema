@@ -4439,6 +4439,29 @@ class Admin extends CI_Controller {
                 $this->load->view('admin',$data);
                 break;
 
+            case 'ok':
+                $this->load->model('general_model');
+                $this->general_model->libera_envio_test($id);
+                $data['envios'] = $this->general_model->get_envios();
+                $data['username'] = $this->session->userdata('username');
+                $data['rango'] = $this->session->userdata('rango');
+                $data['baseurl'] = base_url();
+                $data['section'] = 'envios';
+                $this->load->view('admin',$data);
+
+                break;
+
+            case 'reenviar':
+                $this->load->model('general_model');
+                $this->general_model->reenvio_test($id);
+                $data['envios'] = $this->general_model->get_envios();
+                $data['username'] = $this->session->userdata('username');
+                $data['rango'] = $this->session->userdata('rango');
+                $data['baseurl'] = base_url();
+                $data['section'] = 'envios';
+                $this->load->view('admin',$data);
+                break;
+
             case 'guardar':
                 $this->load->model('general_model');
 // AHG  mover imagen de temp a directorio attach
@@ -4451,10 +4474,12 @@ class Admin extends CI_Controller {
                 $grupo = $this->input->post('grupo');
                 $data = $this->input->post('data');
                 $activ = $this->input->post('activ');
+		// fuerzo estado 9 para que arranquen con envio de prueba sin el total de emails
                 $envio = array(
                     'titulo' => $titulo,
                     'grupo' => $grupo,
                     'data' => json_encode($data),
+                    'estado' => 99,
                     'activos' => $activ
                     );
                 $this->load->model('general_model');
