@@ -449,10 +449,10 @@ COMISIONES
                 $data = json_encode(array("total"=>$estados->totales, "enviados"=>$estados->enviados, "errores"=>$estados->errores));
 		// Si es menos de 20 es facturacion mensual
 		if ( $dia < 20 ) {
-			$qry="UPDATE envios SET data = $data WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'FactMes'; ";
+			$qry="UPDATE envios SET data = '$data' WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'FactMes'; ";
 		// Sino es Aviso de Deuda
 		} else {
-			$qry="UPDATE envios SET data = $data WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'AvisoDeuda'; ";
+			$qry="UPDATE envios SET data = '$data' WHERE DATE_FORMAT(creado_el, '%Y%m') = $mes AND grupo = 'AvisoDeuda'; ";
 		}
                 $this->db->query($qry);
 	}
