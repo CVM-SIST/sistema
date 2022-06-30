@@ -219,6 +219,11 @@ class Cron extends CI_Controller {
 			// Facturamos el valor mensual de la actividad
                 	$descripcion .= 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio;
                     	$valor = $actividad->precio;
+			// AHG 20220628 si tiene seguro lo sumo al valor - modificacion solicitada por Simon
+			if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
+                                $valor = $actividad->precio + $actividad->seguro;
+			}
+			// Fin comentario 20220628
                 	if($actividad->descuento > 0){
 				if ( $actividad->monto_porcentaje == 0 ) {
 					if ( $actividad->precio > 0 ) {
@@ -260,23 +265,25 @@ class Cron extends CI_Controller {
                 	}
                 	$this->pagos_model->insert_pago_nuevo($pago);
 
+			// AHG 20220628 - comento la facturacion por separado del seguro - solicitado por Simon
 			// Si la actividad tiene seguro y el socio no es federado de la actividad facturo el seguro
-			if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
-                		$descripcion .= 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
-				$des = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
+			//if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
+                		//$descripcion .= 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
+				//$des = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
 
 				// Inserto el pago del seguro
-                		$pago = array(
-                    			'sid' => $socio->Id,
-                    			'tutor_id' => $socio->Id,
-                    			'aid' => $actividad->Id,
-                 			'generadoel' => $xhoy,
-                    			'descripcion' => $des,
-                    			'monto' => $actividad->seguro,
-                    			'tipo' => 6,
-                    		);
-                		$this->pagos_model->insert_pago_nuevo($pago);
-			}
+                		//$pago = array(
+                    			//'sid' => $socio->Id,
+                    			//'tutor_id' => $socio->Id,
+                    			//'aid' => $actividad->Id,
+                 			//'generadoel' => $xhoy,
+                    			//'descripcion' => $des,
+                    			//'monto' => $actividad->seguro,
+                    			//'tipo' => 6,
+                    		//);
+                		//$this->pagos_model->insert_pago_nuevo($pago);
+			//}
+			// FIN AHG 20220628
 	        } 
 
 		// Si tiene familiares a cargo
@@ -287,6 +294,11 @@ class Cron extends CI_Controller {
                			foreach($familiar['actividades']['actividad'] as $actividad){		               		
                     			$descripcion .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$actividad->precio;
 					$valor = $actividad->precio;
+					// AHG 20220628 si tiene seguro lo sumo al valor - modificacion solicitada por Simon
+					if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
+                                		$valor = $actividad->precio + $actividad->seguro;
+					}
+					// Fin comentario 20220628
                     			if($actividad->descuento > 0){
                     				if($actividad->monto_porcentaje == 0){
 							if ( $actividad->precio > 0 ) {
@@ -330,23 +342,24 @@ class Cron extends CI_Controller {
 
                     			$this->pagos_model->insert_pago_nuevo($pago);
 
+					// AHG 20220628 comento la facturacion separada del seguro - solicitado por Simon
                         		// Si la actividad tiene seguro y el socio no es federado de la actividad facturo el seguro
-                        		if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
-                                		$descripcion .= 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
-                                		$des = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
+                        		//if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
+                                		//$descripcion .= 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
+                                		//$des = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
 		
                                 		// Inserto el pago del seguro
-                                		$pago = array(
-                                        		'sid' => $socio->Id,
-                                        		'tutor_id' => $socio->Id,
-                                        		'aid' => $actividad->Id,
-                                        		'generadoel' => $xhoy,
-                                        		'descripcion' => $des,
-                                        		'monto' => $actividad->seguro,
-                                        		'tipo' => 6,
-                                		);
-                                		$this->pagos_model->insert_pago_nuevo($pago);
-                        		}
+                                		//$pago = array(
+                                        		//'sid' => $socio->Id,
+                                        		//'tutor_id' => $socio->Id,
+                                        		//'aid' => $actividad->Id,
+                                        		//'generadoel' => $xhoy,
+                                        		//'descripcion' => $des,
+                                        		//'monto' => $actividad->seguro,
+                                        		//'tipo' => 6,
+                                		//);
+                                		//$this->pagos_model->insert_pago_nuevo($pago);
+                        		//}
 
                			}
                		}
@@ -494,9 +507,10 @@ class Cron extends CI_Controller {
 	
 		// Actividades
 		foreach ($cuota3['actividades']['actividad'] as $actividad) {
+			// Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
                     $cuerpo .= '<tr style="background: #CCC;">
                         	  <td style="padding: 5px;">Cuota Mensual '.$actividad->nombre.'</td>
-                        	  <td style="padding: 5px;" align="right">$ '.$actividad->precio.'</td>
+                        	  <td style="padding: 5px;" align="right">$ '.$actividad->precio+$actividad->seguro.'</td>
                     		</tr>';                        
 
 		    // Si tiene descuento lo pongo detallado
@@ -514,21 +528,23 @@ class Cron extends CI_Controller {
                     			</tr>';                        
 		    }
 		    // Si tiene seguro lo pongo detallado
-		    if ( $actividad->seguro > 0 ) {
-                    	$cuerpo .= '<tr style="background: #CCC;">
-                        	  	<td style="padding: 5px;">Seguro Actividad '.$actividad->nombre.'</td>
-                        	  	<td style="padding: 5px;" align="right">$ '.$actividad->seguro.'</td>
-                    			</tr>';                        
-		    }
+		    // Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
+		    //if ( $actividad->seguro > 0 ) {
+                    	//$cuerpo .= '<tr style="background: #CCC;">
+                        	  	//<td style="padding: 5px;">Seguro Actividad '.$actividad->nombre.'</td>
+                        	  	//<td style="padding: 5px;" align="right">$ '.$actividad->seguro.'</td>
+                    			//</tr>';                        
+		    //}
                 } 
 
 		// Familiares
 		if($cuota3['familiares'] != 0){
 			foreach ($cuota3['familiares'] as $familiar) {
 				foreach($familiar['actividades']['actividad'] as $actividad){                           
+					// Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
                             		$cuerpo .= '<tr style="background: #CCC;">                    
                                 			<td style="padding: 5px;">Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.' ]</td>
-                                			<td style="padding: 5px;" align="right">$ '.$actividad->precio.'</td>
+                                			<td style="padding: 5px;" align="right">$ '.$actividad->precio+$actividad->seguro.'</td>
                             			    </tr>';
                     			// Si tiene descuento lo pongo detallado
                     			if ( $actividad->descuento > 0 ) {
@@ -545,12 +561,13 @@ class Cron extends CI_Controller {
                                         		</tr>';                        
                     			}
                     			// Si tiene seguro lo pongo detallado
-                    			if ( $actividad->seguro > 0 ) {
-                        			$cuerpo .= '<tr style="background: #CCC;">
-                                        			<td style="padding: 5px;">Seguro Actividad '.$actividad->nombre.'</td>
-                                        			<td style="padding: 5px;" align="right">$ '.$actividad->seguro.'</td>
-                                        			</tr>';                        
-                    			}
+					// Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
+                    			//if ( $actividad->seguro > 0 ) {
+                        			//$cuerpo .= '<tr style="background: #CCC;">
+                                        			//<td style="padding: 5px;">Seguro Actividad '.$actividad->nombre.'</td>
+                                        			//<td style="padding: 5px;" align="right">$ '.$actividad->seguro.'</td>
+                                        			//</tr>';                        
+                    			//}
 
                             	}                                   
                         }
@@ -2226,8 +2243,14 @@ echo "suspender";
 	{
 		echo "Comienzo Cron Envios ".date('Y-m-d H:i:s');
 		$this->load->model('general_model');
+
 		$pend_factu = $this->general_model->get_pend_envfact();
+		// 20220630 comentado para que no salga automaticamente el email de facturacion - asi controlamos
+		// Fuerzo el valor de pendientes en 0
+		$pend_factu->pendientes = 0;
+
 		$pend_masivo = $this->general_model->get_pend_envios();
+
 		// tipo 1 facturacion mensual
 		// Si existen emails para enviar
 		echo "Facturacion ".$pend_factu->pendientes."\n";

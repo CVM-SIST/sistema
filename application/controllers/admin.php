@@ -3140,10 +3140,10 @@ class Admin extends CI_Controller {
                     	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->cuota_inicial,'Cuota Inicial '.$actividad->nombre,$actividad->Id,0);
 		    }
 
+		    // Seguro se suma a actividad 20220628 - Solicitado por Simon
+                    $descripcion = 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio+$actividad->seguro;
 
-                    $descripcion = 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio;
-
-                    $this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio,'Facturacion '.$actividad->nombre,$actividad->Id,0);
+                    $this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->precio+$actividad->seguro,'Facturacion '.$actividad->nombre,$actividad->Id,0);
                 		// Grabo log de cambios
                 		$login = $this->session->userdata('username');
                 		$nivel_acceso = $this->session->userdata('rango');
@@ -3154,10 +3154,11 @@ class Admin extends CI_Controller {
                 		$this->log_cambios($login, $nivel_acceso, $tabla, $operacion, $llave, $observ);
 
 		    // Si la actividad tiene seguro y no es federado de la actividad lo registro
-		    if ( $actividad->seguro > 0 && $federado == 0 ) {
-                    	$descripcion = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
-                    	$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id,0);
-		    }
+		    // 20220628 no discrimino seguro - Solicitado por Simon
+		    //if ( $actividad->seguro > 0 && $federado == 0 ) {
+                    	//$descripcion = 'Seguro '.$actividad->nombre.' - $ '.$actividad->seguro;
+                    	//$this->pagos_model->registrar_pago('debe',$tutor_id,$actividad->seguro,'Seguro '.$actividad->nombre,$actividad->Id,0);
+		    //}
 
                 }
                 echo $act;
