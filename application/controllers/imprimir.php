@@ -382,13 +382,8 @@ class Imprimir extends CI_Controller {
                 $this->load->model('actividades_model');
                 $this->load->model('pagos_model');
                 $actividad = false;                
-                $actividad = $this->uri->segment(4);
                 $data['socios'] = false;
-                if($actividad){
-                    $data['socios'] = $this->pagos_model->get_becas($actividad);
-                }
-                $data['a_actual'] = $actividad;
-                $data['actividades'] = $this->actividades_model->get_actividades();
+                $data['socios'] = $this->pagos_model->get_becas();
                 $this->load->view('imprimir/becas',$data);             
                 break;
             

@@ -1056,7 +1056,7 @@ class Pagos_model extends CI_Model {
 
     public function get_pagos_comision($com){
 
-	$qry = "SELECT DISTINCT aa.sid , aa.aid, a.nombre nombre_act
+	$qry = "SELECT DISTINCT aa.sid 
 		FROM actividades_asociadas aa 
 			JOIN actividades a ON aa.aid = a.id AND a.comision = $com
 		WHERE aa.estado = 1; ";
@@ -1090,11 +1090,23 @@ class Pagos_model extends CI_Model {
             $a->suspendido = @$socio->suspendido;
             $a->observaciones = @$socio->observaciones;
             $a->act_nombre = @$socio->nombre_act;
-            //@$a->deuda = $this->pagos_model->get_deuda($socio->Id);
-            //@$a->deuda = $this->pagos_model->get_ultimo_pago_actividad($a->aid,$socio->Id);
-            @$a->deuda = $this->pagos_model->get_deuda_actividad($a->aid,$socio->Id);
+
+	    // Ciclo las actividades
+	    $qry = "SELECT DISTINCT aa.aid, a.nombre nombre_act
+                FROM actividades_asociadas aa
+                        JOIN actividades a ON aa.aid = a.id 
+                WHERE aa.estado = 1 AND aa.sid = $socio->Id; ";
+	    $acts = $this->db->query($qry)->result();
+	    	
+            @$a->deuda = 0;
+	    foreach ( $acts as $act )
+	    {
+            	$deuda = $this->pagos_model->get_deuda_actividad($act->aid,$socio->Id);
+            	@$a->deuda = @$a->deuda + $deuda;
+	    }
+
             /* Modificado AHG para manejo de array en PHP 5.3 que tengo en mi maquina */
-	        $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
+	    $array_ahg = $this->pagos_model->get_monto_socio($socio->Id);
             @$a->cuota = $array_ahg['total'];
             /* Fin Modificacion AHG */
             @$a->monto_adeudado = $this->pagos_model->get_saldo_socio($socio->Id);
@@ -1574,25 +1586,13 @@ class Pagos_model extends CI_Model {
         return $socios;
     }
 
-    public function get_becas($actividad='')
+    public function get_becas()
     {
-        if($actividad == -1){
-            $this->db->where('descuento >',0);
-            $this->db->where('estado',1);
-            $query = $this->db->get('socios');
-            if($query->num_rows() == 0){ return false; }
-            $socios = $query->result();
-	    foreach ($socios as $socio) {
-		$socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
-	    }
-            $query->free_result();
-            return $socios;
-        }else{
-            $this->db->select('aa.*, socios.*, aa.descuento as descuento, aa.monto_porcentaje as monto_porcentaje, socios.Id as Id');
-            $this->db->where('aa.aid',$actividad);
+            $this->db->select('aa.*, socios.*, a.nombre descr_actividad, aa.descuento as descuento, aa.monto_porcentaje as monto_porcentaje, socios.Id as Id');
             $this->db->where('aa.descuento >',0);
             $this->db->where('aa.estado',1);
             $this->db->join('socios', 'socios.Id = aa.sid', 'left');
+            $this->db->join('actividades as a', 'a.Id = aa.aid', 'left');
             $query = $this->db->get('actividades_asociadas as aa');
             if($query->num_rows() == 0){ return false; }
             $socios = $query->result();
@@ -1601,7 +1601,6 @@ class Pagos_model extends CI_Model {
 	    }
             $query->free_result();
             return $socios;
-        }
     }
 
     public function get_sin_actividades()

@@ -6,21 +6,6 @@
 }
 </style>
 <div class="container" style="margin-top:80px;">
-<div class="col-xs-6">
-    <label>Seleccione Actividad:</label>
-    <select class="form-control" id="becas_select"> 
-        <option value="">--</option>
-        <option value="-1" <? if($a_actual == '-1'){ echo 'selected'; } ?>>CUOTA SOCIAL</option>
-        <?
-        foreach ($actividades as $actividad) {              
-        ?>
-        <option value="<?=$actividad->Id?>" <? if($a_actual == $actividad->Id){ echo 'selected'; } ?>><?=$actividad->nombre?></option>
-        <?
-        }
-        ?>
-    </select>
-</div>
-<div class="clearfix"></div>
 <?
 if($socios){
 ?>
@@ -40,7 +25,9 @@ if($socios){
             <th>DNI</th>
             <th>Fecha de Nacimiento</th>
             <th>Fecha de Alta</th>
-            <th>Becado</th>        
+            <th>Actividad</th>        
+            <th>Tipo Beca</th>        
+            <th>%/$ Becado</th>        
             <th class="hidden-print">Resumen</th>
         </tr>
     </thead>
@@ -56,6 +43,8 @@ if($socios){
             <td><?=$socio->dni?></td>
             <td align="center"><?=date('d/m/Y',strtotime($socio->nacimiento))?></td>
             <td align="center"><?=date('d/m/Y',strtotime($socio->alta))?></td>
+            <td><?=$socio->descr_actividad?></td>
+            <td><?=$socio->monto_porcentaje?></td>
             <td><?=$socio->descuento?><? if ( $socio->monto_porcentaje == 0 ) { echo '$'; } else { echo '%'; } ?></td>
             <td class="hidden-print"><a href="<?=base_url()?>admin/socios/resumen/<?=$socio->Id?>" class="btn btn-info btn-sm" target="_blank"><i class="fa fa-external-link"></i> Ver Resumen</a></td>
         </tr>
