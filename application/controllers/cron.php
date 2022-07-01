@@ -770,19 +770,15 @@ class Cron extends CI_Controller {
 
 	// Subo el archivo al WS de La Coope para que se importe
 	// Primero lo renombre con el md5sum del contenido
-	/*
         $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';
 	$md5 = md5_file($file_col);
         $file_col_new = './application/logs/asociados_'.$md5.'.csv';
 	rename($file_col,$file_col_new);
 	// Luego llamo a la rutina que lo sube con el WS
 	$this->_sube_facturacion_COL($file_col_new);
-	 */
 
 	// Me mando email de aviso que el proceso termino OK
-/*
         mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total);
- */
 	echo $info_total;
 	}
 
@@ -2252,10 +2248,6 @@ echo "suspender";
 		$this->load->model('general_model');
 
 		$pend_factu = $this->general_model->get_pend_envfact();
-		// 20220630 comentado para que no salga automaticamente el email de facturacion - asi controlamos
-		// Fuerzo el valor de pendientes en 0
-		$pend_factu->pendientes = 0;
-
 		$pend_masivo = $this->general_model->get_pend_envios();
 
 		// tipo 1 facturacion mensual
