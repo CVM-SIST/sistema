@@ -217,12 +217,12 @@ class Cron extends CI_Controller {
 			*/
 
 			// Facturamos el valor mensual de la actividad
-                	$descripcion .= 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio;
                     	$valor = $actividad->precio;
 			// AHG 20220628 si tiene seguro lo sumo al valor - modificacion solicitada por Simon
 			if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
                                 $valor = $actividad->precio + $actividad->seguro;
 			}
+                	$descripcion .= 'Cuota Mensual '.$actividad->nombre.' - $ '.$valor;
 			// Fin comentario 20220628
                 	if($actividad->descuento > 0){
 				if ( $actividad->monto_porcentaje == 0 ) {
@@ -292,12 +292,12 @@ class Cron extends CI_Controller {
                		foreach ($cuota['familiares'] as $familiar) {
 				// Busco las actividades de ese familiar
                			foreach($familiar['actividades']['actividad'] as $actividad){		               		
-                    			$descripcion .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$actividad->precio;
 					$valor = $actividad->precio;
 					// AHG 20220628 si tiene seguro lo sumo al valor - modificacion solicitada por Simon
 					if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
                                 		$valor = $actividad->precio + $actividad->seguro;
 					}
+                    			$descripcion .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$valor;
 					// Fin comentario 20220628
                     			if($actividad->descuento > 0){
                     				if($actividad->monto_porcentaje == 0){
@@ -508,9 +508,10 @@ class Cron extends CI_Controller {
 		// Actividades
 		foreach ($cuota3['actividades']['actividad'] as $actividad) {
 			// Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
+		    $valor = $actividad->precio + $actividad->seguro;
                     $cuerpo .= '<tr style="background: #CCC;">
                         	  <td style="padding: 5px;">Cuota Mensual '.$actividad->nombre.'</td>
-                        	  <td style="padding: 5px;" align="right">$ '.$actividad->precio+$actividad->seguro.'</td>
+                        	  <td style="padding: 5px;" align="right">$ '.$valor.'</td>
                     		</tr>';                        
 
 		    // Si tiene descuento lo pongo detallado
@@ -542,9 +543,10 @@ class Cron extends CI_Controller {
 			foreach ($cuota3['familiares'] as $familiar) {
 				foreach($familiar['actividades']['actividad'] as $actividad){                           
 					// Seguro sumado al valor de la actividad para no discriminarlo 20220628 - Solicitado por Simon
+		    			$valor = $actividad->precio + $actividad->seguro;
                             		$cuerpo .= '<tr style="background: #CCC;">                    
                                 			<td style="padding: 5px;">Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.' ]</td>
-                                			<td style="padding: 5px;" align="right">$ '.$actividad->precio+$actividad->seguro.'</td>
+                                			<td style="padding: 5px;" align="right">$ '.$valor.'</td>
                             			    </tr>';
                     			// Si tiene descuento lo pongo detallado
                     			if ( $actividad->descuento > 0 ) {
@@ -768,15 +770,20 @@ class Cron extends CI_Controller {
 
 	// Subo el archivo al WS de La Coope para que se importe
 	// Primero lo renombre con el md5sum del contenido
+	/*
         $file_col = './application/logs/cobranza_col-'.$xanio.'-'.$xmes.'.csv';
 	$md5 = md5_file($file_col);
         $file_col_new = './application/logs/asociados_'.$md5.'.csv';
 	rename($file_col,$file_col_new);
 	// Luego llamo a la rutina que lo sube con el WS
 	$this->_sube_facturacion_COL($file_col_new);
+	 */
 
 	// Me mando email de aviso que el proceso termino OK
+/*
         mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total);
+ */
+	echo $info_total;
 	}
 
     public function email_a_suspendidos()
