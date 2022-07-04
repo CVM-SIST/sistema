@@ -1600,6 +1600,17 @@ class Pagos_model extends CI_Model {
 		$socio->fijocel = "F: ".$socio->telefono." C: ".$socio->celular;
 	    }
             $query->free_result();
+	    foreach ( $socios as $socio ) {
+		/* Segrego deuda por tipo */
+            	$qry = "SELECT SUM(IF(aid=0,pagado-monto,0)) deuda_cs, SUM(IF(tipo=6 and aid>0,pagado-monto,0)) deuda_seguro,
+                    	SUM(IF(tipo!=6 and aid>0,pagado-monto,0)) deuda_actividad
+                        FROM pagos
+                        WHERE sid = $socio->Id AND estado = 1 ; ";
+            	$deuda = $this->db->query($qry)->result();
+            	@$socio->deuda_cs = $deuda[0]->deuda_cs;
+            	@$socio->deuda_seg = $deuda[0]->deuda_seguro;
+            	@$socio->deuda_act = $deuda[0]->deuda_actividad;
+	    }
             return $socios;
     }
 

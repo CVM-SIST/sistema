@@ -1764,10 +1764,18 @@ AHG Comentado 20170105 porque no se usa..... creo
                     ->setCellValue('F1', 'Fecha de Alta')                 
                     ->setCellValue('G1', 'Actividad')                 
 		    ->setCellValue('H1', 'Tipo de Beca')                 
-                    ->setCellValue('I1', 'Porcentaje Becado');
+                    ->setCellValue('I1', 'Porcentaje Becado')
+                    ->setCellValue('J1', 'Deuda CS')
+                    ->setCellValue('K1', 'Deuda Actividad')
+                    ->setCellValue('L1', 'Deuda Seguro');
         
         $cont = 2;
         foreach ($clientes as $cliente) {            
+		if ( $cliente->monto_porcentaje = 0 ) {
+			$simbolo = "$";
+		} else {
+			$simbolo = "%";
+		}
             $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValue('A'.$cont, $cliente->Id)  
                         ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
@@ -1777,13 +1785,16 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
                         ->setCellValue('G'.$cont, $cliente->descr_actividad)
                         ->setCellValue('H'.$cont, $cliente->monto_porcentaje)
-                        ->setCellValue('I'.$cont, $cliente->descuento.'%');
+                        ->setCellValue('I'.$cont, $cliente->descuento.$simbolo)
+                        ->setCellValue('J'.$cont, $cliente->deuda_cs)
+                        ->setCellValue('K'.$cont, $cliente->deuda_act)
+                        ->setCellValue('L'.$cont, $cliente->deuda_seg);
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','I') as $columnID) {
+        foreach(range('A','L') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
