@@ -1762,7 +1762,9 @@ AHG Comentado 20170105 porque no se usa..... creo
                     ->setCellValue('D1', 'DNI')
                     ->setCellValue('E1', 'Fecha de Nacimiento')
                     ->setCellValue('F1', 'Fecha de Alta')                 
-                    ->setCellValue('G1', 'Porcentaje Becado');
+                    ->setCellValue('G1', 'Actividad')                 
+		    ->setCellValue('H1', 'Tipo de Beca')                 
+                    ->setCellValue('I1', 'Porcentaje Becado');
         
         $cont = 2;
         foreach ($clientes as $cliente) {            
@@ -1773,13 +1775,15 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('D'.$cont, $cliente->dni)  
                         ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
                         ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
-                        ->setCellValue('G'.$cont, $cliente->descuento.'%');
+                        ->setCellValue('G'.$cont, $cliente->descr_actividad)
+                        ->setCellValue('H'.$cont, $cliente->monto_porcentaje)
+                        ->setCellValue('I'.$cont, $cliente->descuento.'%');
                         $cont ++;
         } 
         // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Clientes');
          
-        foreach(range('A','G') as $columnID) {
+        foreach(range('A','I') as $columnID) {
             $this->phpexcel->getActiveSheet()->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
