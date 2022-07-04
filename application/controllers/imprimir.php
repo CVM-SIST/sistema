@@ -1732,22 +1732,11 @@ AHG Comentado 20170105 porque no se usa..... creo
     // end: setExcel
     }
 
-    public function becas_excel($actividad=false){       
+    public function becas_excel(){       
         $this->load->model('pagos_model');
         $this->load->model('actividades_model');
-        if($actividad){
-            $clientes = $this->pagos_model->get_becas($actividad);
-            if($actividad != '-1'){
-                $a = $this->actividades_model->get_actividad($actividad);
-            }else{
-                $a = new STDClass();
-                $a->nombre = 'Cuota Social';
-            }
-            $titulo = "CVM - Becados - ".$a->nombre." - ".date('d-m-Y');
-        }else{
-            die();
-        }
-        
+        $clientes = $this->pagos_model->get_becas();
+        $titulo = "CVM - Becados - ".date('d-m-Y');
         
         $this->load->library('PHPExcel');
         //$this->load->library('PHPExcel/IOFactory');

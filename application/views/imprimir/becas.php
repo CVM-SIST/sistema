@@ -14,7 +14,7 @@ if($socios){
 </div>
 <div class="pull-right hidden-print">
     <button class="btn btn-info" onclick="print()"><i class="fa fa-print"></i> Imprimir</button>
-    <a href="<?=base_url()?>imprimir/becas_excel/<?=$a_actual?>" class="btn btn-success"><i class="fa fa-cloud-download"></i> Excel</a>
+    <a href="<?=base_url()?>imprimir/becas_excel/" class="btn btn-success"><i class="fa fa-cloud-download"></i> Excel</a>
 </div>
 <table class="table table-striped table-bordered" cellspacing="0" width="100%" id="socios_table">
     <thead>
