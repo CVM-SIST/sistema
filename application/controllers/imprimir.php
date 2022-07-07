@@ -1771,11 +1771,44 @@ AHG Comentado 20170105 porque no se usa..... creo
         
         $cont = 2;
         foreach ($clientes as $cliente) {            
-		if ( $cliente->monto_porcentaje = 0 ) {
+		switch ( $cliente->monto_porcentaje ) {
+                case 0:
+                        $tipo_beca = "BECA $";
 			$simbolo = "$";
-		} else {
+                        break;
+                case 1:
+                        $tipo_beca = "BECA %";
 			$simbolo = "%";
-		}
+                        break;
+                case 2:
+                        $tipo_beca = "BONIF SERV $";
+			$simbolo = "$";
+                        break;
+                case 3:
+                        $tipo_beca = "BONIF SERV %";
+			$simbolo = "%";
+                        break;
+                case 4:
+                        $tipo_beca = "BONIF COMPET $";
+			$simbolo = "$";
+                        break;
+                case 5:
+                        $tipo_beca = "BONIF COMPET %";
+			$simbolo = "%";
+                        break;
+                case 6:
+                        $tipo_beca = "BONIF HNO $";
+			$simbolo = "$";
+                        break;
+                case 7:
+                        $tipo_beca = "BONIF HNO %";
+			$simbolo = "%";
+                        break;
+                default:
+                        $tipo_beca = "XYX";
+			$simbolo = "*";
+                        break;
+                        }
             $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValue('A'.$cont, $cliente->Id)  
                         ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
@@ -1784,7 +1817,7 @@ AHG Comentado 20170105 porque no se usa..... creo
                         ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
                         ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
                         ->setCellValue('G'.$cont, $cliente->descr_actividad)
-                        ->setCellValue('H'.$cont, $cliente->monto_porcentaje)
+                        ->setCellValue('H'.$cont, $tipo_beca)
                         ->setCellValue('I'.$cont, $cliente->descuento.$simbolo)
                         ->setCellValue('J'.$cont, $cliente->deuda_cs)
                         ->setCellValue('K'.$cont, $cliente->deuda_act)

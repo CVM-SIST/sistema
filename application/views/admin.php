@@ -1400,22 +1400,25 @@ $("#comi-activ-form").submit(function(){
         }
 
         $(document).on("click",".actividad_beca",function(){
+            var tipo_beca = $(this).data('tbeca');
             var beca = $(this).data('beca');
             var id = $(this).data('id');
             angular.element("#modal_open").triggerHandler('click');
+            $("#beca-tipo").val(tipo_beca);
             $("#beca-porcien").val(beca);
             $("#beca-id").val(id);
             return false;
         })
         $(document).on('submit','#form-beca',function(e){
+            var tipo_beca = $("#beca-tipo").val();
             var id = $("#beca-id").val();
             var beca = $("#beca-porcien").val();
-            console.log(id,beca);
             e.preventDefault();
-            $.post("<?=base_url()?>admin/actividades/becar",{id:id,beca:beca})
+            $.post("<?=base_url()?>admin/actividades/becar",{id:id,beca:beca,tipo_beca:tipo_beca})
             .done(function(){
                 angular.element("#modal_close").triggerHandler('click');
                 $("#actividad_beca_"+id).data('beca',beca);
+                $("#actividad_beca_"+id).data('tbeca',tipo_beca);
             })
         })
 

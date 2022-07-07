@@ -3765,8 +3765,9 @@ class Admin extends CI_Controller {
             case 'becar':
                 $id = $this->input->post('id');
                 $beca = $this->input->post('beca');
+                $tipo_beca = $this->input->post('tipo_beca');
                 $this->load->model('actividades_model');
-		$this->actividades_model->becar($id,$beca);
+		$this->actividades_model->becar($id,$beca,$tipo_beca);
                 break;
 
 

@@ -41,11 +41,9 @@
 							if($actividad->estado != '0'){ 
 							?>
 								<strong>Fecha de Alta:</strong> <?=$actividad->alta?><br>
-								<a href="#" style="color:green" class="actividad_beca" id="actividad_beca_<?=$actividad->asoc_id?>" data-id="<?=$actividad->asoc_id?>" data-beca="<?=$actividad->descuento?>">									
+								<a href="#" style="color:green" class="actividad_beca" id="actividad_beca_<?=$actividad->asoc_id?>" data-id="<?=$actividad->asoc_id?>" data-beca="<?=$actividad->descuento?>" data-tbeca="<?=$actividad->monto_porcentaje?>">									
 									Configurar Beca
 								</a>
-								<a href="#" id="pone_peso" onclick="pone_peso('<?=$actividad->asoc_id?>')" data-beca="<?=$actividad->descuento?>">$</a>
-								<a href="#" id="pone_porc" onclick="pone_porc('<?=$actividad->asoc_id?>')" data-beca="<?=$actividad->descuento?>">%</a>
 								<a href="#" id="federado" onclick="federado('<?=$actividad->asoc_id?>')" data-id="<?=$actividad->asoc_id?>"><?if($actividad->federado == 0){ echo 'No Federado'; } else { echo 'Federado'; } ?></a>
 								<br>
 								<a href="#" id="quitar_actividad" onclick="quitar_act('<?=$actividad->asoc_id?>','<?=$actividad->Id?>')" data-id="<?=$actividad->asoc_id?>">									

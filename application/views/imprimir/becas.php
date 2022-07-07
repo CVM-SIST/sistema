@@ -38,6 +38,35 @@ if($socios){
     <tbody>
         <?
     	foreach ($socios as $socio) {    	
+		switch ( $socio->monto_porcentaje ) {
+		case 0:
+			$tipo_beca = "BECA $";
+			break;
+		case 1:
+			$tipo_beca = "BECA %";
+			break;
+		case 2:
+			$tipo_beca = "BONIF SERV $";
+			break;
+		case 3:
+			$tipo_beca = "BONIF SERV %";
+			break;
+		case 4:
+			$tipo_beca = "BONIF COMPET $";
+			break;
+		case 5:
+			$tipo_beca = "BONIF COMPET %";
+			break;
+		case 6:
+			$tipo_beca = "BONIF HNO $";
+			break;
+		case 7:
+			$tipo_beca = "BONIF HNO %";
+			break;
+		default:
+			$tipo_beca = "XYX";
+			break;
+			}
     	?>
         <tr>
             <td><?=$socio->Id?></td>
@@ -47,7 +76,7 @@ if($socios){
             <td align="center"><?=date('d/m/Y',strtotime($socio->nacimiento))?></td>
             <td align="center"><?=date('d/m/Y',strtotime($socio->alta))?></td>
             <td><?=$socio->descr_actividad?></td>
-            <td><?=$socio->monto_porcentaje?></td>
+            <td><?=$tipo_beca?></td>
             <td><?=$socio->descuento?><? if ( $socio->monto_porcentaje == 0 ) { echo '$'; } else { echo '%'; } ?></td>
             <td><?=$socio->deuda_cs?></td>
             <td><?=$socio->deuda_act?></td>

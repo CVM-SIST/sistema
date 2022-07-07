@@ -62,16 +62,32 @@
             <form class="form-horizontal" data-id="" id="form-beca" action="#" method="post">
                 <div class="modal-body">
                     <div class="form-group col-lg-12">
-                        <label for="" class="col-sm-3">Porcentaje </label>
-                        <label for="" class="col-sm-3">Becado</label>
+                        <label for="" class="col-sm-3">Valor</label>
                         <div class="col-sm-6">
                             <div class="input-group">
                                 <input type="number" step="any" min="0" max="100000" id="beca-porcien" name="beca-porcien" class="form-control" required>                                
                                 <input type="hidden" id="beca-id" name="beca-id" class="form-control" required>                                
-                                <span class="input-group-addon">%</span>
                             </div>
                         </div>
                     </div>                    
+                    <div class="clearfix"></div>
+		        <div class="form-group col-lg-12">
+                        <label for="" class="col-sm-3">Tipo Bonificacion</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+			        <select name="beca-tipo" id="beca-tipo" style="margin:0px; width:100%; border:1px solid #cbd5dd; padding:8px 15px 7px 10px;">
+                                    <option value='0'>Beca $</option>
+                                    <option value='1'>Beca %</option>
+                                    <option value='2'>Bonif Serv $</option>
+                                    <option value='3'>Bonif Serv %</option>
+                                    <option value='4'>Bonif Competencia $</option>
+                                    <option value='5'>Bonif Competencia %</option>
+                                    <option value='6'>Bonif Hermano $</option>
+                                    <option value='7'>Bonif Hermano %</option>
+                            	</select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
@@ -84,24 +100,3 @@
     </div>
 <!-- end Modal -->
 
-<script type="text/javascript">
-    $(document).on("click",".actividad_beca",function(){
-            var beca = $(this).data('beca');
-            var id = $(this).data('id');
-            angular.element("#modal_open").triggerHandler('click');
-            $("#beca-porcien").val(beca);
-            $("#beca-id").val(id);
-            return false;
-        })
-        $(document).on('submit','#form-beca',function(e){
-            var id = $("#beca-id").val();
-            var beca = $("#beca-porcien").val();
-            console.log(id,beca);
-            e.preventDefault();
-            $.post("<?=base_url()?>admin/actividades/becar",{id:id,beca:beca})
-            .done(function(){
-                angular.element("#modal_close").triggerHandler('click');
-                $("#actividad_beca_"+id).data('beca',beca);
-            })
-        })
-</script>

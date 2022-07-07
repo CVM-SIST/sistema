@@ -393,14 +393,10 @@ class Actividades_model extends CI_Model {
 
     } 
 
-    public function becar($id='',$beca)
+    public function becar($id='',$beca, $tipo_beca)
     {    
         $this->db->where('Id',$id);
-	if ( $beca > 100 ) {
-        	$this->db->update('actividades_asociadas',array("descuento"=>$beca, "monto_porcentaje"=>0 ));
-	} else {
-        	$this->db->update('actividades_asociadas',array("descuento"=>$beca, "monto_porcentaje"=>1 ));
-	}
+        $this->db->update('actividades_asociadas',array("descuento"=>$beca, "monto_porcentaje"=>$tipo_beca ));
     }
 
     public function get_act_asoc_all()
