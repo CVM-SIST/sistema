@@ -138,9 +138,40 @@
                                 </tr>
                                 <? foreach ($cuota['actividades']['actividad'] as $actividad) {?>
                                 <tr>
-                                    <? if($actividad->descuento > 0){ ?>
-                                    <td>Cuota Mensual <?=$actividad->nombre?> - $ <?=$actividad->precio?> <label class="label label-info"><?=$actividad->descuento?><? if ($actividad->monto_porcentaje == 0) { echo '$ BECADOS'; } else { echo '% BECADO'; } ?></label></td>
-                                    <td>$<?if ( $actividad->monto_porcentaje == 0 ) { if ( $actividad->precio == 0 ) { echo '0.00';} else { echo $actividad->precio - $actividad->descuento; } ; } else { echo $actividad->precio - ($actividad->precio * $actividad->descuento / 100); }?><td>
+				    <? if($actividad->descuento > 0){ 
+				    			$tb = $actividad->monto_porcentaje;
+				                    switch ( $tb ) {
+                					case 0:
+                        					$tipo_beca = "BECA $";
+                        					break;
+                					case 1:
+                        					$tipo_beca = "BECA %";
+                        					break;
+                					case 2:
+                        					$tipo_beca = "BONIF SERV $";
+                        					break;
+                					case 3:
+                        					$tipo_beca = "BONIF SERV %";
+                        					break;
+                					case 4:
+                        					$tipo_beca = "BONIF COMPET $";
+                        					break;
+                					case 5:
+                        					$tipo_beca = "BONIF COMPET %";
+                        					break;
+                					case 6:
+                        					$tipo_beca = "BONIF HNO $";
+                        					break;
+                					case 7:
+                        					$tipo_beca = "BONIF HNO %";
+                        					break;
+                					default:
+                        					$tipo_beca = "XYX";
+                        					break;
+						    }
+					?>
+                                    <td>Cuota Mensual <?=$actividad->nombre?> - $ <?=$actividad->precio?> <label class="label label-info"><?=$actividad->descuento?> <? echo $tipo_beca; ?></label></td>
+                                    <td>$<?if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) { if ( $actividad->precio == 0 ) { echo '0.00';} else { echo $actividad->precio - $actividad->descuento; } ; } else { echo $actividad->precio - ($actividad->precio * $actividad->descuento / 100); }?><td>
                                     <? }else{ ?>                   
 				    	<? if ( $actividad->seguro > 0 && $actividad->federado == 0 ) { ?>
 					<? 	$valor = $actividad->precio + $actividad->seguro; ?>
@@ -163,9 +194,40 @@
 								<? $seguro = $actividad->seguro; ?>
                                                 	<? }else{ ?>                   
 								<? $seguro = 0; ?>
-                                            		<? } ?>     
-                                                <td>Cuota Mensual <?=$actividad->nombre?> [<?=$familiar['datos']->nombre.' '.$familiar['datos']->apellido?> ] - $ <?=$actividad->precio?> <label class="label label-info"><?=$actividad->descuento?><? if ($actividad->monto_porcentaje == 0) { echo '$ BECADOS'; } else { echo '% BECADO'; } ?></label></td>
-                                                <td>$<?if ( $actividad->monto_porcentaje == 0 ) { if ( $actividad->precio == 0 ) { echo '0.00'; } else { echo $actividad->precio - $actividad->descuento + $seguro; } ; } else { echo $actividad->precio - ($actividad->precio * $actividad->descuento / 100) + $seguro; }?><td>
+							<? } 
+                                                        $tb = $actividad->monto_porcentaje;
+                                                    	switch ( $tb ) {
+                                                        	case 0:
+                                                                	$tipo_beca = "BECA $";
+                                                                	break;
+                                                        	case 1:
+                                                                	$tipo_beca = "BECA %";
+                                                                	break;
+                                                        	case 2:
+                                                                	$tipo_beca = "BONIF SERV $";
+                                                                	break;
+                                                        	case 3:
+                                                                	$tipo_beca = "BONIF SERV %";
+                                                                	break;
+                                                        	case 4:
+                                                                	$tipo_beca = "BONIF COMPET $";
+                                                                	break;
+                                                        	case 5:
+                                                                	$tipo_beca = "BONIF COMPET %";
+                                                                	break;
+                                                        	case 6:
+                                                                	$tipo_beca = "BONIF HNO $";
+                                                                	break;
+                                                        	case 7:
+                                                                	$tipo_beca = "BONIF HNO %";
+                                                                	break;
+                                                        	default:
+                                                                	$tipo_beca = "XYX";
+                                                                	break;
+                                                    	}
+							?>     
+                                                <td>Cuota Mensual <?=$actividad->nombre?> [<?=$familiar['datos']->nombre.' '.$familiar['datos']->apellido?> ] - $ <?=$actividad->precio?> <label class="label label-info"><?=$actividad->descuento?><? echo $tipo_beca; ?></label></td>
+                                                <td>$<?if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) { if ( $actividad->precio == 0 ) { echo '0.00'; } else { echo $actividad->precio - $actividad->descuento + $seguro; } ; } else { echo $actividad->precio - ($actividad->precio * $actividad->descuento / 100) + $seguro; }?><td>
                                                 <? }else{ ?>                   
 	                                    		<? if ( $actividad->seguro > 0 && $actividad->federado == 0 ) { ?>
 								<? $valor = $actividad->precio + $actividad->seguro; ?>

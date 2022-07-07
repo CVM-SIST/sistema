@@ -223,30 +223,53 @@ class Cron extends CI_Controller {
                                 $valor = $actividad->precio + $actividad->seguro;
 			}
                 	$descripcion .= 'Cuota Mensual '.$actividad->nombre.' - $ '.$valor;
+	        	$desc_pago = 'Cuota Mensual '.$actividad->nombre.' - $ '.$valor;
 			// Fin comentario 20220628
                 	if($actividad->descuento > 0){
-				if ( $actividad->monto_porcentaje == 0 ) {
+				$tbeca = $actividad->monto_porcentaje;
+				switch ( $tbeca ) {
+                			case 0:
+                        			$tipo_beca = "BECA $";
+                        			break;
+                			case 1:
+                        			$tipo_beca = "BECA %";
+                        			break;
+                			case 2:
+                        			$tipo_beca = "BONIF SERV $";
+                        			break;
+                			case 3:
+                        			$tipo_beca = "BONIF SERV %";
+                        			break;
+                			case 4:
+                        			$tipo_beca = "BONIF COMPET $";
+                        			break;
+                			case 5:
+                        			$tipo_beca = "BONIF COMPET %";
+                        			break;
+                			case 6:
+                        			$tipo_beca = "BONIF HNO $";
+                        			break;
+                			case 7:
+                        			$tipo_beca = "BONIF HNO %";
+                        			break;
+                			default:
+                        			$tipo_beca = "XYX";
+                        			break;
+                        	}
+				if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
 					if ( $actividad->precio > 0 ) {
                     				$valor = $actividad->precio - $actividad->descuento;
 					} else {
 						$valor = 0;
 					}
-                    			$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'$ BECADOS</label> $ '.$valor;                    
 				} else {
                     			$valor = $actividad->precio - ($actividad->precio * $actividad->descuento / 100);
-                    			$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'% BECADO</label> $ '.$valor;                    
 				}
+                    		$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;                    
+                    		$desc_pago .= '<label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
 	 		} 
                 	$descripcion .= '<br>';
-	        	$des = 'Cuota Mensual '.$actividad->nombre.' - $ '.$actividad->precio;
-                	if($actividad->descuento > 0){
-				if ( $actividad->monto_porcentaje == 0 ) {
-                    			$des .= '<label class="label label-info">'.$actividad->descuento.'$ BECADOS</label> $ '.$valor;
-				} else {
-                    			$des .= '<label class="label label-info">'.$actividad->descuento.'% BECADO</label> $ '.$valor;
-				}
-                	}
-                	$des .= '<br>';
+                	$desc_pago .= '<br>';
 
 			// Inserto el pago de la actividad (tipo=4)
                 	$pago = array(
@@ -254,7 +277,7 @@ class Cron extends CI_Controller {
                     		'tutor_id' => $socio->Id,
                     		'aid' => $actividad->Id,
                  		'generadoel' => $xhoy,
-                    		'descripcion' => $des,
+                    		'descripcion' => $desc_pago,
                     		'monto' => $valor,
                     		'tipo' => 4,
                     	);
@@ -297,31 +320,54 @@ class Cron extends CI_Controller {
 					if ( $actividad->seguro > 0 && $actividad->federado == 0 ) {
                                 		$valor = $actividad->precio + $actividad->seguro;
 					}
-                    			$descripcion .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$valor;
 					// Fin comentario 20220628
-                    			if($actividad->descuento > 0){
-                    				if($actividad->monto_porcentaje == 0){
-							if ( $actividad->precio > 0 ) {
-                        					$valor = $actividad->precio - $actividad->descuento;
-							} else { 
-								$valor = 0;
-							}
-                        				$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'$ BECADOS</label> $ '.$valor;                    
-						} else {
-                        				$valor = $actividad->precio - ($actividad->precio * $actividad->descuento / 100);
-                        				$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'% BECADO</label> $ '.$valor;                    
-						}
-                    			}
-                    			$descripcion .= '<br>';
-	               			$des = 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$actividad->precio;
-                    			if($actividad->descuento > 0){
-                    				if($actividad->monto_porcentaje == 0){
-                        				$des .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'$ BECADOS</label> $ '.$valor;                    
-						} else {
-                        				$des .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'% BECADO</label> $ '.$valor;                    
-						}
-                    			}
-                    			$des = '<br>';	 
+                    			$descripcion .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$valor;
+                    			$desc_pago .= 'Cuota Mensual '.$actividad->nombre.' ['.$familiar['datos']->nombre.' '.$familiar['datos']->apellido.'] - $ '.$valor;
+                        		if($actividad->descuento > 0){
+                                		$tbeca = $actividad->monto_porcentaje;
+                                		switch ( $tbeca ) {
+                                        		case 0:
+                                                		$tipo_beca = "BECA $";
+                                                		break;
+                                        		case 1:
+                                                		$tipo_beca = "BECA %";
+                                                		break;
+                                        		case 2:
+                                                		$tipo_beca = "BONIF SERV $";
+                                                		break;
+                                        		case 3:
+                                                		$tipo_beca = "BONIF SERV %";
+                                                		break;
+                                        		case 4:
+                                                		$tipo_beca = "BONIF COMPET $";
+                                                		break;
+                                        		case 5:
+                                                		$tipo_beca = "BONIF COMPET %";
+                                                		break;
+                                        		case 6:
+                                                		$tipo_beca = "BONIF HNO $";
+                                                		break;
+                                        		case 7:
+                                                		$tipo_beca = "BONIF HNO %";
+                                                		break;
+                                        		default:
+                                                		$tipo_beca = "XYX";
+                                                		break;
+                                		}
+                                		if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
+                                        		if ( $actividad->precio > 0 ) {
+                                                		$valor = $actividad->precio - $actividad->descuento;
+                                        		} else {
+                                                		$valor = 0;
+                                        		}
+                                		} else {
+                                        		$valor = $actividad->precio - ($actividad->precio * $actividad->descuento / 100);
+                                		}
+                                		$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
+                                		$desc_pago .= '<label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
+                        		}
+                        		$descripcion .= '<br>';
+                        		$desc_pago .= '<br>';
 
 					// Inserto el pago de la actividad del familia (tipo=4)
                     			$pago = array(
@@ -329,7 +375,7 @@ class Cron extends CI_Controller {
                         			'tutor_id' => $socio->Id,
                         			'aid' => $actividad->Id,
                         			'generadoel' => $xhoy,
-                        			'descripcion' => $des,
+                        			'descripcion' => $desc_pago,
                         			'monto' => $valor,
                         			'tipo' => 4,
                         			);
@@ -516,7 +562,8 @@ class Cron extends CI_Controller {
 
 		    // Si tiene descuento lo pongo detallado
 		    if ( $actividad->descuento > 0 ) {
-			if ( $actividad->monto_porcentaje == 0 ) {
+			$tbeca = $actividad->monto_porcentaje;
+			if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
 				$msj_act=$actividad->descuento."$ ";
 				$msj_act_valor=$actividad->precio-$actividad->descuento;
 			} else {
@@ -550,7 +597,8 @@ class Cron extends CI_Controller {
                             			    </tr>';
                     			// Si tiene descuento lo pongo detallado
                     			if ( $actividad->descuento > 0 ) {
-                        			if ( $actividad->monto_porcentaje == 0 ) {
+						$tbeca = $actividad->monto_porcentaje;
+                        			if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6) {
                                 			$msj_act=$actividad->descuento."$ ";
                                 			$msj_act_valor=$actividad->precio-$actividad->descuento;
                         			} else {

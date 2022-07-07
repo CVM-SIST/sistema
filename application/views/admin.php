@@ -1413,6 +1413,12 @@ $("#comi-activ-form").submit(function(){
             var tipo_beca = $("#beca-tipo").val();
             var id = $("#beca-id").val();
             var beca = $("#beca-porcien").val();
+	    if ( tipo_beca == 1 || tipo_beca == 3 || tipo_beca == 5 || tipo_beca == 7 ) {
+		if ( beca > 100 ) {
+			alert ("No se puede poner un % mayor al 100%");
+			return false;
+		}
+	    }
             e.preventDefault();
             $.post("<?=base_url()?>admin/actividades/becar",{id:id,beca:beca,tipo_beca:tipo_beca})
             .done(function(){

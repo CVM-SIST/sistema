@@ -63,8 +63,9 @@
 						#<span><?=$actividad->Id?> <?=$actividad->nombre?>
 						<?
 						if($actividad->descuento > 0){
+							$tb = $actividad->monto_porcentaje;
 						?>
-							&nbsp;<label class="label label-info">Beca <?=$actividad->descuento?><? if ($actividad->monto_porcentaje == 0 ) { echo '$'; } else { echo '%'; } ?></label>
+							&nbsp;<label class="label label-info">Beca <?=$actividad->descuento?><? if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) { echo '$'; } else { echo '%'; } ?></label>
 						<? } ?>
 						</span>
 					</li>				
