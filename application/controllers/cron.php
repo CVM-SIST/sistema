@@ -2318,79 +2318,80 @@ echo "suspender";
                 $envio_info = $this->general_model->get_prox_envios();
 
 
-        	$path_log = './application/logs/envios-masivos-'.date('Ymd').'.log';
-		if( !file_exists($path_log) ){
-			$log = fopen($path_log,'w');
-		} else {
-			$log = fopen($path_log,'a');
-		}
-		$eid = 0;
-		if ( count($envio_info) < 10 ) {
-                        if ( $envio_info[0]->estado == 99 ) {
-                                $ultima_tanda = 9;
-                                $id_envio_test = $envio_info[0]->eid;
-                                fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envio_info)." correos. Enviando Testing a direcciones fijas...n");
-                        } else {
-                                $ultima_tanda = 1;
-                                fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envio_info)." correos. Enviando Ultimo lote...n");
-                        }
-		} else {
-			$ultima_tanda = 0;
-		    	fwrite($log,date('d-m-Y H:i:s')."Enviando lote\n");
-		}
-
-		$enviados=0;
-		foreach ( $envio_info as $envio ) {
-                    $this->load->library('email');
-                    $this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
-                    $this->email->to($envio->email);
-		    if ( $ultima_tanda == 9 ) {
-                    	$this->email->subject($envio->titulo."***TESTING***");
-		    } else {
-                    	$this->email->subject($envio->titulo);
- 		    }
-		    if ( $ultima_tanda == 9 ) {
-                    	$this->email->message("---testing---\n".$envio->body."---testing---\n");
-		    } else {
-                    	$this->email->message($envio->body);
-		    }
-                    $st = $this->email->send();
-		    $eid = $envio->eid;
-
-                    //echo $this->email->print_debugger();
-		    if ( $st ) {
-		    	fwrite($log,date('d-m-Y H:i:s')."Envie email a $envio->email \n");
-                    	$this->general_model->enviado($envio->Id);
-		    } else {
-		    	fwrite($log,date('d-m-Y H:i:s')."Fallo envio email a $envio->email \n");
-			if ( $ultima_tanda == 9 ) {
-                    		$this->general_model->enviado_error($envio->Id,1);
+		if ( $envio_info ) {
+        		$path_log = './application/logs/envios-masivos-'.date('Ymd').'.log';
+			if( !file_exists($path_log) ){
+				$log = fopen($path_log,'w');
 			} else {
-                    		$this->general_model->enviado_error($envio->Id,0);
+				$log = fopen($path_log,'a');
 			}
-                    }
+			$eid = 0;
+			if ( count($envio_info) < 10 ) {
+                        	if ( $envio_info[0]->estado == 99 ) {
+                                	$ultima_tanda = 9;
+                                	$id_envio_test = $envio_info[0]->eid;
+                                	fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envio_info)." correos. Enviando Testing a direcciones fijas...n");
+                        	} else {
+                                	$ultima_tanda = 1;
+                                	fwrite($log,date('d-m-Y H:i:s')."Se encontraron ".count($envio_info)." correos. Enviando Ultimo lote...n");
+                        	}
+			} else {
+				$ultima_tanda = 0;
+		    		fwrite($log,date('d-m-Y H:i:s')."Enviando lote\n");
+			}
+	
+			$enviados=0;
+			foreach ( $envio_info as $envio ) {
+                    		$this->load->library('email');
+                    		$this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
+                    		$this->email->to($envio->email);
+		    		if ( $ultima_tanda == 9 ) {
+                    			$this->email->subject($envio->titulo."***TESTING***");
+		    		} else {
+                    			$this->email->subject($envio->titulo);
+ 		    		}
+		    		if ( $ultima_tanda == 9 ) {
+                    			$this->email->message("---testing---\n".$envio->body."---testing---\n");
+		    		} else {
+                    			$this->email->message($envio->body);
+		    		}
+                    		$st = $this->email->send();
+		    		$eid = $envio->eid;
 		
-		    // Agrego demora para que no considere al envio un SPAM / BULK
-		    sleep(2);
-
-                }
-	        $this->general_model->upd_ult_cron(2);
-		if ( $ultima_tanda == 1 ) {
-                	fwrite($log, date('d/m/Y G:i:s').": Envio Finalizado \n");
-                	$resumen = $this->general_model->get_resumen_envios($eid);
-                	$env_ok = $resumen->estado1;
-                	$env_err = $resumen->estado9;
-			$xahora = date('Y-m-d H:i:s');
-                	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
-		} else {
-                	if ( $ultima_tanda == 9 ) {
-                        	fwrite($log, date('d/m/Y G:i:s').": Envio Testing Finalizado \n");
-                        	$this->general_model->marca_envio_test($id_envio_test);
-                        	$xahora = date('Y-m-d H:i:s');
-                        	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de TESTING Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails ...".$xahora."\n");
+                    		//echo $this->email->print_debugger();
+		    		if ( $st ) {
+		    			fwrite($log,date('d-m-Y H:i:s')."Envie email a $envio->email \n");
+                    			$this->general_model->enviado($envio->Id);
+		    		} else {
+		    			fwrite($log,date('d-m-Y H:i:s')."Fallo envio email a $envio->email \n");
+					if ( $ultima_tanda == 9 ) {
+                    				$this->general_model->enviado_error($envio->Id,1);
+					} else {
+                    				$this->general_model->enviado_error($envio->Id,0);
+					}
+                    		}
+			
+		    		// Agrego demora para que no considere al envio un SPAM / BULK
+		    		sleep(2);
                 	}
-
-        	}
+	        	$this->general_model->upd_ult_cron(2);
+			if ( $ultima_tanda == 1 ) {
+                		fwrite($log, date('d/m/Y G:i:s').": Envio Finalizado \n");
+                		$resumen = $this->general_model->get_resumen_envios($eid);
+                		$env_ok = $resumen->estado1;
+                		$env_err = $resumen->estado9;
+				$xahora = date('Y-m-d H:i:s');
+                		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
+			} else {
+                		if ( $ultima_tanda == 9 ) {
+                        		fwrite($log, date('d/m/Y G:i:s').": Envio Testing Finalizado \n");
+                        		$this->general_model->marca_envio_test($id_envio_test);
+                        		$xahora = date('Y-m-d H:i:s');
+                        		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de TESTING Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails ...".$xahora."\n");
+                		}
+	
+        		}
+		}
     }
 
     public function facturacion_mails()
