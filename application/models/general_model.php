@@ -337,6 +337,10 @@ ENVIOS
 		$query="SELECT COUNT(*) cant_mails FROM envios_data WHERE eid = $envio_prueba->Id AND estado = 99;";
 		$destinos = $this->db->query($query)->row();
 		if ( !$destinos->cant_mails == 3 ) {
+			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'lucianamartinezfalcon7@gmail.com', 0, 99 );";
+			$this->db->query($query);
+			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'facundoromero82@gmail.com', 0, 99 );";
+			$this->db->query($query);
 			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'agonzalez.lacoope@gmail.com', 0, 99 );";
 			$this->db->query($query);
 			$query="INSERT INTO envios_data VALUES ( 0, $envio_prueba->Id, 'nmorbiducci@villamitre.com.ar', 0, 99 );";

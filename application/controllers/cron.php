@@ -2344,8 +2344,16 @@ echo "suspender";
                     $this->load->library('email');
                     $this->email->from('avisos_cvm@clubvillamitre.com', 'Club Villa Mitre');
                     $this->email->to($envio->email);
-                    $this->email->subject($envio->titulo);
-                    $this->email->message($envio->body);
+		    if ( $ultima_tanda == 9 ) {
+                    	$this->email->subject($envio->titulo."***TESTING***");
+		    } else {
+                    	$this->email->subject($envio->titulo);
+ 		    }
+		    if ( $ultima_tanda == 9 ) {
+                    	$this->email->message("---testing---\n".$envio->body."---testing---\n");
+		    } else {
+                    	$this->email->message($envio->body);
+		    }
                     $st = $this->email->send();
 		    $eid = $envio->eid;
 
