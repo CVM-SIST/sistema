@@ -296,16 +296,6 @@ class Actividades_model extends CI_Model {
 	}
         return true;
     } 
-    public function act_peso($aid){        
-        $this->db->where('Id',$aid);
-        $query = $this->db->update("actividades_asociadas",array('monto_porcentaje'=>'0'));
-        return true;
-    } 
-    public function act_porc($aid){        
-        $this->db->where('Id',$aid);
-        $query = $this->db->update("actividades_asociadas",array('monto_porcentaje'=>'1'));
-        return true;
-    } 
 
     public function get_socactiv($id_actividad=-1,$id_comision=0,$mora=0,$id_estado=-1){
         $qry = "DROP TEMPORARY TABLE IF EXISTS tmp_socios_activos;";
@@ -320,7 +310,7 @@ class Actividades_model extends CI_Model {
         }
 
         $qry = "CREATE TEMPORARY TABLE tmp_socios_activos
-		SELECT aa.aid, a.nombre descr_act, IF(aa.descuento>0, IF(aa.monto_porcentaje=1, CONCAT(aa.descuento,' % becado'), CONCAT(aa.descuento, ' $ becados')), 'normal') beca, aa.federado, s.*
+		SELECT aa.aid, a.nombre descr_act, IF(aa.descuento>0, IF(aa.monto_porcentaje IN (1,3,5,7), CONCAT(aa.descuento,' % descuento'), CONCAT(aa.descuento, ' $ descuento')), 'normal') beca, aa.federado, s.*
                 FROM actividades_asociadas aa 
 			JOIN socios s ON aa.sid = s.Id 
 			JOIN actividades a ON aa.aid = a.Id ";
