@@ -63,10 +63,10 @@
 			if ( $rango < 3 ) { ?>
                     		<div class="form-group col-lg-6 <? if(!$socio->Id){ echo 'hidden'; } ?>" style="padding-top:20px;" id="accesos_directos">
                         		<a id="acceso_editar" class="btn btn-success" href="<?=$baseurl?>admin/socios/editar/<?=$socio->Id?>"><i class="fa fa-user"></i> Editar este socio</a>                        
-                    		</div>                   
-                    		<div>
+                        		<a id="acceso_actividad" class="btn btn-success" href="<?=$baseurl?>admin/actividades/asociar/<?=$socio->Id?>">Asociar Actividad</a>                        
                         		<a href="<?=base_url()?>admin/socios/resumen/<?=$this->uri->segment(4)?>/excel" class="btn btn-primary">Bajar a Excel</a>
-                    		</div>
+                    		</div>                   
+
 			<? } else { ?>
                     		<div class="form-group col-lg-6 <? if(!$socio->Id){ echo 'hidden'; } ?>" style="padding-top:20px;" id="accesos_directos">
                         		<a id="acceso_editar" class="btn btn-success" href="<?=$baseurl?>admin/socios/editar/<?=$socio->Id?>"><i class="fa fa-user"></i> Ver este socio</a>                        
