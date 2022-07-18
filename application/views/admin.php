@@ -1322,13 +1322,14 @@ $("#comi-activ-form").submit(function(){
             var grupo = $("#grupo-select").val();
             var data;
             var titulo = $("#envio-titulo").val();
+            var url_link = $("#url_link").val();
 	    if ( grupo == "soccomision" || grupo == "titcomision" ) {
 			data = $("#comisiones-select").val();
 		} else {
             		data = $("#"+grupo+"-select").val();
 		}
 
-            $.post("<?=base_url()?>admin/envios/agregar",{titulo:titulo,grupo:grupo,data:data,activ:activ})
+            $.post("<?=base_url()?>admin/envios/agregar",{titulo:titulo,grupo:grupo,data:data,activ:activ,url_link:url_link})
             .done(function(data){
                 if(data == 'no_mails'){
                     $("#step2").html('<div class="alert alert-danger">No se encontraron socios para el grupo seleccionado.</div>');
@@ -1362,8 +1363,9 @@ $("#comi-activ-form").submit(function(){
             var grupo = $("#grupo-select").val();
             var data;
             var titulo = $("#envio-titulo").val();
+            var url_link = $("#url_link").val();
             data = $("#"+grupo+"-select").val();
-            $.post("<?=base_url()?>admin/envios/edicion/<?=$this->uri->segment(4)?>",{titulo:titulo,grupo:grupo,data:data})
+            $.post("<?=base_url()?>admin/envios/edicion/<?=$this->uri->segment(4)?>",{titulo:titulo,grupo:grupo,data:data,url_link:url_link})
             .done(function(data){
                 if(data == 'no_mails'){
                     $("#step2").html('<div class="alert alert-danger">No se encontraron socios para el grupo seleccionado.</div>');

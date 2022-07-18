@@ -16,17 +16,23 @@
 				}else{
 					?>
 					<img src="<?=$img_path?>cvm-encabezado-mail.jpg">
-                    <br>
+                    			<br>
 					<?
 					if ( $img_attach ) {
+						if ( $url_link != "" ) {
+						?>
+							<a href="<?=$url_link?>"><img src="<?=$img_path?>emails/<?=$img_attach?>"/></a>
+						<?
+						} else {
 						?>
 							<img src="<?=$img_path?>emails/<?=$img_attach?>" >
 						<?
+						}
 					}
-				}
 				?>
                     		<br>
 				<img src="<?=$img_path?>cvm-zocalo-mail.jpg">
+				<? } ?>
 
 			</textarea>
 		</div>

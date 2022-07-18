@@ -4476,7 +4476,9 @@ class Admin extends CI_Controller {
                 $grupo = $this->input->post('grupo');
                 $data = $this->input->post('data');
                 $activ = $this->input->post('activ');
-		// fuerzo estado 9 para que arranquen con envio de prueba sin el total de emails
+                $url_link = $this->input->post('url_link');
+
+		// fuerzo estado 99 para que arranquen con envio de prueba sin el total de emails
                 $envio = array(
                     'titulo' => $titulo,
                     'grupo' => $grupo,
@@ -4491,7 +4493,12 @@ class Admin extends CI_Controller {
 			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
 			$img_attach = $id.".jpg";
 		} else {
-			$img_attach = false;
+			if(file_exists("images/temp/".$this->session->userdata('img_token').".gif")){
+                        	rename("images/temp/".$this->session->userdata('img_token').".gif","images/emails/".$id.".gif");
+                        	$img_attach = $id.".gif";
+			} else {
+				$img_attach = false;
+			}
 		}
                 $socios = $this->general_model->get_socios_by($grupo,$data,$activ);
                 $this->load->helper('email');
@@ -4516,6 +4523,7 @@ class Admin extends CI_Controller {
                         $data['id'] = $id;
                         $data['body'] = false;
                         $data['titulo'] = $titulo;
+                        $data['url_link'] = $url_link;
                         $data['img_attach'] = $img_attach;
                         $data['total'] = count($emails);
                         $data['baseurl'] = base_url();
@@ -4557,6 +4565,8 @@ class Admin extends CI_Controller {
                 $grupo = $this->input->post('grupo');
                 $data = $this->input->post('data');
                 $activ = $this->input->post('activ');
+                $url_link = $this->input->post('url_link');
+
                 $envio = array(
                     'titulo' => $titulo,
                     'grupo' => $grupo,
@@ -4567,11 +4577,22 @@ class Admin extends CI_Controller {
                 $old_envio = $this->general_model->get_envio($id);
                 $this->general_model->update_envio($id,$envio);
 		if(file_exists("images/temp/".$this->session->userdata('img_token').".jpg")){
-			rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
-		}
+                        rename("images/temp/".$this->session->userdata('img_token').".jpg","images/emails/".$id.".jpg");
+                        $img_attach = $id.".jpg";
+                } else {
+                        if(file_exists("images/temp/".$this->session->userdata('img_token').".gif")){
+                                rename("images/temp/".$this->session->userdata('img_token').".gif","images/emails/".$id.".gif");
+                                $img_attach = $id.".gif";
+			}
+                }
+
 		$img_attach = false;
 		if(file_exists("images/emails/".$id.".jpg")){
 			$img_attach = $id.".jpg";
+		} else {
+			if(file_exists("images/emails/".$id.".gif")){
+				$img_attach = $id.".gif";
+			}
 		}
                 if($old_envio->grupo != $grupo){
                     $this->general_model->clear_envio_data($id);
@@ -4599,6 +4620,7 @@ class Admin extends CI_Controller {
                             $data['titulo'] = $titulo;
                             $data['body'] = $old_envio->body;
                             $data['total'] = count($emails);
+                            $data['url_link'] = $url_link;
                             $data['img_attach'] = $img_attach;
                 	    $data['baseurl'] = base_url();
                             $this->load->view("envios-text",$data);
@@ -4612,6 +4634,7 @@ class Admin extends CI_Controller {
                     $data['titulo'] = $titulo;
                     $data['body'] = $old_envio->body;
                     $data['total'] = count($envios_data);
+                    $data['url_link'] = $url_link;
                     $data['img_attach'] = $img_attach;
                     $data['baseurl'] = base_url();
                     $this->load->view("envios-text",$data);

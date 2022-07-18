@@ -69,8 +69,12 @@
                                     <span><i class="fa fa-cloud-upload"></i> Subir Imágen</span>
                                     <input id="fileupload_mail" type="file" name="files[]" multiple>
                                 </span>
-                </div>
 
+                </div>
+                <div class="col-sm-9">
+                	<label class="col-sm-2" >URL Link</label>
+                        <input id="url_link" type="text" class="col-sm-9" name="url_link" >
+                </div>
 
                      <div align="right">
                         <button type="submit" id="envios-continuar" class="btn btn-success btn-block">Continuar <i class="fa fa-arrow-right"></i></button>
