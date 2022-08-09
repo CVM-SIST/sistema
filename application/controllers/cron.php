@@ -258,12 +258,12 @@ class Cron extends CI_Controller {
                         	}
 				if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
 					if ( $actividad->precio > 0 ) {
-                    				$valor = $actividad->precio - $actividad->descuento;
+                    				$valor = $actividad->precio + $actividad->seguro - $actividad->descuento;
 					} else {
 						$valor = 0;
 					}
 				} else {
-                    			$valor = $actividad->precio - ($actividad->precio * $actividad->descuento / 100);
+                    			$valor = $actividad->precio + $actividad->seguro - ( ( $actividad->precio + $actividad->seguro ) * $actividad->descuento / 100);
 				}
                     		$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;                    
                     		$desc_pago .= '<label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
@@ -356,12 +356,12 @@ class Cron extends CI_Controller {
                                 		}
                                 		if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
                                         		if ( $actividad->precio > 0 ) {
-                                                		$valor = $actividad->precio - $actividad->descuento;
+                                                		$valor = $actividad->precio + $actividad->seguro - $actividad->descuento;
                                         		} else {
                                                 		$valor = 0;
                                         		}
                                 		} else {
-                                        		$valor = $actividad->precio - ($actividad->precio * $actividad->descuento / 100);
+                                        		$valor = $actividad->precio + $actividad->seguro - ( ( $actividad->precio + $actividad->seguro ) * $actividad->descuento / 100);
                                 		}
                                 		$descripcion .= '&nbsp; <label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
                                 		$desc_pago .= '<label class="label label-info">'.$actividad->descuento.'-'.$tipo_beca.'</label> $ '.$valor;
@@ -565,10 +565,10 @@ class Cron extends CI_Controller {
 			$tbeca = $actividad->monto_porcentaje;
 			if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6 ) {
 				$msj_act=$actividad->descuento."$ ";
-				$msj_act_valor=$actividad->precio-$actividad->descuento;
+				$msj_act_valor=$actividad->precio+$actividad->seguro-$actividad->descuento;
 			} else {
 				$msj_act=$actividad->descuento."% ";
-				$msj_act_valor=$actividad->precio * $actividad->descuento / 100;
+				$msj_act_valor=($actividad->precio+$actividad->seguro) * $actividad->descuento / 100;
 			}
                     	$cuerpo .= '<tr style="background: #CCC;">
                         	  	<td style="padding: 5px;">Descuento sobre Actividad '.$actividad->nombre.$msj_act.'</td>
@@ -600,10 +600,10 @@ class Cron extends CI_Controller {
 						$tbeca = $actividad->monto_porcentaje;
                         			if ( $tbeca == 0 || $tbeca == 2 || $tbeca == 4 || $tbeca == 6) {
                                 			$msj_act=$actividad->descuento."$ ";
-                                			$msj_act_valor=$actividad->precio-$actividad->descuento;
+                                			$msj_act_valor=$actividad->precio+$actividad->seguro-$actividad->descuento;
                         			} else {
                                 			$msj_act=$actividad->descuento."% ";
-                                			$msj_act_valor=$actividad->precio * $actividad->descuento / 100;
+                                			$msj_act_valor=($actividad->precio+$actividad->seguro) * $actividad->descuento / 100;
                         			}
                         			$cuerpo .= '<tr style="background: #CCC;">
                                         			<td style="padding: 5px;">Descuento sobre Actividad '.$actividad->nombre.$msj_act.'</td>
@@ -826,7 +826,7 @@ class Cron extends CI_Controller {
 	$this->_sube_facturacion_COL($file_col_new);
 
 	// Me mando email de aviso que el proceso termino OK
-        mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total);
+        mail('cvm.agonzalez@gmail.com', "El proceso de Facturación Finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de facturación finalizó correctamente ".$xahora."\n".$info_total,'From: avisos_cvm@clubvillamitre.com'."\r\n");
 	echo $info_total;
 	}
 
@@ -1080,7 +1080,7 @@ class Cron extends CI_Controller {
         fwrite($log, "FIN de proceso de envio de aviso de rechazo de debitos".date('Y-m-d G:i:s'));            
         fclose($log);      
 
-        mail('cvm.agonzalez@gmail.com', "El proceso de Aviso de rechazos de debitos termino correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de aviso de rechazos finalizó correctamente ".date('Y-m-d G:i:s')."\n".$aviso_mail);
+        mail('cvm.agonzalez@gmail.com', "El proceso de Aviso de rechazos de debitos termino correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de aviso de rechazos finalizó correctamente ".date('Y-m-d G:i:s')."\n".$aviso_mail,'From: avisos_cvm@clubvillamitre.com'."\r\n");
 
     }
     public function imputa_debitos_tarjetas() {
@@ -1424,8 +1424,8 @@ echo "suspender";
                 }
 
                 // Me mando email de aviso que el proceso termino OK
-                mail('secretaria@villamitre.com.ar', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
-                mail('cvm.agonzalez@gmail.com', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
+                mail('secretaria@villamitre.com.ar', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl,'From: avisos_cvm@clubvillamitre.com'."\r\n");
+                mail('cvm.agonzalez@gmail.com', "El proceso de Control de Acreditación de tarjetas finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl,'From: avisos_cvm@clubvillamitre.com'."\r\n");
 
 
 
@@ -1597,7 +1597,7 @@ echo "suspender";
 
 
 		// Me mando email de aviso que el proceso termino OK
-        	mail('cvm.agonzalez@gmail.com', "El proceso de Controles Diario finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl);
+        	mail('cvm.agonzalez@gmail.com', "El proceso de Controles Diario finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".date('Y-m-d H:i:s')."\n".$txt_ctrl,'From: avisos_cvm@clubvillamitre.com'."\r\n");
 
 	}
        
@@ -1752,7 +1752,7 @@ echo "suspender";
 		$info_total.=$r."\n";
 	}
 	$xahora=date('Y-m-d G:i:s');
-        mail('cvm.agonzalez@gmail.com', "El proceso de Imputación de Pagos finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".$xahora."\n".$info_total);
+        mail('cvm.agonzalez@gmail.com', "El proceso de Imputación de Pagos finalizó correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de imputacion de pagos finalizó correctamente ".$xahora."\n".$info_total,'From: avisos_cvm@clubvillamitre.com'."\r\n");
 
 	}
 
@@ -1792,7 +1792,7 @@ echo "suspender";
 			return $pago;
 		} else {
 			if($a === FALSE) {
-                		mail("cvm.agonzalez@gmail.com","Fallo en Cron VM no pudo acceder CD",date('Y-m-d H:i:s'));
+                		mail("cvm.agonzalez@gmail.com","Fallo en Cron VM no pudo acceder CD",date('Y-m-d H:i:s'),'From: avisos_cvm@clubvillamitre.com'."\r\n");
                 		exit();
 			}
 			return false;
@@ -2245,8 +2245,8 @@ echo "suspender";
 	$xahora=date('Y-m-d G:i:s');
 
         // Me mando email de aviso que el proceso termino OK
-        mail('jardinlaciudad@villamitre.com.ar', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n");
-        mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n");
+        mail('jardinlaciudad@villamitre.com.ar', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n",'From: avisos_cvm@clubvillamitre.com'."\r\n");
+        mail('cvm.agonzalez@gmail.com', "El proceso de Control de Jardin finalizo correctamente.", "Este es un mensaje automático generado por el sistema. \n El proceso termino con $recargos recargos y $revierte reversiones, segun el siguiente detalle \n $aviso ....".$xahora."\n",'From: avisos_cvm@clubvillamitre.com'."\r\n");
     }
 
     public function intereses()
@@ -2429,13 +2429,13 @@ echo "suspender";
                 		$env_ok = $resumen->estado1;
                 		$env_err = $resumen->estado9;
 				$xahora = date('Y-m-d H:i:s');
-                		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
+                		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n",'From: avisos_cvm@clubvillamitre.com'."\r\n");
 			} else {
                 		if ( $ultima_tanda == 9 ) {
                         		fwrite($log, date('d/m/Y G:i:s').": Envio Testing Finalizado \n");
                         		$this->general_model->marca_envio_test($id_envio_test);
                         		$xahora = date('Y-m-d H:i:s');
-                        		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de TESTING Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails ...".$xahora."\n");
+                        		mail('cvm.agonzalez@gmail.com', "El proceso de Envio de TESTING Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $enviados emails ...".$xahora."\n",'From: avisos_cvm@clubvillamitre.com'."\r\n");
                 		}
 	
         		}
@@ -2502,7 +2502,7 @@ echo "suspender";
 		$env_ok = $resumen->estado1;
 		$env_err = $resumen->estado9;
 		$xahora = date('Y-m-d H:i:s');
-            	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n");
+            	mail('cvm.agonzalez@gmail.com', "El proceso de Envio de Emails finalizo correctamente.", "Este es un mensaje automático generado por el sistema para confirmar que el proceso de envios de email finalizó correctamente y se enviaron $env_ok emails bien y hubo $env_err emails con error.....".$xahora."\n",'From: avisos_cvm@clubvillamitre.com'."\r\n");
 	    }
             
 	}

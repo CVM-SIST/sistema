@@ -85,7 +85,7 @@ class ws_api extends CI_Controller {
                     $this->load->model('socios_model');
                     $padron = $this->socios_model->get_padron_app();
                     if ( $padron ) {
-                        $result = json_encode($this->array_to_utf8(array("estado" => "0", "result" => (object) $padron, "msg" => "Proceso OK")));
+                        $result = json_encode($this->array_to_utf8(array("estado" => "0", "result" => $padron, "msg" => "Proceso OK")));
                     } else {
                         $result = json_encode($this->array_to_utf8(array("estado" => "100", "result" => null, "msg" => "No se puede procesar padron")));
                     }

@@ -118,33 +118,48 @@ class Pagos_model extends CI_Model {
             $total = $monto + ( $monto_excedente - ($monto_excedente * $socio->descuento / 100) ); //cuota mensual mas el excedente en caso de ser mas socios de lo permitido en el girpo fliar
 
             foreach ($socio_actividades['actividad'] as $actividad) {
+		/// Si tiene seguro y no es federado lo considero dentro del total de la cuota
+		if ( $actividad->federado == 0 && $actividad->seguro > 0 ) {
+			$valor_act=$actividad->precio+$actividad->seguro;
+		} else {
+			$valor_act=$actividad->precio;
+		}
 		// actividades del titular del grupo familiar
-		$tb = $actividad->monto_porcentaje;
-		if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) {
-			if ( $actividad->precio > 0 ) {
-                		 $total = $total + ( $actividad->precio - $actividad->descuento );
+		if ( $actividad->descuento > 0 ) {
+			$tb = $actividad->monto_porcentaje;
+			if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) {
+				if ( $actividad->precio > 0 ) {
+                		 	$total = $total + ( $valor_act - $actividad->descuento );
+				}
+			} else {
+                		$total = $total + ( $valor_act - ( $valor_act * $actividad->descuento /100) );
 			}
 		} else {
-                	$total = $total + ( $actividad->precio - ($actividad->precio * $actividad->descuento /100) );
-		}
-		if ( $actividad->federado == 0 ) {
-			$total=$total+$actividad->seguro;
+			$total=$total+$valor_act;
 		}
             }
+
             foreach ($familiares as $familiar) {
                 foreach($familiar['actividades']['actividad'] as $actividad){
-		//actividades del los socios del grupo famlilar
-		    $tb = $actividad->monto_porcentaje;
-		    if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) {
-			if ( $actividad->precio > 0 ) {
-                    		$total = $total + ( $actividad->precio - $actividad->descuento );
+			/// Si tiene seguro y no es federado lo considero dentro del total de la cuota
+			if ( $actividad->federado == 0 && $actividad->seguro > 0 ) {
+				$valor_act=$actividad->precio+$actividad->seguro;
+			} else {
+				$valor_act=$actividad->precio;
 			}
-		    } else {
-                    	$total = $total + ( $actividad->precio - ($actividad->precio * $actividad->descuento /100) );
-		    }
-		    if ( $actividad->federado == 0 ) {
-			    $total=$total+$actividad->seguro;
-		    }
+			if ( $actividad->descuento > 0 ) {
+				//actividades del los socios del grupo famlilar
+		    		$tb = $actividad->monto_porcentaje;
+		    		if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) {
+					if ( $actividad->precio > 0 ) {
+                    				$total = $total + ( $valor_act - $actividad->descuento );
+					}
+		    		} else {
+                    			$total = $total + ( $valor_act - ($valor_act * $actividad->descuento /100) );
+		    		}
+			} else {
+				$total=$total+$valor_act;
+			}
                 }
             }
 
