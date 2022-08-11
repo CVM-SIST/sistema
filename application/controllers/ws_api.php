@@ -98,6 +98,10 @@ class ws_api extends CI_Controller {
                 if ( $this->token_ok ) {
                     $this->load->model('socios_model');
                     $socio = $this->socios_model->get_socio_by_dni($this->dni);
+                    $semaforo = $this->socios_model->get_status_by_dni($this->dni);
+		    $socio->barcode = $semaforo->barcode;
+		    $socio->saldo = $semaforo->saldo;
+		    $socio->semaforo = $semaforo->semaforo;
                     if ( $socio ) {
                         $result = json_encode($this->array_to_utf8(array("estado" => "0", "result" => (object) $socio, "msg" => "Proceso OK")));
                     } else {

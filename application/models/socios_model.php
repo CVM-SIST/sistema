@@ -540,7 +540,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$query="DROP TEMPORARY TABLE IF EXISTS tmp_saldos; ";
 		$this->db->query($query);
 		$query="CREATE TEMPORARY TABLE tmp_saldos ( INDEX ( sid ) )
-			SELECT tutor_id sid, MAX(IF(estado = 1,DATE_FORMAT(generadoel,'%Y%m'),0)) ult_impago, SUM(pagado-monto) saldo, IF(SUM(pagado-monto)>=0,1,0) aldia
+                        SELECT p.tutor_id sid, MIN(IF(p.estado = 1 AND p.monto > 0,IF (p.tipo != 5 ,DATE_FORMAT(p.generadoel,'%Y%m'),'2100-01-01'),0)) ult_impago, SUM(p.pagado-p.monto) saldo, IF(SUM(p.pagado-p.monto)>=0,1,0) aldia
 			FROM pagos 
 			GROUP BY 1; ";
 		$this->db->query($query);
@@ -566,11 +566,13 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
                         SELECT p.tutor_id sid, MIN(IF(p.estado = 1 AND p.monto > 0,IF (p.tipo != 5 ,DATE_FORMAT(p.generadoel,'%Y%m'),'2100-01-01'),0)) ult_impago, SUM(p.pagado-p.monto) saldo, IF(SUM(p.pagado-p.monto)>=0,1,0) aldia
 			FROM pagos p
 				JOIN socios s ON s.dni = $dni AND s.Id = p.tutor_id
-                        WHERE DATE_FORMAT(p.generadoel,'%Y%m') < DATE_FORMAT(CURDATE(),'%Y%m')
+			WHERE DATE_FORMAT(p.generadoel,'%Y%m') < DATE_FORMAT(CURDATE(),'%Y%m') AND
+				p.estado = 1
 			GROUP BY 1; ";
 		$this->db->query($query);
 		$query="SELECT s.dni, s.Id sid, CONCAT(s.apellido,', ',s.nombre) apynom, c.barcode, p.saldo, s.suspendido,
-				CASE WHEN aldia=0 AND p.ult_impago < DATE_FORMAT(CURDATE(), '%Y%m') THEN 99
+				CASE WHEN s.suspendido = 1 THEN 99
+				     WHEN aldia=0 AND p.ult_impago < DATE_FORMAT(CURDATE(), '%Y%m') THEN 99
 				     WHEN aldia=0 AND p.ult_impago = DATE_FORMAT(CURDATE(), '%Y%m') THEN 10
 				     WHEN aldia=1 THEN 1
 				END semaforo
