@@ -111,6 +111,21 @@ class ws_api extends CI_Controller {
                 }
 	}
 
+	function get_ctacte() { // esta funcion devuelve las ultimas 10 filas de facturacion de un socio puntual a partir de su DNI y en base a la entidad correspondiente al usuario logueado
+                // Si no esta validado el usuario-token devuelvo false
+                if ( $this->token_ok ) {
+                    $this->load->model('socios_model');
+                    $ctacte = $this->socios_model->get_ctacte_by_dni($this->dni);
+                    if ( $ctacte ) {
+                        $result = json_encode($this->array_to_utf8(array("estado" => "0", "result" => (object) $ctacte, "msg" => "Proceso OK")));
+                    } else {
+                        $result = json_encode($this->array_to_utf8(array("estado" => "100", "result" => null, "msg" => "No se puede procesar padron")));
+                    }
+                    echo $result;
+                }
+        }
+
+
         function check_estado() { // esta funcion devuelve el status de un socio puntual a partir de su DNI y en base a la entidad correspondiente al usuario logueado
                 // Si no esta validado el usuario-token devuelvo false
                 if ( $this->token_ok ) {

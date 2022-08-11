@@ -585,5 +585,17 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		return $result;
 	    }
 
+	    public function get_ctacte_by_dni($dni)
+	    {
+		    $query="SELECT DATE_FORMAT(f.date,'%Y-%m-%d') fecha, f.descripcion, f.debe, f.haber, f.total
+			    FROM socios s
+			    	LEFT JOIN facturacion f ON f.sid = s.Id 
+			    WHERE s.dni = $dni
+		  	    ORDER BY f.date DESC
+			    LIMIT 10; ";
+		$result = $this->db->query($query)->result();
+		return $result;
+	    }
+
 	}  
 ?>
