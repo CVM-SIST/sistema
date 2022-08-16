@@ -541,7 +541,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$this->db->query($query);
 		$query="CREATE TEMPORARY TABLE tmp_saldos ( INDEX ( sid ) )
                         SELECT p.tutor_id sid, MIN(IF(p.estado = 1 AND p.monto > 0,IF (p.tipo != 5 ,DATE_FORMAT(p.generadoel,'%Y%m'),'2100-01-01'),0)) ult_impago, SUM(p.pagado-p.monto) saldo, IF(SUM(p.pagado-p.monto)>=0,1,0) aldia
-			FROM pagos 
+			FROM pagos p
 			GROUP BY 1; ";
 		$this->db->query($query);
 		$query="SELECT s.dni, s.id sid, CONCAT(s.apellido,', ',s.nombre) apynom, c.barcode, p.saldo, 
