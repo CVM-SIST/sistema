@@ -824,6 +824,59 @@ class Admin extends CI_Controller {
 
             **/
 
+            case 'user_app':
+		$data['username'] = $this->session->userdata('username');
+		$data['rango'] = $this->session->userdata('rango');
+		$data['baseurl'] = base_url();
+		$data['section'] = "user_app";
+		$data['users'] = $this->_urlGS('get_users_app');
+		$this->load->view('admin',$data);
+		break;
+            case 'user_app_edit':
+		$param = $this->uri->segment(4);
+		if ( is_numeric($param)  ) {
+			$data['user'] = $this->_urlGS('get_usr_app', $param);
+			$data['username'] = $this->session->userdata('username');
+			$data['rango'] = $this->session->userdata('rango');
+			$data['baseurl'] = base_url();
+			$data['section'] = "user_app_edit";
+			$this->load->view('admin',$data);
+		} else {
+			if ( $param == "eliminar" ) {
+				// Llamo al upd con blanqueo de token 
+			} else {
+			}
+		}
+		break;
+            case 'user_app_set':
+		if ( $_POST ) {
+                        $login = $_POST['login'];
+                        $dni = $_POST['dni'];
+                        $email = $_POST['email'];
+                        $id_entidad = -1;
+                        $nivel = 0;
+			$clave=$login.$dni.$email;
+                        $token = sha1($clave);
+			$user = array ( 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
+			$this->_urlGS('put_user_app', $user);
+                }
+		break;
+            case 'user_app_upd':
+		$id_user = $this->uri->segment(4);
+		if ( $_POST ) {
+                        $login = $_POST['login'];
+                        $dni = $_POST['dni'];
+                        $email = $_POST['email'];
+                        $id_entidad = -1;
+                        $nivel = 0;
+                        $clave=$login.$dni.$email;
+                        $token = sha1($clave);
+                        $user = array ( 'id' => $id_user, 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
+                        $this->_urlGS('upd_user_app', $user);
+                }
+
+		break;
+		    
             case 'busqueda_do':
 		if ( $_POST ) {
                 	$apellido = $_POST['apellido'];
@@ -4652,4 +4705,48 @@ class Admin extends CI_Controller {
                 break;
         }
     }
+
+	public function _urlGS($funcion, $user='') {
+    		//$url = "localhost://gestionsocios.com.ar/ws_api/".$funcion;
+    		$url = "https://gestionsocios.com.ar/ws_api/".$funcion;
+    
+    		//Prueba villa mitre
+    		$login = 'userapp';
+    		$token = '6bb55159e45c90ff1200f4579b8a748051354bca';
+    		$ya_validado = 1;
+
+    		$headers= array("Content-Type: multipart/form-data","Authorization: $token");
+		switch ( $funcion ) {
+			case "put_user_app":
+			case "upd_user_app":
+    				$post = array('login' => $login, 'ya_validado' => $ya_validado, 'user' => json_encode($user));
+				break;
+			default:
+    				$post = array('login' => $login, 'ya_validado' => $ya_validado);
+				break;
+		}
+
+
+    		$ch = curl_init($url);
+    		curl_setopt($ch, CURLOPT_POST, true);
+    		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    		$resultado = curl_exec($ch);
+    		$errno  = curl_errno($ch);
+    		$error  = curl_error($ch);
+
+    		curl_close($ch);
+
+		if($errno !== 0) {
+        		throw new Exception($error, $errno);
+    		}
+
+		$obj_resultado = json_decode($resultado);
+
+    		return $resultado;
+	}
 }
