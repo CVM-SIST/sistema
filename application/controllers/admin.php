@@ -829,13 +829,22 @@ class Admin extends CI_Controller {
 		$data['rango'] = $this->session->userdata('rango');
 		$data['baseurl'] = base_url();
 		$data['section'] = "user_app";
-		$data['users'] = $this->_urlGS('get_users_app');
+		$result_URL = json_decode($this->_urlGS('get_users_app'));
+		$data['users'] = $result_URL->result;
 		$this->load->view('admin',$data);
 		break;
             case 'user_app_edit':
 		$param = $this->uri->segment(4);
 		if ( is_numeric($param)  ) {
-			$data['user'] = $this->_urlGS('get_usr_app', $param);
+			$user = array ( 'login' => '', 'dni' => 0, 'email' => '', 'id' => $param );
+			$result_URL = json_decode($this->_urlGS('get_usr_app', $user));
+			if ( $result_URL->estado == 0 ) {
+				var_dump($result_URL);
+				$data['user'] = $result_URL->result;
+			} else {
+				echo "ESTADO !=0". $result_URL->estado;
+				die;
+			}
 			$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
 			$data['baseurl'] = base_url();
@@ -860,6 +869,7 @@ class Admin extends CI_Controller {
 			$user = array ( 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
 			$this->_urlGS('put_user_app', $user);
                 }
+                redirect(base_url()."admin/socios/user_app");
 		break;
             case 'user_app_upd':
 		$id_user = $this->uri->segment(4);
@@ -874,6 +884,7 @@ class Admin extends CI_Controller {
                         $user = array ( 'id' => $id_user, 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
                         $this->_urlGS('upd_user_app', $user);
                 }
+                redirect(base_url()."admin/socios/user_app");
 
 		break;
 		    
@@ -4710,6 +4721,7 @@ class Admin extends CI_Controller {
     		//$url = "localhost://gestionsocios.com.ar/ws_api/".$funcion;
     		$url = "https://gestionsocios.com.ar/ws_api/".$funcion;
     
+
     		//Prueba villa mitre
     		$login = 'userapp';
     		$token = '6bb55159e45c90ff1200f4579b8a748051354bca';
@@ -4719,7 +4731,8 @@ class Admin extends CI_Controller {
 		switch ( $funcion ) {
 			case "put_user_app":
 			case "upd_user_app":
-    				$post = array('login' => $login, 'ya_validado' => $ya_validado, 'user' => json_encode($user));
+			case "get_usr_app":
+    				$post = array('login' => $login, 'ya_validado' => $ya_validado, 'user' => json_encode($user), 'usr_login' => $user['login'], 'usr_dni' => $user['dni'], 'usr_email' => $user['email'], 'usr_id' => $user['id']);
 				break;
 			default:
     				$post = array('login' => $login, 'ya_validado' => $ya_validado);
@@ -4746,7 +4759,6 @@ class Admin extends CI_Controller {
     		}
 
 		$obj_resultado = json_decode($resultado);
-
     		return $resultado;
 	}
 }

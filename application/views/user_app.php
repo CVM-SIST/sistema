@@ -15,18 +15,17 @@
                                 </thead>
                                 <tbody>
                                     <?
-var_dump($users);
                                     foreach ($users as $user) {                                       
                                     ?>
                                     <tr>
-                                        <td><?=$user->Id?></td>
+                                        <td><?=$user->id?></td>
                                         <td><span class="color-success"> <?=$user->login?> </td>
                                         <td><span class="color-success"> <?=$user->dni?> </td>
                                         <td><span class="color-success"> <?=$user->email?> </td>
                                         <td><span class="color-success"> <?=$user->id_entidad?> </td>
                                         <td><span class="color-success"> <?=$user->nivel?> </td>
                                         <td>
-                                            <a href="<?=$baseurl?>admin/socios/user_app_edit/<?=$user->Id?>"><i class="fa fa-gear"></i> Editar</a>  | 
+                                            <a href="<?=$baseurl?>admin/socios/user_app_edit/<?=$user->id?>"><i class="fa fa-gear"></i> Editar</a>  | 
                                             <a id="btn-eliminar-userapp" href="<?=$baseurl?>admin/socios/user_app_edit/eliminar/<?=$user->Id?>"><i class="fa fa-times"></i> Eliminar</a>
                                         </td>
                                     </tr>                                    
@@ -59,7 +58,7 @@ var_dump($users);
                 <div class="form-group">
                     <label for="" class="col-sm-2">Email</label>
                     <div class="col-sm-10">
-                        <input type="mail" class="form-control" name="email" required>
+                        <input type="text" class="form-control" name="email" required>
                     </div>
                 </div>
                 <button type="submit" id="btn_userapp" class="btn btn-success">Agregar</button>
