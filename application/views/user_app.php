@@ -26,7 +26,7 @@
                                         <td><span class="color-success"> <?=$user->nivel?> </td>
                                         <td>
                                             <a href="<?=$baseurl?>admin/socios/user_app_edit/<?=$user->id?>"><i class="fa fa-gear"></i> Editar</a>  | 
-                                            <a id="btn-eliminar-userapp" href="<?=$baseurl?>admin/socios/user_app_edit/eliminar/<?=$user->Id?>"><i class="fa fa-times"></i> Eliminar</a>
+                                            <a id="btn-eliminar-userapp" href="<?=$baseurl?>admin/socios/user_app_edit/eliminar/<?=$user->id?>"><i class="fa fa-times"></i> Eliminar</a>
                                         </td>
                                     </tr>                                    
                                     <?

@@ -24,6 +24,7 @@
                     </div>
                 </div>
                 <button type="submit" id="btn_user_app" class="btn btn-success">Guardar Cambios</button>
+		<a href="<?=$baseurl?>admin/socios/user_app" class="btn btn-success">Volver</a>
             </form>
         </div>
     </div>
