@@ -1812,7 +1812,7 @@ AHG Comentado 20170105 porque no se usa..... creo
             $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValue('A'.$cont, $cliente->Id)  
                         ->setCellValue('B'.$cont, trim($cliente->nombre).' '.trim($cliente->apellido))
-                        ->setCellValue('C'.$cont, $cliente->telefono)  
+                        ->setCellValue('C'.$cont, $cliente->fijocel)  
                         ->setCellValue('D'.$cont, $cliente->dni)  
                         ->setCellValue('E'.$cont, date('d/m/Y',strtotime($cliente->nacimiento)))
                         ->setCellValue('F'.$cont, date('d/m/Y',strtotime($cliente->alta)))
