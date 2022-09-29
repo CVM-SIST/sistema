@@ -1257,7 +1257,9 @@ echo "suspender";
                 		$ult_pago = $query->row();
 				$ds_ult = $ult_pago->dias_ultpago;
                 		$query->free_result();                
-				if ( $ds_ult < -150 ) {
+				// FIX solicitado por Simon para que suspenda con 3 meses de morosidad
+				// estaba con -150 (5 meses)
+				if ( $ds_ult < -90 ) {
 					$isusp=1;
 				}
 			} else {	

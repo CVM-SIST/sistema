@@ -5,15 +5,20 @@ class Admin extends CI_Controller {
     public function __construct()
     {
 
+	    error_log("Construct de admin");
         parent::__construct();
+	    error_log("despues parent");
         $this->load->library(array('session','form_validation'));
+	    error_log("despues load library");
         $this->load->helper(array('url','form','date'));
         $this->load->model('login_model');
         $this->load->database('default');
         $this->date_facturacion = 25;
         if( !$this->session->userdata('is_logued_in') && ( $this->uri->segment(2) != 'login' && $this->uri->segment(2) ) ){
+		error_log("entre if construct");
             redirect(base_url().'admin');
         }
+	error_log("fin construct");
     }
 
     public function no_facturado($value='')
@@ -512,6 +517,7 @@ class Admin extends CI_Controller {
 
 
     public function index() {
+	    error_log("index de admin");
 		if(!$this->session->userdata('is_logued_in')){
         		$data['baseurl'] = base_url();
         		$data['token'] = $this->token();
@@ -843,7 +849,6 @@ class Admin extends CI_Controller {
 				$data['user'] = $result_URL->result;
 			} else {
 				echo "ESTADO !=0". $result_URL->estado;
-				die;
 			}
 			$data['username'] = $this->session->userdata('username');
 			$data['rango'] = $this->session->userdata('rango');
@@ -2281,7 +2286,7 @@ class Admin extends CI_Controller {
 					    $mensaje="";
 					    if ( $debtarj->estado == 1 ) {
 						    // Busco la cuota social del mes
-						    $cuota_socio = $this->pagos_model->get_monto_socio2($debtarj->sid);
+						    $cuota_socio = $this->pagos_model->get_monto_socio($debtarj->sid);
 						    // Busco el saldo del asociado
 						    $saldo = $this->pagos_model->get_saldo($debtarj->sid);
 						    // Si tiene saldo a favor lo descuento, sino la cuota mensual
