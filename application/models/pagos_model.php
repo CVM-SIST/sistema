@@ -132,7 +132,7 @@ class Pagos_model extends CI_Model {
                 		 	$total = $total + ( $valor_act - $actividad->descuento );
 				}
 			} else {
-                		$total = $total + ( $valor_act - ( $valor_act * $actividad->descuento /100) );
+                		$total = $total + ( $valor_act - ( $valor_act * $actividad->descuento / 100 ) );
 			}
 		} else {
 			$total=$total+$valor_act;
@@ -194,17 +194,19 @@ class Pagos_model extends CI_Model {
             $socio_cuota = $categ_socio->precio - ($categ_socio->precio * $socio->descuento / 100); //precio de la cuota
             $total = $socio_cuota; //cuota mensual
             foreach ($socio_actividades['actividad'] as $actividad) {
+		if ( $actividad->federado == 0 && $actividad->seguro > 0 ) {
+			$valor_act=$actividad->precio+$actividad->seguro;
+		} else {
+			$valor_act=$actividad->precio;
+		}
 		//actividades del socio
 		$tb = $actividad->monto_porcentaje;
 		if ( $tb == 0 || $tb == 2 || $tb == 4 || $tb == 6 ) {
 			if ( $actividad->precio > 0 ) {
-                		$total = $total + ( $actividad->precio - $actividad->descuento );
+                		$total = $total + ( $valor_act - $actividad->descuento );
 			}
 		} else {
-                	$total = $total + ( $actividad->precio - ($actividad->precio * $actividad->descuento /100 ) );
-		}
-		if ( $actividad->federado == 0 ) {
-			$total=$total+$actividad->seguro;
+                	$total = $total + ( $valor_act - ($valor_act * $actividad->descuento /100 ) );
 		}
             }
 
