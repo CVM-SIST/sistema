@@ -871,7 +871,7 @@ class Admin extends CI_Controller {
                         $nivel = 0;
 			$clave=$login.$dni.$email;
                         $token = sha1($clave);
-			$user = array ( 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
+			$user = array ( 'id' => 0, 'login' => $login, 'dni' => $dni, 'email' => $email, 'id_entidad' => $id_entidad, 'nivel' => $nivel, 'token' => $token );
 			$this->_urlGS('put_user_app', $user);
                 }
                 redirect(base_url()."admin/socios/user_app");
