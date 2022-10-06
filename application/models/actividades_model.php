@@ -109,11 +109,13 @@ class Actividades_model extends CI_Model {
         return $query->result();
     }    
     public function get_actsoc_comision($comision){
+	    // TODO - Agrego filtro hardcodeado para que no tome en cuenta las matriculas de Jardin
+	    // deberia ser algo MAS INTELIGENTE!!!!
         $qry = "SELECT a.Id aid, a.nombre descr_actividad, a.precio, a.seguro, s.Id sid, s.dni, CONCAT(s.nombre,', ',s.apellido) apynom, DATE_FORMAT(s.nacimiento ,'%d/%m/%Y' ) nacimiento
                 FROM actividades a
-                        JOIN actividades_asociadas aa ON a.Id = aa.aid AND aa.estado = 1
+                        JOIN actividades_asociadas aa ON a.Id = aa.aid AND aa.estado = 1 
                         JOIN socios s ON aa.sid = s.Id
-                WHERE a.estado = 1 AND a.comision = $comision AND a.precio > 5000
+                WHERE a.estado = 1 AND a.comision = $comision AND a.precio > 5000 AND a.nombre NOT LIKE 'MATRICULA%'
                 ORDER BY a.Id, s.dni;";
         $socact = $this->db->query($qry);
         return $socact->result();
