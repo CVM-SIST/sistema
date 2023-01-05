@@ -12,8 +12,18 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 	    
 	    public function register($datos)
 	    {
+		// Inserto socio
 		$this->db->insert('socios', $datos);
-		return $this->db->insert_id();   
+		$sid = $this->db->insert_id();   
+		  
+		/*
+		$datos['Id'] = $sid;
+	 	// Asigno CB de Cobro Digital
+		$this->load->model('pagos_model');
+		$this->pagos_model->get_cupon_libre_cobrod($datos);
+		 */
+
+		return $sid;
 	    }
 
 	    public function checkDNI($dni,$id=null)

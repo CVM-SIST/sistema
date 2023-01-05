@@ -211,6 +211,11 @@
 
                 $socio = $soc_carnet['socio'];
                 $cupon = $soc_carnet['cupon'];
+		if ( strlen($cupon->barcode) > 20 ) {
+			$cobrod = 1;
+		} else {
+			$cobrod = 0;
+		}
                 $monto = $soc_carnet['monto'];
 
 	    $apynom = substr(trim($socio->nombre)." ".trim($socio->apellido), 0, 30);
@@ -252,12 +257,21 @@
                         </div>
                         <div class="barcode">
                                 <?
-                                        if( file_exists("images/cupones/".$cupon->Id.".png") ){
+					if ( !$cobrod ) {
+                                        	if( file_exists("images/cupones/".$cupon->Id.".png") ){
                                 ?>
-                                        <br>
-                                        <img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                                        		<br>
+                                        		<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
                                 <?
-                                        }
+						}
+					} else {
+                                        	if( file_exists("images/cupones/cobrod/".$socio->Id.".png") ){
+				?>
+                                        		<br>
+                                        		<img src="<?=base_url()?>images/cupones/cobrod/<?=$socio->Id?>.png" >
+				<?
+							}
+					}
                                 ?>
                         </div>
 
@@ -314,14 +328,24 @@
                         	</div>
                         </div>
 			<div class="barcode">
-                		<?
-                			if( file_exists("images/cupones/".$cupon->Id.".png") ){
-                		?>
-                			<br>
-                			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
-                		<?
-                			}
-                		?>
+                                <?
+                                        if ( !$cobrod ) {
+                                                if( file_exists("images/cupones/".$cupon->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                                <?
+                                                }
+                                        } else {
+                                                if( file_exists("images/cupones/cobrod/".$socio->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/cobrod/<?=$socio->Id?>.png" >
+                                <?
+                                                        }
+                                        }
+                                ?>
+
                 	</div>
                 </div>
                 <div class="carnet dorso"> </div>
@@ -362,13 +386,24 @@
 					<div style="font-weight:bold"> Ingreso <?=$fecha?> </div>
                         	</div>
 				<div class="barcode">
-                		<?
-                			if( file_exists("images/cupones/".$cupon->Id.".png") ){
-                		?>
-                			<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
-                		<?
-                			}
-                		?>
+                                <?
+                                        if ( !$cobrod ) {
+                                                if( file_exists("images/cupones/".$cupon->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                                <?
+                                                }
+                                        } else {
+                                                if( file_exists("images/cupones/cobrod/".$socio->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/cobrod/<?=$socio->Id?>.png" >
+                                <?
+                                                        }
+                                        }
+                                ?>
+
                 		</div>
                         </div>
                 </div>
@@ -459,14 +494,24 @@
             	<div class="nap" style="font-weight:bold">Ingreso <?=$fecha?></div>
         	</div>
         	<div align="right" class="barcode">
-            	<?
-            	if( file_exists("images/cupones/".$cupon->Id.".png") ){
-            	?>
-            	<br>
-            	<img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >  
-            	<?
-            	}
-            	?>
+                                <?
+                                        if ( !$cobrod ) {
+                                                if( file_exists("images/cupones/".$cupon->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/<?=$cupon->Id?>.png" >
+                                <?
+                                                }
+                                        } else {
+                                                if( file_exists("images/cupones/cobrod/".$socio->Id.".png") ){
+                                ?>
+                                                        <br>
+                                                        <img src="<?=base_url()?>images/cupones/cobrod/<?=$socio->Id?>.png" >
+                                <?
+                                                        }
+                                        }
+                                ?>
+
     		</div>
 	   </div>
 	<?

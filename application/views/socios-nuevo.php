@@ -1,6 +1,9 @@
 <section class="page page-profile">
     <div class="panel panel-default">
-        <div class="panel-heading"><strong><span class="fa fa-plus"></span> Agregar Socio</strong></div>
+    <div class="panel-heading">
+		<div> <strong><span class="fa fa-plus"></span> Agregar Socio</strong> </div>
+		<div> <strong>Quedan <?=$cb_libres?> barras de CobroDigital </strong> </div>
+    </div>
         <div class="panel-body">
             <form class="form-horizontal ng-pristine ng-valid" action="<?=$baseurl?>admin/socios/<?=$action?>" method="post">
                 <div class="form-group col-lg-6">

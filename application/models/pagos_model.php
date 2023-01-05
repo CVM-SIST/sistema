@@ -39,6 +39,102 @@ class Pagos_model extends CI_Model {
         return $cupones;
     }
 
+    public function get_cobrod_libres()
+    {
+	$qry = "SELECT COUNT(*) libres FROM cupones_cobrod WHERE sid = 0 AND date = '0000-00-00 00:00:00'; ";
+        $libres = $this->db->query($qry)->result();
+	if ( $libres ) {
+		return $libres[0]->libres;
+	} else {
+		return 0;
+	}
+    }
+
+    public function get_cupon_libre_cobrod($socio)
+    {
+	// Busco el primer cupon libre
+        $this->db->where('sid',"0");
+        $this->db->where('date',"0000-00-00 00:00:00");
+        $this->db->order_by('id','asc');
+        $query = $this->db->get('cupones_cobrod');
+        if($query->num_rows() == 0){return false;}
+        $cupon = $query->row();
+        $query->free_result();
+
+	$sid = $socio->Id;
+
+	// Actualizo los datos con el sid a asignarle y el ts de este momento
+	$qry = "UPDATE cupones_cobrod SET sid = $sid, date=NOW() WHERE id = $cupon->id; ";
+        $this->db->query($qry);
+	
+	// Doy de alta el pagador en el sistema de Cobro Digital
+	$cupon_cobrod = $this->get_cupon_cobrod_by_sid($sid);
+	$this->_altaPagadorCD($socio, $cupon_cobrod);
+
+	// Meto la imagen del cupon en el directorio correspondiente
+	$img = file_get_contents("https://www.cobrodigital.com/wse/bccd/".$cupon->barcode."h.png");
+	file_put_contents('images/cupones/cobrod/'.$sid.'.png', $img);
+
+        return $cupon_cobrod;
+    }
+
+    private function _altaPagadorCD($socio, $cupon_cobrod)
+    {
+		$this->config->load('cobrodigital');
+                $url = "https://www.cobrodigital.com/ws3";
+
+                $SID = $this->config->item('cd_sid');
+                $id_comercio = $this->config->item('cd_idcomercio');
+                $headers= array("Content-Type: application/json");
+                $post = array('idComercio' => $id_comercio, 'sid' => $SID, 'metodo_webservice'=> 'consultar_transacciones', 'desde' => "$fecha", 'hasta' => "$fecha"    );
+                $post = json_encode($post);
+
+		$apynom = $socio->apellido.", ".$socio->nombre;
+		$pagador = array("id" => $socio->Id, "Apellido y nombres" => "$apynom", "Direccion del cliente" => "$socio->domicilio", "E-mail" => "$socio->email" , "tarjeta" => "$cupon_cobrod->barcode" , "COD ELECTRONICO" => "$cupon_cobrod->codlink" );
+
+    		$post = array('idComercio' => $id_comercio, 'sid' => $SID, 'metodo_webservice'=> 'crear_pagador', 'pagador' => $pagador );
+    		$post = json_encode($post);
+
+                //echo 'Post array: '.print_r($post, true);
+
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 'yes');
+
+                $resultado = curl_exec($ch);
+                $status = curl_getinfo($ch);
+                $errno  = curl_errno($ch);
+                $error  = curl_error($ch);
+
+                curl_close($ch);
+                $data = $resultado;
+
+    }
+
+    public function get_cupon_cobrod_by_sid($sid)
+    {
+        $this->db->where('sid',$sid);
+        $query = $this->db->get('cupones_cobrod');
+        if($query->num_rows() == 0){return false;}
+        $cupon = $query->row();
+        $query->free_result();
+        return $cupon;
+    }
+
+    public function get_cupon_cobrod($barcode)
+    {
+        $this->db->where('barcode',$barcode);
+        $query = $this->db->get('cupones_cobrod');
+        if($query->num_rows() == 0){return false;}
+        $cupon = $query->row();
+        $query->free_result();
+        return $cupon;
+    }
+
     public function get_cupon_by_id($id='')
     {
         $this->db->where('Id',$id);
@@ -252,6 +348,13 @@ class Pagos_model extends CI_Model {
         $actividades_socio = array('actividad' =>$act);
         return $actividades_socio; // devolvemos los datos de la actividad y el usuario correspondiente
     }
+
+    function generar_cupon_cobrod($cupon)
+    {
+        $this->db->insert('cupones_cobrod',$cupon);
+        return $this->db->insert_id();
+    }	    
+
     function generar_cupon($sid, $monto,$cupon)
     {
         $this->db->where('sid',$sid); // ponemos en 0 todos los cupones de este socio
@@ -509,6 +612,15 @@ class Pagos_model extends CI_Model {
         $total = $total + $pago['monto'];
         $descripcion = "Pago acreditado desde: CuentaDigital <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
         $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion, 'origen'=>'2'));
+
+    }
+
+    public function insert_pago_cobrod($pago)
+    {
+        $total = $this->get_deuda($pago['sid']);
+        $total = $total + $pago['monto'];
+        $descripcion = "Pago acreditado desde: CobroDigital <br>Fecha: ".$pago['fecha'].' '.$pago['hora'];
+        $this->db->insert('facturacion',array('sid'=>$pago['sid'],'haber'=>$pago['monto'],'total'=>$total,'descripcion'=>$descripcion, 'origen'=>'6'));
 
     }
 
@@ -1148,6 +1260,21 @@ class Pagos_model extends CI_Model {
         return $pagos;
     }
 
+     public function get_ingresos_cobrodigital($fecha1='',$fecha2='')
+    {
+        $this->load->model('socios_model');
+        $this->db->where('fecha_pago >=',$fecha1);
+        $this->db->where('fecha_pago <=',$fecha2);
+        $query = $this->db->get('cobrodigital');
+        if($query->num_rows() == 0){ return false; }
+        $pagos = $query->result();
+        foreach ($pagos as $pago) {
+            $pago->socio = $this->socios_model->get_socio($pago->sid);
+        }
+        return $pagos;
+    }
+
+
     public function get_cobros_actividad($fecha1='',$fecha2='',$actividad=false,$categoria=false)
     {
         $this->load->model('actividades_model');
@@ -1515,6 +1642,11 @@ class Pagos_model extends CI_Model {
     public function insert_cuentadigital($pago='')
     {
         $this->db->insert('cuentadigital',$pago);
+    }
+
+    public function insert_cobrodigital($pago='')
+    {
+        $this->db->insert('cobrodigital',$pago);
     }
 
     public function get_pagos_edit($socio_id)

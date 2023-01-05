@@ -45,6 +45,7 @@
                                 <li><a id="acceso_financiar" href="<?=$baseurl?>admin/pagos/deuda/<?=$socio->Id?>">Financiar Deuda</a></li>
                                 <li><a id="acceso_suspender" href="<?=$baseurl?>admin/socios/suspender/<?=$socio->Id?>">Suspender Socio</a></li>
                                 <li><a id="acceso_reinscribir" href="<?=$baseurl?>admin/socios/reinscribir/<?=$socio->Id?>">Reinscribir Socio</a></li>
+                                <li><a id="cobrod" href="<?=$baseurl?>admin/socios/cobrod/<?=$socio->Id?>">Imagen CD</a></li>
 
                             </ul>
                         </div>

@@ -305,7 +305,11 @@ class Imprimir extends CI_Controller {
         $this->load->model('pagos_model');
 
         $socio = $this->socios_model->get_socio($sid);
-        $cupon = $this->pagos_model->get_cupon($sid);
+	$cupon = null;
+	$cupon = $this->pagos_model->get_cupon_cobrod_by_sid($sid);
+	if ( !$cupon ) {
+		$cupon = $this->pagos_model->get_cupon($sid);
+	}
         $monto = $this->pagos_model->get_monto_socio($sid)['total'];
 
         $soc_carnets[] = array('socio'=>$socio, 'cupon'=>$cupon, 'monto'=>$monto);
@@ -777,7 +781,11 @@ AHG Comentado 20170105 porque no se usa..... creo
         $this->load->model('socios_model');
         $this->load->model('pagos_model');
 	$socio = $this->socios_model->get_socio($sid);
-	$cupon = $this->pagos_model->get_cupon($sid);
+	$cupon = $cupon_cobrod = null;
+	$cupon_cobrod = $this->pagos_model->get_cupon_cobrod_by_sid($sid);
+	if ( !$cupon_cobrod ) {
+		$cupon = $this->pagos_model->get_cupon($sid);
+	}
 	$monto = $this->pagos_model->get_monto_socio($sid)['total'];
 
 
@@ -814,9 +822,14 @@ AHG Comentado 20170105 porque no se usa..... creo
 	}
 
 	// PIE CARNET
-	$cupon = $this->pagos_model->get_cupon($sid);
+	// Si esta seteado el cupon_cobrod pongo la imagen de Cobro Digital , sino la barra de Cuenta Digital
 	if ( $cupon ) {
 		$card->addBarcode($cupon->barcode, array("x" => 29, "y" => 37, "w" => 35, "h" => 13));
+	} else {
+		if (file_exists( BASEPATH."../images/cupones/cobrod/".$socio->Id.".png" )){
+			$img_cupon = BASEPATH."../images/cupones/cobrod/".$socio->Id.".png";
+ 			$card->Image($img_cupon, 20, 37, 42, 13);
+		}
 	}
 
 /*

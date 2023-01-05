@@ -1643,7 +1643,7 @@ echo "suspender";
 			$ctrl_gen=$this->uri->segment(4);
 			echo "Controlo generacion vino -> $ctrl_gen";
 			fwrite($log, "Vino URI 4 $ctrl_gen \n");
-			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA" ) ) {
+			if ( !($ctrl_gen == "TODO" || $ctrl_gen == "CD" || $ctrl_gen == "COL" || $ctrl_gen == "NADA" || $ctrl_gen == "COBROD" ) ) {
 				echo "EL PARAMETRO PARA GENERAR ES INCORRECTO";
 				exit;
 			}
@@ -1658,6 +1658,8 @@ echo "suspender";
 		$total_cd = 0;
 		$cant_col = 0;
 		$total_col = 0;
+		$cant_cobrod = 0;
+		$total_cobrod = 0;
 
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "CD" ) {
 			echo "genero CD";
@@ -1688,6 +1690,37 @@ echo "suspender";
 				fwrite($log, "Procese $cant_cd pagos de CD por un total de $total_cd \n");
 			}
 		}
+
+		if ( $ctrl_gen == "TODO" || $ctrl_gen == "COBROD" ) {
+                        echo "genero CobroDigital";
+                        fwrite($log, "Genero CobroDigital \n");
+                        // Busco los pagos del sitio de Cobro Digital
+			// comentado para que no corte el proceso de esta noche 28dic22
+                        $pagos = $this->get_pagos_COBROD($ayer);
+
+                        // Si bajo algo del sitio
+                        if($pagos) {
+                                // Ciclo los pagos encontrados
+                                foreach ($pagos as $pago) {
+                                        $data = $this->pagos_model->insert_pago_cobrod($pago);
+                                        $this->pagos_model->registrar_pago2($pago['sid'],$pago['monto']);
+
+                                        // Me fijo si esta suspendido y con el pago se queda con saldo a favor para reactivar
+                                        $saldo=$this->pagos_model->get_saldo($pago['sid']);
+                                        $socio=$this->socios_model->get_socio($pago['sid']);
+                                        if ( $socio->suspendido == 1 && $saldo < 0 ) {
+                                                $this->socios_model->suspender($pago['sid'],'no');
+                                                $reactivados[]=$socio->Id."-".$socio->apellido.", ".$socio->nombre."\n";
+                                                $cant_react++;
+                                        }
+
+                                        // Acumulo para email
+                                        $cant_cobrod++;
+                                        $total_cobrod=$total_cobrod+$pago['monto'];
+                                }
+                                fwrite($log, "Procese $cant_cobrod pagos de CD por un total de $total_cobrod \n");
+                        }
+                }
 
 		
 		if ( $ctrl_gen == "TODO" || $ctrl_gen == "COL" ) {
@@ -1800,6 +1833,133 @@ echo "suspender";
 			return false;
 		}
 	}
+
+	function get_pagos_COBROD($fecha) {
+
+		$this->config->load('cobrodigital');
+		$url = "https://www.cobrodigital.com/ws3";
+
+		$SID = $this->config->item('cd_sid');
+    		$id_comercio = $this->config->item('cd_idcomercio');
+    		$headers= array("Content-Type: application/json");
+		$post = array('idComercio' => $id_comercio, 'sid' => $SID, 'metodo_webservice'=> 'consultar_transacciones', 'desde' => "$fecha", 'hasta' => "$fecha" 	);
+    		$post = json_encode($post);
+    		//echo 'Post array: '.print_r($post, true);
+
+    		$ch = curl_init($url);
+    		curl_setopt($ch, CURLOPT_POST, true);
+    		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 'yes');
+
+    		$resultado = curl_exec($ch);
+    		$status = curl_getinfo($ch);
+    		$errno  = curl_errno($ch);
+    		$error  = curl_error($ch);
+
+    		curl_close($ch);
+		$data = $resultado;
+		$pagos_cd = json_decode($data)->datos[0];
+		$cont=0;
+		$arr_ret = array();
+		// ------------------------------------------------------------------------------------------
+		// COMENTARIO DE COMO TOMO LA INFO DE LO QUE DEVUELVE EL SERVICIO
+		// Como los nombres de columnas tienen espacios y tildes tomo por posicion de los valores
+		// Ejemplo de un array de respuesta
+		// (00) ["id_transaccion"]=> string(24) "BFUb4QNtJDtXDHdJW8h/Bg==" 
+		// (01) ["Fecha"]=> string(10) "27/12/2022" 
+		// (02) ["Código de barras"]=> string(29) "73858850140000115123200000008" 
+		// (03) ["Nro Boleta"]=> string(1) "1" 
+		// (04) ["Identificación"]=> string(0) "" 
+		// (05) ["Nombre"]=> string(0) "" 
+		// (06) ["Info"]=> string(12) "Provincianet" 
+		// (07) ["Concepto"]=> string(19) "tarjeta de cobranza" 
+		// (08) ["Bruto"]=> string(6) "100,00" 
+		// (09) ["Comisión"]=> string(5) "-6,66" 
+		// (10) ["Neto"]=> string(5) "93,34" 
+		// (11) ["Saldo acumulado"]=> string(5) "93,34" 
+		// (12) ["sumaresta"]=> string(1) "1" 
+		// (13) ["Fecha_pago"]=> string(10) "26/12/2022"
+		// ------------------------------------------------------------------------------------------
+		foreach ($pagos_cd as $d) {
+			$d=(array)$d;
+			$valores = array_values($d);
+			$cant_col = count($valores);
+			$col=0;
+			$hora_pago="11:11";
+			while ( $col < $cant_col ) {
+				switch ( $col ) {
+					case  0: $id_trx = $valores[$col]; break;
+					case  2: 
+						$cod_barra = $valores[$col]; 
+						$cupon = $this->pagos_model->get_cupon_cobrod($cod_barra); 
+						if ( $cupon ) {
+							$sid_pago = $cupon->sid;
+						} else {
+							$sid_pago = 0;
+						}
+						break;
+					case  6: 
+						$sistema = $valores[$col]; 
+						switch ( $sistema ) {
+							case 'Provincianet': $nsist = 1; break;
+							case 'Rapipago': $nsist = 2; break;
+							case 'Pagofacil': $nsist = 3; break;
+							case 'Ripsa': $nsist = 4; break;
+							default: $nsist = 99;
+						}
+						$sist_cobro = $nsist; 
+						break;
+					case  8: 
+						$monto_pago = str_replace('.','',$valores[$col]);
+						$monto_pago = str_replace(',','.',$monto_pago); 
+						break;
+					case  9: 
+						$comision = str_replace('.','',$valores[$col]); 
+						$comision = str_replace(',','.',$comision); 
+						break;
+					case 13: 
+						$fecha = $valores[$col]; 
+						$dia = substr($fecha, 0,2); 
+						$mes = substr($fecha, 3,2);
+						$anio = substr($fecha, 6,4);
+						$fecha_pago = $anio."-".$mes."-".$dia; break;
+				}
+				$col++;
+			}
+
+			// Proceso el registro
+			// Armo el array
+			$cd_fila = array (
+				"fecha" => $fecha_pago,
+				"hora" => $hora_pago,
+				"monto" => $monto_pago,
+				"sid" => $sid_pago,
+				"pid" => $id_trx
+				);
+			// Lo agrego al array de pagos a procesar, si es de un SID identificado
+			// Los que son solo comisiones sin identificar SID no los devuelvo para procesar
+			if ( $sid_pago != 0 ) {
+				$arr_ret[] = $cd_fila;
+			}
+			// Lo inserto en la tabla de la BD
+			$cobrodigital = array (
+					"id" => 0,
+					"fecha_pago" => $fecha_pago,
+					"monto" => $monto_pago,
+					"sid" => $sid_pago,
+					"id_trx" => $id_trx,
+					"id_cron" => 9999,
+					"sist_cobranza" => $sist_cobro,
+					"comision" => $comision
+			);
+			$this->pagos_model->insert_cobrodigital($cobrodigital);
+		}
+		return $arr_ret;
+        }
+
 
 	function get_pagos_COL($fecha,$suc_filtro) {           
 		
@@ -2314,9 +2474,6 @@ echo "suspender";
 						// Si tiene mas de 30m de antiguedad lo marco con error y creo uno nuevo y largo un envio de lote
                                                 $this->general_model->upd_ult_cron(1,1);
 						$this->facturacion_mails();
-					} else {
-						// Sino saldo para esperar que se cumpla el tiempo
-						break;
 					}
 				} else {
 				// Sino esta corriendo creo un nuevo cron y largo lote
@@ -2343,9 +2500,6 @@ echo "suspender";
                                                 // Si tiene mas de 30m de antiguedad lo marco con error y creo uno nuevo y largo un envio de lote
                                                 $this->general_model->upd_ult_cron(2,1);
                                                 $this->masivo_mails();
-                                        } else {
-                                                // Sino saldo para esperar que se cumpla el tiempo
-                                                break;
                                         }
                                 } else {
                                 // Sino esta corriendo creo un nuevo cron y largo lote

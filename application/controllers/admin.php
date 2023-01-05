@@ -830,6 +830,14 @@ class Admin extends CI_Controller {
 
             **/
 
+            case 'cobrod':
+                $id_socio = $this->uri->segment(4);
+                $this->load->model('pagos_model');
+                $this->load->model('socios_model');
+		$socio = $this->socios_model->get_socio($id_socio);
+		$this->pagos_model->get_cupon_libre_cobrod($socio);
+                redirect(base_url()."admin/socios/resumen/".$id_socio);
+		break;
             case 'user_app':
 		$data['username'] = $this->session->userdata('username');
 		$data['rango'] = $this->session->userdata('rango');
@@ -1635,7 +1643,9 @@ class Admin extends CI_Controller {
                 $data['section'] = 'socios-nuevo';
                 $data['socio'] = '';
                 $this->load->model("general_model");
+                $this->load->model("pagos_model");
                 $data['categorias'] = $this->general_model->get_cats();
+                $data['cb_libres'] = $this->pagos_model->get_cobrod_libres();
 
                 $this->load->model("socios_model");
                 $data['socios'] = $this->socios_model->get_socios();
